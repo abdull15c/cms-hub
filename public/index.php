@@ -6,10 +6,21 @@ $installLock = dirname(__DIR__) . '/storage/.installed.lock';
 if (!file_exists($envPath) && file_exists($installerPath) && !file_exists($installLock)) {
     $allowInstallerRaw = strtolower(trim((string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '')));
     $allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true);
+    $databaseUrl = (string)($_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL')
+        ?: $_ENV['DB_URL'] ?? getenv('DB_URL')
+        ?: $_ENV['MYSQL_URL'] ?? getenv('MYSQL_URL')
+        ?: $_ENV['INSTALL_DATABASE_URL'] ?? getenv('INSTALL_DATABASE_URL')
+        ?: $_ENV['INSTALL_DB_URL'] ?? getenv('INSTALL_DB_URL')
+        ?: '');
     $runtimeConfigured = (string)($_ENV['APP_URL'] ?? getenv('APP_URL') ?: '') !== ''
-        && (string)($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '') !== ''
-        && (string)($_ENV['INSTALL_DB_NAME'] ?? getenv('INSTALL_DB_NAME') ?: $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: '') !== ''
-        && (string)($_ENV['INSTALL_DB_USER'] ?? getenv('INSTALL_DB_USER') ?: $_ENV['DB_USER'] ?? getenv('DB_USER') ?: '') !== '';
+        && (
+            $databaseUrl !== ''
+            || (
+                (string)($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '') !== ''
+                && (string)($_ENV['INSTALL_DB_NAME'] ?? getenv('INSTALL_DB_NAME') ?: $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: '') !== ''
+                && (string)($_ENV['INSTALL_DB_USER'] ?? getenv('INSTALL_DB_USER') ?: $_ENV['DB_USER'] ?? getenv('DB_USER') ?: '') !== ''
+            )
+        );
 
     if ($runtimeConfigured && !$allowInstaller) {
         goto bootstrap_app;
