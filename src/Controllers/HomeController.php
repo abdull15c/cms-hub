@@ -1,5 +1,6 @@
 <?php
 namespace Src\Controllers;
+
 use Config\Database;
 use Src\Repositories\ProductRepository;
 use Src\Services\SessionService;
@@ -13,22 +14,27 @@ class HomeController extends Controller {
         $isRu = $lang === 'ru';
         $translationJoin = $repo->translationJoin($lang, 'p', 'pt');
         $localizedColumns = $repo->localizedColumns($lang, 'p', 'pt');
-        
-        // OPTIMIZED: Select only ID and Name for categories, not everything
+
+        // OPTIMIZED: Select only ID and Name for categories, not everything.
         $cats = $pdo->query("SELECT id, name FROM categories")->fetchAll();
-        
+
         $page = max(1, intval($_GET['page'] ?? 1));
         $perPage = 9;
         $offset = ($page - 1) * $perPage;
 
-        $where = "WHERE p.status = 'published'"; 
+        $where = "WHERE p.status = 'published'";
         $params = [];
-        
-        if (!empty($_GET['cat'])) { $where .= " AND p.category_id = ?"; $params[] = $_GET['cat']; }
+
+        if (!empty($_GET['cat'])) {
+            $where .= " AND p.category_id = ?";
+            $params[] = $_GET['cat'];
+        }
+
         if (!empty($_GET['q'])) {
             $where .= " AND (COALESCE(pt.title, p.title) LIKE ? OR COALESCE(pt.description, p.description) LIKE ?)";
             $term = '%' . $_GET['q'] . '%';
-            $params[] = $term; $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
         }
 
         $countStmt = $pdo->prepare("SELECT count(*) FROM products p {$translationJoin} $where");
@@ -36,21 +42,28 @@ class HomeController extends Controller {
         $total = (int)$countStmt->fetchColumn();
         $totalPages = (int)ceil($total / $perPage);
 
-        $sql = "SELECT p.id, p.price, p.sale_price, p.sale_end, p.has_license, p.created_at, c.name AS category_name, {$localizedColumns} FROM products p {$translationJoin} LEFT JOIN categories c ON c.id = p.category_id $where ORDER BY p.id DESC LIMIT $perPage OFFSET $offset";
-        
+        $sql = "SELECT p.id, p.price, p.sale_price, p.sale_end, p.has_license, p.created_at, c.name AS category_name, {$localizedColumns}
+                FROM products p
+                {$translationJoin}
+                LEFT JOIN categories c ON c.id = p.category_id
+                $where
+                ORDER BY p.id DESC
+                LIMIT $perPage OFFSET $offset";
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         $products = $stmt->fetchAll();
-        
+
         if (!empty($products)) {
             $ids = array_column($products, 'id');
             $inQuery = implode(',', array_map('intval', $ids));
             $imgStmt = $pdo->query("SELECT product_id, image_path FROM product_images WHERE product_id IN ($inQuery) AND is_main = 1");
-            $images = $imgStmt->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE);
-            
-            foreach ($products as &$p) {
-                $p['thumbnail'] = $images[$p['id']]['image_path'] ?? null;
+            $images = $imgStmt->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
+
+            foreach ($products as &$product) {
+                $product['thumbnail'] = $images[$product['id']]['image_path'] ?? null;
             }
+            unset($product);
         }
 
         $currentCatId = (int)($_GET['cat'] ?? 0);
@@ -59,6 +72,7 @@ class HomeController extends Controller {
         foreach ($cats as $category) {
             $categoryMap[(int)$category['id']] = $category['name'];
         }
+
         $currentCategoryName = $currentCatId > 0 ? ($categoryMap[$currentCatId] ?? '') : '';
         $isFilteredListing = $currentCatId > 0 || $currentQ !== '' || $page > 1;
         $plainListing = !$isFilteredListing;
@@ -66,18 +80,18 @@ class HomeController extends Controller {
 
         $defaultHero = $isRu
             ? [
-                'eyebrow' => 'Digital Storefront',
-                'title' => 'Готовые сайты, скрипты и шаблоны для запуска без долгой сборки',
-                'subtitle' => 'Подберите готовый продукт для продажи, внедрения или быстрой кастомизации. Витрина заточена под digital assets, developer kits и готовые storefront solutions.',
+                'eyebrow' => 'WordPress · DLE · Standalone',
+                'title' => 'Готовые сайты, скрипты, шаблоны и плагины для быстрого запуска',
+                'subtitle' => 'Решения для WordPress, DLE и standalone-проектов — для запуска, кастомизации и внедрения без долгой сборки с нуля.',
                 'primary_cta' => 'Смотреть каталог',
-                'secondary_cta' => 'Почему Dark Tech',
+                'secondary_cta' => 'Что доступно',
             ]
             : [
-                'eyebrow' => 'Digital Storefront',
-                'title' => 'Ready-made sites, scripts and templates you can launch fast',
-                'subtitle' => 'Pick a polished digital product for resale, deployment or rapid customization. The storefront is designed for digital assets, developer kits and ready-made solutions.',
+                'eyebrow' => 'WordPress · DLE · Standalone',
+                'title' => 'Ready-made websites, scripts, templates and plugins for fast launch',
+                'subtitle' => 'Solutions for WordPress, DLE and standalone projects — built for launch, customization and deployment without a long build-from-scratch process.',
                 'primary_cta' => 'Browse catalog',
-                'secondary_cta' => 'Why Dark Tech',
+                'secondary_cta' => 'What is inside',
             ];
 
         $hero = $defaultHero;
@@ -100,54 +114,100 @@ class HomeController extends Controller {
         }
 
         $trustBadges = $isRu
-            ? ['Мгновенная выдача', 'RU / EN контент', 'Безопасная оплата', 'Файлы для скачивания сразу после оплаты']
-            : ['Instant delivery', 'RU / EN content', 'Secure checkout', 'Download files right after payment'];
+            ? ['Быстрый запуск', 'WordPress · DLE · Standalone', 'Готово для кастомизации', 'Установка и доработка']
+            : ['Fast launch', 'WordPress · DLE · Standalone', 'Customization-ready', 'Setup and refinement'];
 
         $stats = [
-            ['value' => (string)$total, 'label' => $isRu ? 'активных товаров' : 'active products'],
-            ['value' => (string)count($cats), 'label' => $isRu ? 'категорий' : 'categories'],
-            ['value' => 'RU / EN', 'label' => $isRu ? 'языка витрины' : 'storefront languages'],
-            ['value' => '24/7', 'label' => $isRu ? 'выдача цифровых товаров' : 'digital delivery flow'],
+            ['value' => (string)$total, 'label' => $isRu ? 'готовых решений в каталоге' : 'ready-made products in catalog'],
+            ['value' => (string)count($cats), 'label' => $isRu ? 'категорий и направлений' : 'categories and directions'],
+            ['value' => 'WP / DLE / SA', 'label' => $isRu ? 'основные платформы' : 'primary platforms'],
+            ['value' => 'Custom', 'label' => $isRu ? 'установка и адаптация' : 'setup and adaptation'],
         ];
+
+        $catalogGroups = $isRu
+            ? [
+                ['icon' => 'fa-globe', 'title' => 'Готовые сайты', 'text' => 'Готовые проекты для быстрого запуска под продажу, запуск под себя или клиентскую работу.'],
+                ['icon' => 'fa-terminal', 'title' => 'Standalone-скрипты', 'text' => 'Самостоятельные скрипты и инструменты, которые можно быстро внедрить без лишней сборки.'],
+                ['icon' => 'fa-wordpress', 'title' => 'WordPress шаблоны', 'text' => 'Темы и заготовки для быстрого старта, адаптации под бренд и запуска клиентских сайтов.'],
+                ['icon' => 'fa-puzzle-piece', 'title' => 'WordPress плагины', 'text' => 'Плагины и расширения для автоматизации, новых возможностей и практических задач.'],
+                ['icon' => 'fa-layer-group', 'title' => 'DLE шаблоны', 'text' => 'Готовые шаблоны для DataLife Engine с упором на удобную доработку и быстрый запуск.'],
+                ['icon' => 'fa-plug-circle-bolt', 'title' => 'DLE плагины', 'text' => 'Модули и плагины для DLE-проектов, которые ускоряют внедрение нужного функционала.'],
+                ['icon' => 'fa-screwdriver-wrench', 'title' => 'Услуги', 'text' => 'Установка, настройка, адаптация под проект и доработка под конкретную задачу.'],
+            ]
+            : [
+                ['icon' => 'fa-globe', 'title' => 'Ready websites', 'text' => 'Ready-made projects for fast launch, resale or client work.'],
+                ['icon' => 'fa-terminal', 'title' => 'Standalone scripts', 'text' => 'Standalone scripts and tools that can be deployed without a long setup flow.'],
+                ['icon' => 'fa-wordpress', 'title' => 'WordPress themes', 'text' => 'Themes and starter kits for fast launch, branding and client delivery.'],
+                ['icon' => 'fa-puzzle-piece', 'title' => 'WordPress plugins', 'text' => 'Plugins and extensions for automation, feature growth and custom needs.'],
+                ['icon' => 'fa-layer-group', 'title' => 'DLE templates', 'text' => 'Templates for DataLife Engine focused on fast launch and flexible customization.'],
+                ['icon' => 'fa-plug-circle-bolt', 'title' => 'DLE plugins', 'text' => 'Modules and plugins for DLE projects that speed up implementation.'],
+                ['icon' => 'fa-screwdriver-wrench', 'title' => 'Services', 'text' => 'Setup, adaptation, refinement and custom work around your project.'],
+            ];
 
         $whyItems = $isRu
             ? [
-                ['icon' => 'fa-shield-halved', 'title' => 'Чистая витрина для digital products', 'text' => 'Тема собрана вокруг продажи готовых сайтов, скриптов, SaaS-китов и шаблонов без лишнего визуального мусора.'],
-                ['icon' => 'fa-bolt', 'title' => 'Быстрый путь к покупке', 'text' => 'Главная, каталог и карточка товара выстраиваются вокруг поиска, доверия, цены и CTA, а не только вокруг красивого фона.'],
-                ['icon' => 'fa-language', 'title' => 'Нормальная работа RU / EN', 'text' => 'Контент товара и SEO поля уже могут жить на двух языках, что удобно и для клиентов, и для дальнейшего роста по поиску.'],
-                ['icon' => 'fa-chart-line', 'title' => 'Подготовка под SEO', 'text' => 'Структура темы учитывает мета-теги, schema, FAQ и внутреннюю перелинковку, чтобы товары было легче продвигать в поисковиках.'],
+                ['icon' => 'fa-bolt', 'title' => 'Готовые решения для быстрого старта', 'text' => 'Каталог собран вокруг продуктов, которые можно запускать без долгой подготовки и лишней ручной сборки.'],
+                ['icon' => 'fa-code-branch', 'title' => 'WordPress, DLE и standalone', 'text' => 'Витрина сразу показывает, с какими платформами и типами решений ты реально работаешь.'],
+                ['icon' => 'fa-sliders', 'title' => 'Удобная база для кастомизации', 'text' => 'Шаблоны, плагины, сайты и скрипты подаются как практичная основа, которую удобно адаптировать под задачу.'],
+                ['icon' => 'fa-briefcase', 'title' => 'Подходит под запуск и коммерцию', 'text' => 'Оффер одинаково хорошо работает для своих проектов, клиентских внедрений и продажи готовых digital-решений.'],
             ]
             : [
-                ['icon' => 'fa-shield-halved', 'title' => 'Built for digital products', 'text' => 'The layout focuses on selling ready-made sites, scripts, SaaS kits and templates without decorative noise.'],
-                ['icon' => 'fa-bolt', 'title' => 'Fast path to conversion', 'text' => 'Home, catalog and product pages are structured around search intent, trust, pricing and CTA instead of just visual effects.'],
-                ['icon' => 'fa-language', 'title' => 'RU / EN ready', 'text' => 'Product content and SEO fields can already live in two languages, which helps both customers and long-term search visibility.'],
-                ['icon' => 'fa-chart-line', 'title' => 'SEO-friendly layout', 'text' => 'The theme structure is prepared for meta tags, schema, FAQ blocks and internal linking so products can rank better over time.'],
+                ['icon' => 'fa-bolt', 'title' => 'Ready-made solutions for fast launch', 'text' => 'The catalog is shaped around products that can be launched without a long setup cycle.'],
+                ['icon' => 'fa-code-branch', 'title' => 'WordPress, DLE and standalone', 'text' => 'The storefront clearly states the platforms and solution types behind the offer.'],
+                ['icon' => 'fa-sliders', 'title' => 'Built for customization', 'text' => 'Themes, plugins, sites and scripts are presented as a practical base for adaptation and refinement.'],
+                ['icon' => 'fa-briefcase', 'title' => 'Useful for launch and resale', 'text' => 'The offer works for personal projects, client delivery and commercial-ready digital products.'],
             ];
 
-        $useCases = $isRu
+        $serviceItems = $isRu
             ? [
-                ['title' => 'Для владельца магазина', 'text' => 'Быстро публиковать готовые продукты, собирать витрину и продавать цифровые товары без лишней кастомной сборки.'],
-                ['title' => 'Для агентства или фрилансера', 'text' => 'Брать готовую основу, докручивать бренд и быстрее отдавать клиентам готовые решения.'],
-                ['title' => 'Для реселла и пакетов услуг', 'text' => 'Использовать тему как аккуратную витрину для шаблонов, скриптов, dev-kits и bundled offers.'],
+                ['icon' => 'fa-download', 'title' => 'Установка и настройка', 'text' => 'Помощь с запуском, подключением и базовой настройкой купленного решения.'],
+                ['icon' => 'fa-wand-magic-sparkles', 'title' => 'Адаптация под проект', 'text' => 'Подгонка структуры, блоков и функционала под задачу, нишу или клиента.'],
+                ['icon' => 'fa-screwdriver-wrench', 'title' => 'Доработка шаблона или скрипта', 'text' => 'Точечные правки, новые секции, интеграции и улучшения поверх готовой базы.'],
+                ['icon' => 'fa-pen-ruler', 'title' => 'Custom build и branding', 'text' => 'Индивидуальная доработка, визуальная адаптация и правки под ваш стиль и сценарий запуска.'],
             ]
             : [
-                ['title' => 'For store owners', 'text' => 'Publish ready-made products fast and run a focused digital storefront without a heavy custom build.'],
-                ['title' => 'For agencies and freelancers', 'text' => 'Start from a strong base, adapt the brand layer and ship finished solutions to clients faster.'],
-                ['title' => 'For resale bundles', 'text' => 'Use the theme as a clean storefront for templates, scripts, dev kits and bundled offers.'],
+                ['icon' => 'fa-download', 'title' => 'Setup and installation', 'text' => 'Help with launch, basic setup and initial configuration of the product.'],
+                ['icon' => 'fa-wand-magic-sparkles', 'title' => 'Project adaptation', 'text' => 'Adjustments for your niche, client flow or business requirements.'],
+                ['icon' => 'fa-screwdriver-wrench', 'title' => 'Theme or script refinement', 'text' => 'Targeted improvements, extra sections, integrations and functional upgrades.'],
+                ['icon' => 'fa-pen-ruler', 'title' => 'Custom build and branding', 'text' => 'Individual refinement, branding work and design changes for your launch scenario.'],
+            ];
+
+        $aboutBlock = $isRu
+            ? [
+                'title' => 'О магазине',
+                'text' => 'Здесь собраны мои готовые digital-продукты: сайты, скрипты, шаблоны и плагины для WordPress, DLE и standalone-проектов. Основной упор — на быстрый запуск, удобную кастомизацию и практичные решения, которые можно использовать в реальной работе.',
+            ]
+            : [
+                'title' => 'About the store',
+                'text' => 'This store brings together my ready-made digital products: websites, scripts, templates and plugins for WordPress, DLE and standalone projects. The main focus is fast launch, flexible customization and practical solutions built for real use.',
+            ];
+
+        $ctaBlock = $isRu
+            ? [
+                'title' => 'Нужна установка, адаптация или доработка под проект?',
+                'text' => 'Кроме готовых решений, доступны услуги по запуску, настройке, кастомизации и custom build для WordPress, DLE и standalone-проектов.',
+                'primary' => 'Смотреть каталог',
+                'secondary' => 'Связаться',
+            ]
+            : [
+                'title' => 'Need setup, adaptation or refinement for your project?',
+                'text' => 'Alongside ready-made products, you can also order setup, customization and custom build work for WordPress, DLE and standalone projects.',
+                'primary' => 'View catalog',
+                'secondary' => 'Contact',
             ];
 
         $faqItems = $isRu
             ? [
-                ['question' => 'Подходит ли тема именно для продажи готовых сайтов и скриптов?', 'answer' => 'Да. Визуальная подача и структура блоков заточены под developer products, digital assets и storefront товары, а не под блог или корпоративный сайт.'],
-                ['question' => 'Можно ли продавать и шаблоны, и готовые сайты, и просто скрипты?', 'answer' => 'Да. Dark Tech делается как универсальная тема для разных digital product типов: шаблоны, готовые storefront сайты, PHP-скрипты, панели управления и AI-ready решения.'],
-                ['question' => 'Будет ли тема нормально работать на телефонах?', 'answer' => 'Да. Вся структура должна оставаться удобной на мобильных: крупные CTA, нормальные карточки, чистый sticky buy flow и читаемая типографика.'],
-                ['question' => 'Насколько это готово под SEO?', 'answer' => 'Тема строится сразу с прицелом на SEO товаров: локализованные мета-поля, schema, canonical, hreflang, FAQ и сильную структуру страницы товара.'],
+                ['question' => 'Что можно найти в каталоге?', 'answer' => 'Готовые сайты, standalone-скрипты, WordPress шаблоны и плагины, DLE шаблоны и плагины, а также решения для кастомизации и быстрого запуска.'],
+                ['question' => 'Можно ли заказать установку или доработку?', 'answer' => 'Да. Помимо готовых продуктов доступны услуги по установке, настройке, адаптации под проект и дополнительной разработке.'],
+                ['question' => 'Подходит ли это для WordPress, DLE и самостоятельных проектов?', 'answer' => 'Да. Именно на эти направления и сделан основной акцент: WordPress, DLE и standalone-решения для быстрого старта и внедрения.'],
+                ['question' => 'Можно ли использовать продукты как базу под свой проект?', 'answer' => 'Да. Один из главных акцентов магазина — готовые решения, которые удобно дорабатывать, адаптировать и использовать в реальной работе.'],
             ]
             : [
-                ['question' => 'Is this theme really meant for selling ready-made sites and scripts?', 'answer' => 'Yes. The layout and content hierarchy are designed around developer products, digital assets and storefront-ready items rather than a generic blog or corporate website.'],
-                ['question' => 'Can I sell templates, complete sites and standalone scripts in the same store?', 'answer' => 'Yes. Dark Tech is meant to work across multiple digital product types: templates, ready-made storefront sites, PHP scripts, admin panels and AI-ready assets.'],
-                ['question' => 'Will it work well on mobile?', 'answer' => 'Yes. The theme is being shaped around large CTA buttons, clean cards, a usable sticky purchase flow and readable mobile typography.'],
-                ['question' => 'How SEO-ready is it?', 'answer' => 'The theme is being built with product SEO in mind: localized meta fields, schema, canonical URLs, hreflang support, FAQ blocks and stronger content structure.'],
+                ['question' => 'What can I find in the catalog?', 'answer' => 'Ready-made websites, standalone scripts, WordPress themes and plugins, DLE templates and plugins, plus solutions for customization and fast launch.'],
+                ['question' => 'Can I order installation or refinement?', 'answer' => 'Yes. Alongside ready-made products, setup, adaptation and extra development services are available.'],
+                ['question' => 'Is the store focused on WordPress, DLE and standalone projects?', 'answer' => 'Yes. Those are the core directions behind the store and the positioning of the offer.'],
+                ['question' => 'Can I use the products as a base for my own project?', 'answer' => 'Yes. A big part of the offer is practical products that are easy to adapt, extend and use in real work.'],
             ];
 
         $filterLabel = '';
@@ -159,48 +219,50 @@ class HomeController extends Controller {
             $filterLabel = $isRu ? ('Страница ' . $page) : ('Page ' . $page);
         }
 
-        $defaultHeading = $isRu ? 'Актуальные digital products' : 'Featured digital products';
+        $defaultHeading = $isRu ? 'Каталог готовых решений' : 'Catalog of ready-made solutions';
         $defaultSubheading = $isRu
-            ? 'Витрина для готовых сайтов, скриптов, шаблонов и storefront решений.'
-            : 'A curated storefront for ready-made sites, scripts, templates and developer products.';
+            ? 'Сайты, скрипты, шаблоны, плагины и другие digital-продукты для быстрого запуска и кастомизации.'
+            : 'Websites, scripts, templates, plugins and other digital products for fast launch and customization.';
         $sectionHeading = $defaultHeading;
         $sectionSubheading = $defaultSubheading;
 
         if ($currentQ !== '') {
             $sectionHeading = $isRu ? 'Результаты поиска' : 'Search results';
             $sectionSubheading = $isRu
-                ? ('Подборка товаров по запросу: ' . $currentQ)
-                : ('Matching products for: ' . $currentQ);
+                ? ('Подборка решений по запросу: ' . $currentQ)
+                : ('Matching solutions for: ' . $currentQ);
         } elseif ($currentCategoryName !== '') {
             $sectionHeading = $currentCategoryName;
             $sectionSubheading = $isRu
-                ? ('Каталог товаров из категории "' . $currentCategoryName . '".')
-                : ('Products from the "' . $currentCategoryName . '" category.');
+                ? ('Подборка товаров из категории "' . $currentCategoryName . '".')
+                : ('Solutions from the "' . $currentCategoryName . '" category.');
         } elseif ($page > 1) {
             $sectionHeading = $isRu ? ('Каталог, страница ' . $page) : ('Catalog, page ' . $page);
         }
 
         $defaultTitle = $isRu
-            ? 'Готовые сайты, скрипты и шаблоны'
-            : 'Ready-made sites, scripts and templates';
+            ? 'Готовые сайты, скрипты, шаблоны и плагины'
+            : 'Ready-made websites, scripts, templates and plugins';
         $metaTitle = $isFilteredListing
             ? (($currentQ !== ''
                 ? ($isRu ? ('Поиск: ' . $currentQ) : ('Search: ' . $currentQ))
                 : ($currentCategoryName !== ''
-                    ? ($currentCategoryName . ' | ' . ($isRu ? 'Каталог digital products' : 'Digital products catalog'))
-                    : ($isRu ? 'Каталог digital products' : 'Digital products catalog')))
+                    ? ($currentCategoryName . ' | ' . ($isRu ? 'Каталог готовых решений' : 'Catalog of ready-made solutions'))
+                    : ($isRu ? 'Каталог готовых решений' : 'Catalog of ready-made solutions')))
                 . ' | ' . $siteTitle)
             : ($defaultTitle . ' | ' . $siteTitle);
+
         $metaDescription = $isFilteredListing
             ? ($isRu
-                ? 'Каталог цифровых товаров: готовые сайты, скрипты и шаблоны с быстрым доступом к товарам и структурой под продажу.'
-                : 'Browse digital products, ready-made sites, scripts and templates with a storefront focused on clarity and conversion.')
+                ? 'Каталог готовых решений: сайты, скрипты, шаблоны и плагины для WordPress, DLE и standalone-проектов.'
+                : 'Browse ready-made solutions: websites, scripts, templates and plugins for WordPress, DLE and standalone projects.')
             : ($isRu
-                ? 'Витрина готовых сайтов, скриптов и шаблонов с акцентом на скорость, понятную карточку товара и SEO-friendly структуру для digital products.'
-                : 'A storefront for ready-made sites, scripts and templates with a strong product layout, faster buying flow and SEO-friendly structure for digital products.');
+                ? 'Готовые сайты, скрипты, шаблоны и плагины для WordPress, DLE и standalone-проектов. Быстрый запуск, кастомизация и практичные digital-решения без долгой сборки с нуля.'
+                : 'Ready-made websites, scripts, templates and plugins for WordPress, DLE and standalone projects. Fast launch, customization and practical digital solutions without a long build-from-scratch process.');
+
         $metaKeywords = $this->seoKeywords($isRu
-            ? ['готовый сайт', 'скрипт для продажи', 'шаблон сайта', 'digital products', 'php marketplace', 'готовый магазин']
-            : ['ready-made site', 'digital product script', 'website template', 'developer marketplace', 'php marketplace', 'ready storefront']);
+            ? ['готовый сайт', 'wordpress шаблон', 'wordpress плагин', 'dle шаблон', 'dle плагин', 'standalone скрипт', 'digital решения']
+            : ['ready-made website', 'wordpress theme', 'wordpress plugin', 'dle template', 'dle plugin', 'standalone script', 'digital solutions']);
 
         $canonical = $plainListing
             ? $this->currentUrl(['lang' => $lang], ['preview_theme', 'cat', 'q', 'page'])
@@ -249,7 +311,7 @@ class HomeController extends Controller {
         }
 
         $this->view('home', [
-            'products' => $products, 
+            'products' => $products,
             'categories' => $cats,
             'page' => $page,
             'totalPages' => $totalPages,
@@ -263,8 +325,11 @@ class HomeController extends Controller {
             'hero' => $hero,
             'trust_badges' => $trustBadges,
             'stats' => $stats,
+            'catalog_groups' => $catalogGroups,
             'why_items' => $whyItems,
-            'use_cases' => $useCases,
+            'service_items' => $serviceItems,
+            'about_block' => $aboutBlock,
+            'cta_block' => $ctaBlock,
             'faq_items' => $faqItems,
             'section_heading' => $sectionHeading,
             'section_subheading' => $sectionSubheading,

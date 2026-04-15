@@ -619,22 +619,37 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         box-shadow: 0 14px 24px var(--primary-soft);
     }
 
+    .catalog-group-grid,
     .value-grid,
-    .use-case-grid {
+    .service-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 18px;
     }
 
+    .catalog-group-card,
     .value-card,
-    .use-case-card,
+    .service-card,
     .cta-card,
-    .faq-card {
+    .faq-card,
+    .about-card {
         background: rgba(255,255,255,0.03);
         border: 1px solid var(--card-border);
         border-radius: 26px;
         padding: 24px;
         box-shadow: 0 18px 34px rgba(0,0,0,0.16);
+    }
+
+    .card-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--badge-text);
     }
 
     .value-icon {
@@ -650,18 +665,41 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .value-card h3,
-    .use-case-card h3 {
+    .catalog-group-card h3,
+    .service-card h3 {
         color: #fff;
         font-size: 1.08rem;
         margin-bottom: 10px;
     }
 
+    .catalog-group-card p,
     .value-card p,
-    .use-case-card p,
+    .service-card p,
     .cta-card p {
         color: var(--muted-text);
         line-height: 1.7;
         margin-bottom: 0;
+    }
+
+    .about-card {
+        display: grid;
+        gap: 14px;
+        background:
+            radial-gradient(circle at top right, var(--primary-soft), transparent 30%),
+            rgba(255,255,255,0.03);
+    }
+
+    .about-card h3 {
+        color: #fff;
+        font-size: clamp(1.5rem, 2.4vw, 2rem);
+        margin: 0;
+    }
+
+    .about-card p {
+        color: var(--muted-text);
+        line-height: 1.82;
+        margin: 0;
+        max-width: 820px;
     }
 
     .faq-wrap {
@@ -719,8 +757,9 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
     @media (max-width: 991.98px) {
         .hero-grid,
+        .catalog-group-grid,
         .value-grid,
-        .use-case-grid {
+        .service-grid {
             grid-template-columns: 1fr;
         }
 
@@ -741,10 +780,12 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         .hero-panel,
         .preview-card,
         .stats-card,
+        .catalog-group-card,
         .value-card,
-        .use-case-card,
+        .service-card,
         .cta-card,
-        .faq-card {
+        .faq-card,
+        .about-card {
             border-radius: 22px;
         }
 
@@ -787,14 +828,14 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
                 <div class="hero-panel-inner">
                     <div>
                         <span class="hero-eyebrow"><?= $iconSvg('fa-satellite-dish') ?> <?= htmlspecialchars($hero['eyebrow'] ?? 'Digital Storefront') ?></span>
-                        <h1 class="hero-title"><?= htmlspecialchars($hero['title'] ?? '') ?> <span>Dark Tech</span></h1>
+                        <h1 class="hero-title"><?= htmlspecialchars($hero['title'] ?? '') ?></h1>
                         <p class="hero-subtitle"><?= htmlspecialchars($hero['subtitle'] ?? '') ?></p>
                     </div>
 
                     <div class="hero-foot">
                         <div class="hero-actions">
                             <a href="#product-grid" class="hero-cta-primary"><?= htmlspecialchars($hero['primary_cta'] ?? 'Browse catalog') ?></a>
-                            <a href="#why-dark-tech" class="hero-cta-secondary"><?= htmlspecialchars($hero['secondary_cta'] ?? 'Why Dark Tech') ?></a>
+                            <a href="#catalog-groups" class="hero-cta-secondary"><?= htmlspecialchars($hero['secondary_cta'] ?? 'What is inside') ?></a>
                         </div>
 
                         <div class="trust-row">
@@ -831,8 +872,8 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
                 <div class="stats-card">
                     <div>
-                        <div class="stats-caption"><?= htmlspecialchars($isRu ? 'Витрина в цифрах' : 'Storefront pulse') ?></div>
-                        <div class="stats-lead"><?= htmlspecialchars($isRu ? 'Метрики, которые усиливают конверсию' : 'Conversion-ready metrics') ?></div>
+                        <div class="stats-caption"><?= htmlspecialchars($isRu ? 'Кратко о витрине' : 'Storefront snapshot') ?></div>
+                        <div class="stats-lead"><?= htmlspecialchars($isRu ? 'Фокус на быстрый запуск и готовые решения' : 'Built around ready-made solutions and fast launch') ?></div>
                     </div>
                     <div class="stats-grid">
                         <?php foreach (($stats ?? []) as $stat): ?>
@@ -860,6 +901,26 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
             </div>
             <a href="<?= htmlspecialchars($clear_filters_url ?? $publicUrl('/')) ?>" class="hero-cta-secondary"><?= htmlspecialchars($isRu ? 'Сбросить фильтры' : 'Clear filters') ?></a>
         </div>
+    <?php endif; ?>
+
+    <?php if ($plain_listing): ?>
+        <section id="catalog-groups" class="section-head" data-aos="fade-up">
+            <div>
+                <h2><?= htmlspecialchars($isRu ? 'Что доступно в каталоге' : 'What is available in the catalog') ?></h2>
+                <p><?= htmlspecialchars($isRu ? 'Готовые сайты, standalone-скрипты, WordPress и DLE решения, а также услуги для быстрого запуска и кастомизации.' : 'Ready websites, standalone scripts, WordPress and DLE solutions, plus services for fast launch and customization.') ?></p>
+            </div>
+        </section>
+
+        <section class="catalog-group-grid mb-5">
+            <?php foreach (($catalog_groups ?? []) as $group): ?>
+                <article class="catalog-group-card" data-aos="fade-up">
+                    <div class="value-icon"><?= $iconSvg((string)($group['icon'] ?? 'fa-layer-group')) ?></div>
+                    <div class="card-kicker"><?= htmlspecialchars($isRu ? 'Категория' : 'Category') ?></div>
+                    <h3><?= htmlspecialchars($group['title'] ?? '') ?></h3>
+                    <p><?= htmlspecialchars($group['text'] ?? '') ?></p>
+                </article>
+            <?php endforeach; ?>
+        </section>
     <?php endif; ?>
 
     <section class="section-head" data-aos="fade-up">
@@ -974,8 +1035,8 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     <?php if ($plain_listing): ?>
         <section id="why-dark-tech" class="section-head" data-aos="fade-up">
             <div>
-                <h2><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Почему Dark Tech подходит для продажи digital products' : 'Why Dark Tech works for digital products') ?></h2>
-                <p><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Тема проектируется вокруг сильной витрины, понятного пути к покупке и хорошей структуры под SEO товара.' : 'The storefront is shaped around a strong buying flow, a cleaner product page and better product-oriented SEO structure.') ?></p>
+                <h2><?= htmlspecialchars($isRu ? 'Почему этот магазин удобен' : 'Why this store is easy to work with') ?></h2>
+                <p><?= htmlspecialchars($isRu ? 'Главная страница и каталог теперь подают витрину как магазин готовых решений для запуска, продажи и кастомизации.' : 'The homepage and catalog now present the storefront as a ready-made solutions store built for launch, resale and customization.') ?></p>
             </div>
         </section>
 
@@ -989,16 +1050,18 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
             <?php endforeach; ?>
         </section>
 
-        <section class="section-head" data-aos="fade-up">
+        <section id="services" class="section-head" data-aos="fade-up">
             <div>
-                <h2><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Кому подойдёт эта витрина' : 'Who this storefront fits best') ?></h2>
-                <p><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Тема ориентирована на владельцев digital storefronts, агентства и тех, кто продаёт готовые решения.' : 'The theme is aimed at digital storefront owners, agencies and sellers of ready-made solutions.') ?></p>
+                <h2><?= htmlspecialchars($isRu ? 'Дополнительные услуги' : 'Additional services') ?></h2>
+                <p><?= htmlspecialchars($isRu ? 'Помимо готовых продуктов, можно сразу предложить установку, адаптацию, доработку и кастомную сборку под задачу клиента или под свой запуск.' : 'Alongside ready-made products, the storefront can also present setup, adaptation, refinement and custom build services for client work or your own launch.') ?></p>
             </div>
         </section>
 
-        <section class="use-case-grid mb-5">
-            <?php foreach (($use_cases ?? []) as $item): ?>
-                <article class="use-case-card" data-aos="fade-up">
+        <section class="service-grid mb-5">
+            <?php foreach (($service_items ?? []) as $item): ?>
+                <article class="service-card" data-aos="fade-up">
+                    <div class="value-icon"><?= $iconSvg((string)($item['icon'] ?? 'fa-screwdriver-wrench')) ?></div>
+                    <div class="card-kicker"><?= htmlspecialchars($isRu ? 'Услуга' : 'Service') ?></div>
                     <h3><?= htmlspecialchars($item['title'] ?? '') ?></h3>
                     <p><?= htmlspecialchars($item['text'] ?? '') ?></p>
                 </article>
@@ -1007,8 +1070,21 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
         <section class="section-head" data-aos="fade-up">
             <div>
+                <h2><?= htmlspecialchars($about_block['title'] ?? ($isRu ? 'О магазине' : 'About the store')) ?></h2>
+                <p><?= htmlspecialchars($isRu ? 'Позиционирование смещено от простой витрины файлов к магазину практичных digital-решений для реальной работы.' : 'The positioning moves away from a plain file showcase toward a store of practical digital solutions for real work.') ?></p>
+            </div>
+        </section>
+
+        <section class="about-card mb-5" data-aos="fade-up">
+            <div class="card-kicker"><?= htmlspecialchars($isRu ? 'Позиционирование' : 'Positioning') ?></div>
+            <h3><?= htmlspecialchars($about_block['title'] ?? '') ?></h3>
+            <p><?= htmlspecialchars($about_block['text'] ?? '') ?></p>
+        </section>
+
+        <section class="section-head" data-aos="fade-up">
+            <div>
                 <h2>FAQ</h2>
-                <p><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Короткие ответы для посетителя и дополнительная полезная структура для поисковиков.' : 'Short answers for visitors and an additional helpful structure for search engines.') ?></p>
+                <p><?= htmlspecialchars($isRu ? 'Короткие ответы о типах продуктов, услугах и том, как эти решения можно использовать в работе.' : 'Short answers about product types, services and how these solutions can be used in real work.') ?></p>
             </div>
         </section>
 
@@ -1031,12 +1107,12 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
         <section class="cta-card mb-4" data-aos="zoom-in">
             <div>
-                <h3><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Dark Tech уже заточен под продажу digital products' : 'Dark Tech is already shaped for digital product sales') ?></h3>
-                <p><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Главная, каталог и карточка товара работают как единая витрина для готовых сайтов, скриптов, шаблонов и других цифровых решений с RU/EN потоком и SEO-основой.' : 'Home, catalog and product pages now work as a single storefront for ready-made sites, scripts, templates and other digital solutions with RU/EN flow and SEO groundwork.') ?></p>
+                <h3><?= htmlspecialchars($cta_block['title'] ?? ($isRu ? 'Нужна помощь с запуском?' : 'Need help with launch?')) ?></h3>
+                <p><?= htmlspecialchars($cta_block['text'] ?? '') ?></p>
             </div>
             <div class="d-flex flex-wrap gap-3">
-                <a href="#product-grid" class="hero-cta-primary"><?= htmlspecialchars(($langCode ?? 'ru') === 'ru' ? 'Смотреть товары' : 'View products') ?></a>
-                <a href="<?= htmlspecialchars($publicUrl('/faq')) ?>" class="hero-cta-secondary">FAQ</a>
+                <a href="#product-grid" class="hero-cta-primary"><?= htmlspecialchars($cta_block['primary'] ?? ($isRu ? 'Смотреть каталог' : 'View catalog')) ?></a>
+                <a href="<?= htmlspecialchars($publicUrl('/page/contact')) ?>" class="hero-cta-secondary"><?= htmlspecialchars($cta_block['secondary'] ?? ($isRu ? 'Связаться' : 'Contact')) ?></a>
             </div>
         </section>
     <?php endif; ?>
