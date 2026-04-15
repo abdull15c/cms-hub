@@ -3,31 +3,30 @@
     .footer-glow { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(circle, var(--footer-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; }
     .footer-brand {
         position: relative;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.7rem;
+        display: inline-block;
         font-family: var(--font-display);
-        font-weight: 900;
-        font-size: clamp(1.95rem, 1.4rem + 0.9vw, 2.7rem);
-        letter-spacing: -0.04em;
-        line-height: 0.95;
+        font-weight: 850;
+        font-size: clamp(1.7rem, 1.25rem + 0.95vw, 2.3rem);
+        letter-spacing: -0.035em;
+        line-height: 1;
+        padding-bottom: 0.45rem;
         margin-bottom: 20px;
         text-decoration: none;
     }
-    .footer-brand::before {
+    .footer-brand::after {
         content: "";
-        width: 0.78rem;
-        height: 0.78rem;
-        border-radius: 0.22rem;
-        background: linear-gradient(135deg, var(--primary-neon), var(--secondary-neon));
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: min(88px, 68%);
+        height: 3px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--primary-neon), var(--secondary-neon));
         box-shadow: 0 0 20px var(--primary-soft);
-        flex-shrink: 0;
+        opacity: 0.88;
     }
     .footer-brand span {
-        background: linear-gradient(90deg, #fff 0%, #d8fbff 35%, var(--muted-text) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #fff;
     }
     .footer-link { color: var(--muted-text); text-decoration: none; margin-bottom: 12px; display: block; transition: 0.3s; font-size: 0.95rem; }
     .footer-link:hover { color: #fff; transform: translateX(5px); text-shadow: 0 0 10px rgba(255,255,255,0.5); }

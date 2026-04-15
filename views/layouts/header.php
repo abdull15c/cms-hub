@@ -142,35 +142,34 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         @keyframes floatUp { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
         .glitch {
             position: relative;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.65rem;
-            color: white;
+            display: inline-block;
+            color: #fff;
             font-family: var(--font-display);
-            font-size: clamp(1.45rem, 1.1rem + 0.9vw, 2.1rem);
-            font-weight: 900;
-            letter-spacing: -0.04em;
-            line-height: 0.95;
+            font-size: clamp(1.28rem, 1.05rem + 0.72vw, 1.78rem);
+            font-weight: 850;
+            letter-spacing: -0.035em;
+            line-height: 1;
+            padding-bottom: 0.32rem;
             text-decoration: none;
-            text-shadow: 0 0 22px var(--primary-soft);
+            text-shadow: 0 0 18px var(--primary-soft);
         }
-        .glitch::before {
+        .glitch::after {
             content: "";
-            width: 0.72rem;
-            height: 0.72rem;
-            border-radius: 0.22rem;
-            background: linear-gradient(135deg, var(--primary-neon), var(--secondary-neon));
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 0 22px var(--primary-soft);
-            flex-shrink: 0;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--primary-neon), var(--secondary-neon));
+            box-shadow: 0 0 18px var(--primary-soft);
+            opacity: 0.82;
         }
         .glitch span {
-            background: linear-gradient(120deg, #ffffff 0%, #c6f7ff 48%, #ffffff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #fff;
         }
         .glitch:hover {
-            text-shadow: 0 0 28px var(--primary-soft);
+            text-shadow: 0 0 24px var(--primary-soft);
         }
         .hover-info:hover { color: var(--primary-neon) !important; transition: 0.2s; }
         .dropdown-menu { background: var(--dropdown-bg); backdrop-filter: blur(10px); border: 1px solid var(--card-border); }
