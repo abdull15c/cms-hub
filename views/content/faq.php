@@ -27,7 +27,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 
 <div class="container py-4 py-lg-5 faq-shell">
     <section class="faq-hero mb-5" data-aos="fade-up">
-        <span class="faq-kicker"><i class="fa-solid fa-circle-question"></i> FAQ</span>
+        <span class="faq-kicker"><?= $iconSvg('fa-circle-question') ?> FAQ</span>
         <h1 class="faq-title"><?= htmlspecialchars($isRu ? 'Частые вопросы по магазину и digital products' : 'Frequently asked questions about the store and digital products') ?></h1>
         <p class="faq-subtitle mb-0"><?= htmlspecialchars($isRu ? 'Ответы о покупке, лицензиях, доступе к файлам, поддержке и работе с готовыми сайтами, скриптами и шаблонами.' : 'Answers about buying, licenses, file delivery, support and working with ready-made sites, scripts and templates.') ?></p>
     </section>
@@ -54,7 +54,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
         <p class="mb-3"><?= htmlspecialchars($isRu ? 'Если ответа не нашлось, напишите через форму контактов или используйте ссылки в футере.' : 'If you did not find the answer here, reach out through the contact page or the links in the footer.') ?></p>
         <a href="<?= htmlspecialchars($publicUrl('/page/contact')) ?>">
             <?= htmlspecialchars($isRu ? 'Связаться с поддержкой' : 'Contact support') ?>
-            <i class="fa-solid fa-arrow-right"></i>
+            <?= $iconSvg('fa-arrow-right') ?>
         </a>
     </section>
 </div>

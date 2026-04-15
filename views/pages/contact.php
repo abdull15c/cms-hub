@@ -25,7 +25,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
     <div class="row g-4">
         <div class="col-lg-8">
             <section class="contact-card">
-                <span class="contact-kicker"><i class="fa-regular fa-envelope"></i> <?= htmlspecialchars($t('contact_title', 'Contact Support')) ?></span>
+                <span class="contact-kicker"><?= $iconSvg('fa-envelope') ?> <?= htmlspecialchars($t('contact_title', 'Contact Support')) ?></span>
                 <h1 class="contact-title"><?= htmlspecialchars($isRu ? 'Связаться с магазином' : 'Get in touch with the store') ?></h1>
                 <p class="contact-subtitle"><?= htmlspecialchars($isRu ? 'Напишите по вопросам покупки, лицензий, доступа к файлам, багов или сотрудничества.' : 'Reach out about purchases, licenses, file delivery, bugs or partnership questions.') ?></p>
 
@@ -68,7 +68,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 
                 <?php if (!empty($contact_email ?? '')): ?>
                     <div class="contact-note">
-                        <i class="fa-regular fa-envelope mt-1"></i>
+                        <?= $iconSvg('fa-envelope', 'mt-1') ?>
                         <div>
                             <div class="text-white fw-semibold"><?= htmlspecialchars($isRu ? 'Контактный email' : 'Contact email') ?></div>
                             <a href="mailto:<?= htmlspecialchars((string)$contact_email) ?>" class="text-info text-decoration-none"><?= htmlspecialchars((string)$contact_email) ?></a>
@@ -77,7 +77,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
                 <?php endif; ?>
 
                 <div class="contact-note">
-                    <i class="fa-solid fa-shield-halved mt-1"></i>
+                    <?= $iconSvg('fa-shield-halved', 'mt-1') ?>
                     <div><?= htmlspecialchars($isRu ? 'Форма защищена CSRF-проверкой и простой captcha-проверкой.' : 'The form is protected by CSRF validation and a simple captcha check.') ?></div>
                 </div>
             </aside>

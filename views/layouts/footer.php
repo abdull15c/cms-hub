@@ -8,6 +8,7 @@
     .social-btn:hover { background: var(--primary-neon); border-color: var(--primary-neon); transform: translateY(-3px); box-shadow: 0 5px 15px var(--primary-soft); color: var(--button-text); }
     .newsletter-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 12px 15px; }
     .newsletter-input:focus { background: rgba(255,255,255,0.1); outline: none; border-color: var(--primary-neon); }
+    .payment-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted-text); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 </style>
 
 <?php
@@ -37,14 +38,14 @@ $socialLinks = array_filter([
                     <div class="d-flex gap-2 flex-wrap">
                         <?php foreach ($socialLinks as $social): ?>
                             <a href="<?= htmlspecialchars((string)$social['url']) ?>" class="social-btn" target="_blank" rel="noopener noreferrer" aria-label="<?= htmlspecialchars((string)$social['label']) ?>">
-                                <i class="fa-brands <?= htmlspecialchars((string)$social['icon']) ?>"></i>
+                                <?= $iconSvg((string)$social['icon'], '', (string)$social['label']) ?>
                             </a>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
                 <?php if ($contactEmail !== ''): ?>
                     <div class="text-secondary small mt-3">
-                        <i class="fa-regular fa-envelope me-2"></i><a href="mailto:<?= htmlspecialchars($contactEmail) ?>" class="footer-link d-inline mb-0"><?= htmlspecialchars($contactEmail) ?></a>
+                        <?= $iconSvg('fa-envelope', 'me-2') ?><a href="mailto:<?= htmlspecialchars($contactEmail) ?>" class="footer-link d-inline mb-0"><?= htmlspecialchars($contactEmail) ?></a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -69,7 +70,7 @@ $socialLinks = array_filter([
                     <form action="#" class="position-relative">
                         <input type="email" class="form-control newsletter-input" placeholder="<?= htmlspecialchars($t('newsletter_placeholder', 'Email...')) ?>">
                         <button class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-3" style="background: var(--primary-neon); border:none; color: var(--button-text);">
-                            <i class="fa-solid fa-paper-plane"></i>
+                            <?= $iconSvg('fa-paper-plane') ?>
                         </button>
                     </form>
                 </div>
@@ -79,9 +80,9 @@ $socialLinks = array_filter([
             <div class="text-secondary small">&copy; <?= date('Y') ?> CMS-HUB. <?= htmlspecialchars($t('rights_reserved', 'All rights reserved.')) ?></div>
             <div class="d-flex gap-3 align-items-center">
                 <span class="text-secondary small opacity-50"><?= htmlspecialchars($t('secured_by', 'Secured by')) ?></span>
-                <i class="fa-brands fa-cc-visa text-secondary opacity-50 fa-lg"></i>
-                <i class="fa-brands fa-cc-mastercard text-secondary opacity-50 fa-lg"></i>
-                <i class="fa-brands fa-bitcoin text-secondary opacity-50 fa-lg"></i>
+                <span class="payment-badge">Visa</span>
+                <span class="payment-badge">MC</span>
+                <span class="payment-badge">BTC</span>
             </div>
         </div>
     </div>

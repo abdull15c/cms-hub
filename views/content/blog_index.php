@@ -25,7 +25,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 
 <div class="container py-4 py-lg-5 content-shell">
     <section class="content-hero mb-5" data-aos="fade-up">
-        <span class="content-kicker"><i class="fa-solid fa-newspaper"></i> <?= htmlspecialchars($isRu ? 'Блог' : 'Blog') ?></span>
+        <span class="content-kicker"><?= $iconSvg('fa-newspaper') ?> <?= htmlspecialchars($isRu ? 'Блог' : 'Blog') ?></span>
         <h1 class="content-title"><?= htmlspecialchars($isRu ? 'Обновления, обзоры и статьи для digital storefront' : 'Updates, reviews and articles for a digital storefront') ?></h1>
         <p class="content-subtitle mb-0"><?= htmlspecialchars($isRu ? 'Подборка материалов о готовых сайтах, скриптах, шаблонах, запуске магазинов и развитии digital products.' : 'A curated stream of posts about ready-made sites, scripts, templates, store launches and digital products.') ?></p>
     </section>
@@ -44,14 +44,14 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
             <div class="col-md-6 col-xl-4" data-aos="fade-up">
                 <article class="post-card">
                     <div class="post-meta">
-                        <span><i class="fa-regular fa-calendar me-1"></i><?= htmlspecialchars(date('M d, Y', strtotime((string)$post['created_at']))) ?></span>
-                        <span><i class="fa-solid fa-sparkles me-1"></i><?= htmlspecialchars($isRu ? 'Материал витрины' : 'Storefront article') ?></span>
+                        <span><?= $iconSvg('fa-calendar', 'me-1') ?><?= htmlspecialchars(date('M d, Y', strtotime((string)$post['created_at']))) ?></span>
+                        <span><?= $iconSvg('fa-sparkles', 'me-1') ?><?= htmlspecialchars($isRu ? 'Материал витрины' : 'Storefront article') ?></span>
                     </div>
                     <h3><?= htmlspecialchars((string)$post['title']) ?></h3>
                     <p><?= htmlspecialchars(mb_strimwidth(strip_tags((string)$post['content']), 0, 180, '...')) ?></p>
                     <a href="<?= htmlspecialchars($publicUrl('/blog/' . (int)$post['id'])) ?>" class="post-link">
                         <?= htmlspecialchars($isRu ? 'Читать статью' : 'Read article') ?>
-                        <i class="fa-solid fa-arrow-right"></i>
+                        <?= $iconSvg('fa-arrow-right') ?>
                     </a>
                 </article>
             </div>

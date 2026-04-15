@@ -30,7 +30,7 @@ $items = $isRu
 
 <div class="container py-4 py-lg-5 privacy-shell">
     <section class="privacy-card">
-        <span class="privacy-kicker"><i class="fa-solid fa-user-shield"></i> <?= htmlspecialchars($isRu ? 'Приватность' : 'Privacy') ?></span>
+        <span class="privacy-kicker"><?= $iconSvg('fa-user-shield') ?> <?= htmlspecialchars($isRu ? 'Приватность' : 'Privacy') ?></span>
         <h1 class="privacy-title"><?= htmlspecialchars($isRu ? 'Политика конфиденциальности' : 'Privacy policy') ?></h1>
         <p class="privacy-subtitle mb-0"><?= htmlspecialchars($isRu ? 'Как витрина работает с данными аккаунта, cookies и платёжной информацией.' : 'How the storefront handles account data, cookies and payment-related information.') ?></p>
     </section>

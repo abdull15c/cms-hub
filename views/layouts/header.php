@@ -54,6 +54,21 @@ $themeVars = [
     '--badge-bg' => $themePalette['badge_bg'] ?? 'rgba(0,242,234,0.12)',
     '--badge-text' => $themePalette['badge_text'] ?? '#9ffcf6',
 ];
+$optimizedStorefrontViews = [
+    'home',
+    'product',
+    'content/blog_index',
+    'content/blog_show',
+    'content/faq',
+    'pages/contact',
+    'pages/privacy',
+    'pages/terms',
+];
+$usesStorefrontSvgIcons = empty($is_admin_view) && in_array((string)($view_name ?? ''), $optimizedStorefrontViews, true);
+$loadFontAwesome = !empty($is_admin_view) || !$usesStorefrontSvgIcons;
+$iconSvg = static function (string $icon, string $class = '', string $label = ''): string {
+    return \Src\Services\StorefrontIcon::render($icon, $class, $label);
+};
 ?>
 <!DOCTYPE html>
 <html lang="<?= $langCode ?? 'en' ?>" data-bs-theme="<?= htmlspecialchars((string)($themePalette['bootstrap_theme'] ?? 'dark')) ?>">
@@ -89,10 +104,10 @@ $themeVars = [
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <?php if ($loadFontAwesome): ?><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin><?php endif; ?>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php if ($loadFontAwesome): ?><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><?php endif; ?>
 
     <style>
         :root {
@@ -117,6 +132,12 @@ $themeVars = [
         .navbar-search-btn:hover { border-color: var(--primary-neon); color: var(--primary-neon); background: transparent; }
         .theme-chip { background: var(--badge-bg); color: var(--badge-text); border: 1px solid transparent; border-radius: 999px; font-size: 0.72rem; padding: 0.25rem 0.55rem; }
         .admin-theme-link:hover { color: var(--primary-neon) !important; }
+        .icon-svg { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; flex-shrink: 0; }
+        .fa-lg { font-size: 1.3333333em; line-height: 0.75em; vertical-align: -0.0667em; }
+        .fa-2x { font-size: 2em; }
+        .fa-3x { font-size: 3em; }
+        .fa-4x { font-size: 4em; }
+        .fa-5x { font-size: 5em; }
     </style>
     <meta name="csrf-token" content="<?= \Src\Core\Csrf::token() ?>">
     <?php foreach ($structuredData as $jsonLd): ?>
@@ -136,7 +157,7 @@ $themeVars = [
     <?php foreach($flashes as $type => $messages): ?>
         <?php foreach($messages as $msg): ?>
             <div class="alert alert-<?= $type === 'error' ? 'danger' : 'success' ?> alert-dismissible fade show glass-card border-<?= $type === 'error' ? 'danger' : 'success' ?> text-light shadow-lg" role="alert">
-                <i class="fa-solid <?= $type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check' ?> me-2"></i> <?= htmlspecialchars($msg) ?>
+                <?= $iconSvg($type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check', 'me-2') ?> <?= htmlspecialchars($msg) ?>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
             </div>
         <?php endforeach; ?>
@@ -159,7 +180,7 @@ $themeVars = [
       <form class="d-flex mx-auto my-2 my-lg-0" action="<?= BASE_URL ?>/" method="GET" style="width: 100%; max-width: 400px;">
           <input type="hidden" name="lang" value="<?= htmlspecialchars($currentLanguage) ?>">
           <input class="form-control navbar-search-input rounded-start" type="search" name="q" placeholder="<?= htmlspecialchars($t('nav_search', 'Search...')) ?>" value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-          <button class="btn navbar-search-btn rounded-end" type="submit"><i class="fa-solid fa-search"></i></button>
+          <button class="btn navbar-search-btn rounded-end" type="submit"><?= $iconSvg('fa-search') ?></button>
       </form>
 
       <ul class="navbar-nav ms-3 d-none d-lg-flex">
@@ -170,7 +191,7 @@ $themeVars = [
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item dropdown me-3">
             <a class="nav-link dropdown-toggle text-info" href="#" data-bs-toggle="dropdown">
-                <i class="fa-solid fa-language me-1"></i> <?= htmlspecialchars(strtoupper($langCode ?? 'ru')) ?>
+                <?= $iconSvg('fa-language', 'me-1') ?> <?= htmlspecialchars(strtoupper($langCode ?? 'ru')) ?>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg">
                 <li><a class="dropdown-item text-light" href="<?= htmlspecialchars($buildCurrentLink('ru')) ?>" rel="alternate" hreflang="ru"><?= htmlspecialchars($t('lang_ru', 'Russian')) ?></a></li>
@@ -179,7 +200,7 @@ $themeVars = [
         </li>
         <li class="nav-item dropdown me-3">
             <a class="nav-link dropdown-toggle text-warning" href="#" data-bs-toggle="dropdown">
-                <i class="fa-solid fa-coins me-1"></i> <?= \Src\Services\SessionService::get('currency', 'RUB') ?>
+                <?= $iconSvg('fa-coins', 'me-1') ?> <?= \Src\Services\SessionService::get('currency', 'RUB') ?>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg">
                 <li><a class="dropdown-item text-light" href="<?= BASE_URL ?>/currency/switch/RUB">₽ <?= htmlspecialchars($t('currency_rub', 'Ruble')) ?></a></li>
@@ -191,12 +212,12 @@ $themeVars = [
         <?php if(!empty($user_id)): ?>
             <li class="nav-item"><a class="nav-link" href="<?= htmlspecialchars($publicUrl('/profile')) ?>"><?= htmlspecialchars($t('nav_profile', 'Profile')) ?></a></li>
             <?php if(($role ?? 'guest') === 'admin'): ?>
-                <li class="nav-item"><a class="nav-link text-warning" title="<?= htmlspecialchars($t('nav_admin', 'Admin')) ?>" href="<?= BASE_URL ?>/admin/dashboard"><i class="fa-solid fa-shield-halved"></i></a></li>
-                <li class="nav-item"><a class="nav-link text-primary" title="<?= htmlspecialchars($t('nav_products', 'Products')) ?>" href="<?= BASE_URL ?>/admin/products"><i class="fa-solid fa-boxes-stacked"></i></a></li>
-                <li class="nav-item"><a class="nav-link text-warning" title="<?= htmlspecialchars($t('nav_categories', 'Categories')) ?>" href="<?= BASE_URL ?>/admin/categories"><i class="fa-solid fa-tags"></i></a></li>
-                <li class="nav-item"><a class="nav-link text-info" title="<?= htmlspecialchars($t('nav_analytics', 'Analytics')) ?>" href="<?= BASE_URL ?>/admin/analytics"><i class="fa-solid fa-chart-simple"></i></a></li>
-                <li class="nav-item"><a class="nav-link admin-theme-link text-light" title="<?= htmlspecialchars($t('nav_themes', 'Themes')) ?>" href="<?= BASE_URL ?>/admin/themes"><i class="fa-solid fa-palette"></i></a></li>
-                <li class="nav-item"><a class="nav-link text-secondary" title="<?= htmlspecialchars($t('nav_settings', 'Settings')) ?>" href="<?= BASE_URL ?>/admin/settings"><i class="fa-solid fa-cog"></i></a></li>
+                <li class="nav-item"><a class="nav-link text-warning" title="<?= htmlspecialchars($t('nav_admin', 'Admin')) ?>" href="<?= BASE_URL ?>/admin/dashboard"><?= $iconSvg('fa-shield-halved') ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" title="<?= htmlspecialchars($t('nav_products', 'Products')) ?>" href="<?= BASE_URL ?>/admin/products"><?= $iconSvg('fa-boxes-stacked') ?></a></li>
+                <li class="nav-item"><a class="nav-link text-warning" title="<?= htmlspecialchars($t('nav_categories', 'Categories')) ?>" href="<?= BASE_URL ?>/admin/categories"><?= $iconSvg('fa-tags') ?></a></li>
+                <li class="nav-item"><a class="nav-link text-info" title="<?= htmlspecialchars($t('nav_analytics', 'Analytics')) ?>" href="<?= BASE_URL ?>/admin/analytics"><?= $iconSvg('fa-chart-simple') ?></a></li>
+                <li class="nav-item"><a class="nav-link admin-theme-link text-light" title="<?= htmlspecialchars($t('nav_themes', 'Themes')) ?>" href="<?= BASE_URL ?>/admin/themes"><?= $iconSvg('fa-palette') ?></a></li>
+                <li class="nav-item"><a class="nav-link text-secondary" title="<?= htmlspecialchars($t('nav_settings', 'Settings')) ?>" href="<?= BASE_URL ?>/admin/settings"><?= $iconSvg('fa-cog') ?></a></li>
             <?php endif; ?>
             <li class="nav-item">
                 <form action="<?= BASE_URL ?>/logout" method="POST" class="d-inline">

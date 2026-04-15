@@ -90,7 +90,7 @@ $heroBadges = [
 
 <div class="container py-4 py-lg-5 dt-wrap">
     <nav class="dt-breadcrumbs" aria-label="Breadcrumb">
-        <a href="<?= htmlspecialchars($homeUrl) ?>"><i class="fa-solid fa-house me-1"></i><?= htmlspecialchars($t('product_home', 'Home')) ?></a>
+        <a href="<?= htmlspecialchars($homeUrl) ?>"><?= $iconSvg('fa-house', 'me-1') ?><?= htmlspecialchars($t('product_home', 'Home')) ?></a>
         <span>/</span>
         <a href="<?= htmlspecialchars($categoryUrl) ?>"><?= htmlspecialchars($categoryName) ?></a>
         <span>/</span>
@@ -107,12 +107,12 @@ $heroBadges = [
                         </a>
                     <?php else: ?>
                         <div class="dt-empty">
-                            <i class="fa-regular fa-image fa-4x mb-3"></i>
+                            <?= $iconSvg('fa-image', 'fa-4x mb-3') ?>
                             <div><?= htmlspecialchars($t('product_no_preview', 'No Preview')) ?></div>
                         </div>
                     <?php endif; ?>
                 </div>
-                <?php if ($isOnSale): ?><div class="dt-sale"><i class="fa-solid fa-fire me-1"></i><?= htmlspecialchars($t('product_flash_sale', 'FLASH SALE')) ?></div><?php endif; ?>
+                <?php if ($isOnSale): ?><div class="dt-sale"><?= $iconSvg('fa-fire', 'me-1') ?><?= htmlspecialchars($t('product_flash_sale', 'FLASH SALE')) ?></div><?php endif; ?>
             </div>
 
             <?php if (count($images) > 1): ?>
@@ -138,7 +138,7 @@ $heroBadges = [
             <?php endif; ?>
 
             <section class="dt-card dt-pad dt-section">
-                <span class="dt-kicker"><i class="fa-solid fa-code"></i> <?= htmlspecialchars($categoryName) ?></span>
+                <span class="dt-kicker"><?= $iconSvg('fa-code') ?> <?= htmlspecialchars($categoryName) ?></span>
                 <h1 class="dt-title d-lg-none"><?= htmlspecialchars($product['title']) ?></h1>
                 <?php if ($summary !== ''): ?><p class="dt-summary"><?= htmlspecialchars($summary) ?></p><?php endif; ?>
                 <h2><?= htmlspecialchars($t('product_overview', 'Overview')) ?></h2>
@@ -153,7 +153,7 @@ $heroBadges = [
                     <div class="dt-perks">
                         <?php foreach ($product_perks as $perk): ?>
                             <div class="dt-perk">
-                                <div class="dt-perkicon"><i class="fa-solid <?= htmlspecialchars((string)($perk['icon'] ?? 'fa-bolt')) ?>"></i></div>
+                                <div class="dt-perkicon"><?= $iconSvg((string)($perk['icon'] ?? 'fa-bolt')) ?></div>
                                 <h3 class="fs-5 mb-2"><?= htmlspecialchars((string)($perk['title'] ?? '')) ?></h3>
                                 <p class="mb-0"><?= htmlspecialchars((string)($perk['text'] ?? '')) ?></p>
                             </div>
@@ -222,7 +222,7 @@ $heroBadges = [
                                     </div>
                                 </div>
                                 <div class="dt-stars">
-                                    <?php for ($i = 1; $i <= 5; $i++): ?><i class="fa-solid fa-star <?= (int)$review['rating'] >= $i ? '' : 'opacity-25' ?>"></i><?php endfor; ?>
+                                    <?php for ($i = 1; $i <= 5; $i++): ?><?= $iconSvg('fa-star', (int)$review['rating'] >= $i ? '' : 'opacity-25') ?><?php endfor; ?>
                                 </div>
                             </div>
                             <p class="mb-0"><?= nl2br(htmlspecialchars((string)$review['comment'])) ?></p>
@@ -252,15 +252,15 @@ $heroBadges = [
                                 <?php if (!empty($related['thumbnail'])): ?>
                                     <a href="<?= htmlspecialchars($relatedUrl) ?>"><img src="<?= BASE_URL ?>/uploads/images/<?= htmlspecialchars((string)$related['thumbnail']) ?>" alt="<?= htmlspecialchars((string)$related['title']) ?>" loading="lazy"></a>
                                 <?php else: ?>
-                                    <div class="d-flex align-items-center justify-content-center text-secondary" style="min-height:170px;"><i class="fa-regular fa-image fa-2x"></i></div>
+                                    <div class="d-flex align-items-center justify-content-center text-secondary" style="min-height:170px;"><?= $iconSvg('fa-image', 'fa-2x') ?></div>
                                 <?php endif; ?>
                                 <div class="dt-related-body">
-                                    <span class="dt-kicker mb-3"><i class="fa-solid fa-layer-group"></i> <?= htmlspecialchars((string)($related['category_name'] ?? $categoryName)) ?></span>
+                                    <span class="dt-kicker mb-3"><?= $iconSvg('fa-layer-group') ?> <?= htmlspecialchars((string)($related['category_name'] ?? $categoryName)) ?></span>
                                     <h3 class="fs-5 mb-2"><?= htmlspecialchars((string)$related['title']) ?></h3>
                                     <p class="mb-0"><?= htmlspecialchars(mb_strimwidth(strip_tags((string)($related['description'] ?? '')), 0, 140, '...')) ?></p>
                                     <div class="dt-related-meta">
                                         <div class="text-white fw-bold"><?= \Src\Services\CurrencyService::format($relatedPrice) ?></div>
-                                        <a class="dt-link" href="<?= htmlspecialchars($relatedUrl) ?>"><?= htmlspecialchars($isRu ? 'Открыть' : 'Open') ?> <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                                        <a class="dt-link" href="<?= htmlspecialchars($relatedUrl) ?>"><?= htmlspecialchars($isRu ? 'Открыть' : 'Open') ?> <?= $iconSvg('fa-arrow-right', 'ms-1') ?></a>
                                     </div>
                                 </div>
                             </article>
@@ -272,17 +272,17 @@ $heroBadges = [
 
         <div class="dt-stack">
             <aside class="dt-card dt-pad dt-buy">
-                <span class="dt-kicker"><i class="fa-solid fa-microchip"></i> <?= htmlspecialchars($categoryName) ?></span>
+                <span class="dt-kicker"><?= $iconSvg('fa-microchip') ?> <?= htmlspecialchars($categoryName) ?></span>
                 <h1 class="dt-title d-none d-lg-block"><?= htmlspecialchars($product['title']) ?></h1>
                 <?php if ($summary !== ''): ?><p class="dt-summary"><?= htmlspecialchars($summary) ?></p><?php endif; ?>
 
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <div class="dt-stars"><?php for ($i = 1; $i <= 5; $i++): ?><i class="fa-solid fa-star <?= $averageRating >= $i || $reviewCount === 0 ? '' : 'opacity-25' ?>"></i><?php endfor; ?></div>
+                    <div class="dt-stars"><?php for ($i = 1; $i <= 5; $i++): ?><?= $iconSvg('fa-star', $averageRating >= $i || $reviewCount === 0 ? '' : 'opacity-25') ?><?php endfor; ?></div>
                     <span class="text-secondary small"><?= $reviewCount > 0 ? (int)$reviewCount . ' ' . htmlspecialchars($isRu ? 'отзывов' : 'reviews') : htmlspecialchars($isRu ? 'новый релиз' : 'new release') ?></span>
                 </div>
 
                 <div class="dt-badges">
-                    <?php foreach ($heroBadges as $badge): ?><span class="dt-badge"><i class="fa-solid fa-check"></i> <?= htmlspecialchars($badge) ?></span><?php endforeach; ?>
+                    <?php foreach ($heroBadges as $badge): ?><span class="dt-badge"><?= $iconSvg('fa-check') ?> <?= htmlspecialchars($badge) ?></span><?php endforeach; ?>
                 </div>
 
                 <div class="dt-price">
@@ -305,7 +305,7 @@ $heroBadges = [
                     <?= \Src\Core\Csrf::field() ?>
                     <?php if ($displayPrice > 0): ?>
                         <div class="mb-3">
-                            <a href="#" class="dt-link" onclick="document.getElementById('couponArea').classList.toggle('d-none'); return false;"><i class="fa-solid fa-tag me-1"></i><?= htmlspecialchars($t('product_have_coupon', 'Have a promo code?')) ?></a>
+                            <a href="#" class="dt-link" onclick="document.getElementById('couponArea').classList.toggle('d-none'); return false;"><?= $iconSvg('fa-tag', 'me-1') ?><?= htmlspecialchars($t('product_have_coupon', 'Have a promo code?')) ?></a>
                             <div id="couponArea" class="d-none mt-3">
                                 <div class="d-flex gap-2">
                                     <input type="text" id="couponInput" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="CODE">
@@ -315,21 +315,21 @@ $heroBadges = [
                                 <input type="hidden" name="coupon_code" id="hiddenCoupon">
                             </div>
                         </div>
-                        <button type="submit" name="provider" value="wallet" class="dt-buybtn"><i class="fa-solid fa-cart-shopping me-2"></i><?= htmlspecialchars($t('product_buy_now', 'Buy Now')) ?></button>
+                        <button type="submit" name="provider" value="wallet" class="dt-buybtn"><?= $iconSvg('fa-cart-shopping', 'me-2') ?><?= htmlspecialchars($t('product_buy_now', 'Buy Now')) ?></button>
                         <div class="dt-paygrid">
-                            <?php if (\Src\Services\SettingsService::get('yoomoney_enabled') != '0'): ?><button type="submit" name="provider" value="yoomoney" class="btn btn-dark border-secondary text-secondary"><i class="fa-solid fa-ruble-sign me-1"></i>YooMoney</button><?php endif; ?>
-                            <?php if (\Src\Services\SettingsService::get('crypto_enabled')): ?><button type="submit" name="provider" value="crypto" class="btn btn-dark border-secondary text-secondary"><i class="fa-brands fa-bitcoin me-1"></i>Crypto</button><?php endif; ?>
+                            <?php if (\Src\Services\SettingsService::get('yoomoney_enabled') != '0'): ?><button type="submit" name="provider" value="yoomoney" class="btn btn-dark border-secondary text-secondary"><?= $iconSvg('fa-ruble-sign', 'me-1') ?>YooMoney</button><?php endif; ?>
+                            <?php if (\Src\Services\SettingsService::get('crypto_enabled')): ?><button type="submit" name="provider" value="crypto" class="btn btn-dark border-secondary text-secondary"><?= $iconSvg('fa-bitcoin', 'me-1') ?>Crypto</button><?php endif; ?>
                         </div>
                     <?php else: ?>
-                        <button type="submit" name="provider" value="free" class="btn btn-success w-100 btn-lg rounded-4"><i class="fa-solid fa-download me-2"></i><?= htmlspecialchars($t('product_free_download', 'Free Download')) ?></button>
+                        <button type="submit" name="provider" value="free" class="btn btn-success w-100 btn-lg rounded-4"><?= $iconSvg('fa-download', 'me-2') ?><?= htmlspecialchars($t('product_free_download', 'Free Download')) ?></button>
                     <?php endif; ?>
                 </form>
 
                 <div class="dt-trust">
-                    <div><i class="fa-solid fa-shield-halved text-success"></i><span><?= htmlspecialchars($t('product_secure', 'Secure')) ?></span></div>
-                    <div><i class="fa-solid fa-bolt text-warning"></i><span><?= htmlspecialchars($t('product_instant', 'Instant')) ?></span></div>
-                    <div><i class="fa-solid fa-language text-info"></i><span>RU / EN</span></div>
-                    <div role="button" data-bs-toggle="modal" data-bs-target="#chatModal"><i class="fa-solid fa-comments text-info"></i><span><?= htmlspecialchars($t('product_chat', 'Chat')) ?></span></div>
+                    <div><?= $iconSvg('fa-shield-halved', 'text-success') ?><span><?= htmlspecialchars($t('product_secure', 'Secure')) ?></span></div>
+                    <div><?= $iconSvg('fa-bolt', 'text-warning') ?><span><?= htmlspecialchars($t('product_instant', 'Instant')) ?></span></div>
+                    <div><?= $iconSvg('fa-language', 'text-info') ?><span>RU / EN</span></div>
+                    <div role="button" data-bs-toggle="modal" data-bs-target="#chatModal"><?= $iconSvg('fa-comments', 'text-info') ?><span><?= htmlspecialchars($t('product_chat', 'Chat')) ?></span></div>
                 </div>
             </aside>
 
@@ -384,10 +384,10 @@ $heroBadges = [
         .then((res) => res.json())
         .then((data) => {
             if (data.valid) {
-                msg.innerHTML = '<span class="text-success fw-bold"><i class="fa-solid fa-check me-1"></i>' + data.msg + '</span>';
+                msg.innerHTML = '<span class="text-success fw-bold">✓ ' + data.msg + '</span>';
                 document.getElementById('hiddenCoupon').value = code;
             } else {
-                msg.innerHTML = '<span class="text-danger"><i class="fa-solid fa-xmark me-1"></i>' + data.msg + '</span>';
+                msg.innerHTML = '<span class="text-danger">✕ ' + data.msg + '</span>';
                 document.getElementById('hiddenCoupon').value = '';
             }
         });

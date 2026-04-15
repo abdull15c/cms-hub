@@ -33,7 +33,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 
 <div class="container py-4 py-lg-5 article-shell">
     <a href="<?= htmlspecialchars($publicUrl('/blog')) ?>" class="article-back">
-        <i class="fa-solid fa-arrow-left"></i>
+        <?= $iconSvg('fa-arrow-left') ?>
         <span><?= htmlspecialchars($isRu ? 'Назад в блог' : 'Back to blog') ?></span>
     </a>
 
@@ -43,8 +43,8 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
                 <header class="article-head">
                     <h1><?= htmlspecialchars((string)$post['title']) ?></h1>
                     <div class="article-meta">
-                        <span><i class="fa-regular fa-calendar me-1"></i><?= htmlspecialchars(date('F d, Y', strtotime((string)$post['created_at']))) ?></span>
-                        <span><i class="fa-solid fa-robot me-1"></i><?= htmlspecialchars($isRu ? 'Материал витрины' : 'Storefront article') ?></span>
+                        <span><?= $iconSvg('fa-calendar', 'me-1') ?><?= htmlspecialchars(date('F d, Y', strtotime((string)$post['created_at']))) ?></span>
+                        <span><?= $iconSvg('fa-robot', 'me-1') ?><?= htmlspecialchars($isRu ? 'Материал витрины' : 'Storefront article') ?></span>
                     </div>
                 </header>
                 <div class="article-body">

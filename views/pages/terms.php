@@ -30,7 +30,7 @@ $items = $isRu
 
 <div class="container py-4 py-lg-5 legal-shell">
     <section class="legal-card">
-        <span class="legal-kicker"><i class="fa-solid fa-scale-balanced"></i> <?= htmlspecialchars($isRu ? 'Условия' : 'Terms') ?></span>
+        <span class="legal-kicker"><?= $iconSvg('fa-scale-balanced') ?> <?= htmlspecialchars($isRu ? 'Условия' : 'Terms') ?></span>
         <h1 class="legal-title"><?= htmlspecialchars($isRu ? 'Условия использования магазина' : 'Terms of service') ?></h1>
         <p class="legal-subtitle mb-0"><?= htmlspecialchars($isRu ? 'Краткие правила по лицензиям, возвратам, поддержке и работе с digital products на витрине.' : 'A concise overview of licensing, refunds, support and the use of digital products on the storefront.') ?></p>
     </section>

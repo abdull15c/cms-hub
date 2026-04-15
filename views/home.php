@@ -653,7 +653,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     <?php if ($plain_listing): ?>
         <section class="hero-grid mb-5" data-aos="fade-up">
             <div class="hero-panel">
-                <span class="hero-eyebrow"><i class="fa-solid fa-satellite-dish"></i> <?= htmlspecialchars($hero['eyebrow'] ?? 'Digital Storefront') ?></span>
+                <span class="hero-eyebrow"><?= $iconSvg('fa-satellite-dish') ?> <?= htmlspecialchars($hero['eyebrow'] ?? 'Digital Storefront') ?></span>
                 <h1 class="hero-title"><?= htmlspecialchars($hero['title'] ?? '') ?> <span>Dark Tech</span></h1>
                 <p class="hero-subtitle"><?= htmlspecialchars($hero['subtitle'] ?? '') ?></p>
 
@@ -664,14 +664,14 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
                 <div class="trust-row">
                     <?php foreach (($trust_badges ?? []) as $badge): ?>
-                        <span class="trust-pill"><i class="fa-solid fa-check"></i> <?= htmlspecialchars($badge) ?></span>
+                        <span class="trust-pill"><?= $iconSvg('fa-check') ?> <?= htmlspecialchars($badge) ?></span>
                     <?php endforeach; ?>
                 </div>
 
                 <form action="<?= BASE_URL ?>/" method="GET" class="hero-search">
                     <input type="hidden" name="lang" value="<?= htmlspecialchars($langCode ?? 'ru') ?>">
                     <input type="text" name="q" placeholder="<?= htmlspecialchars($t('search_placeholder', 'Search for scripts, themes...')) ?>" value="<?= htmlspecialchars($currentQ ?? '') ?>">
-                    <button type="submit" aria-label="Search"><i class="fa-solid fa-search"></i></button>
+                    <button type="submit" aria-label="Search"><?= $iconSvg('fa-search') ?></button>
                 </form>
             </div>
 
@@ -710,7 +710,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         <div class="filter-state" data-aos="fade-up">
             <div>
                 <div class="filter-state-label">
-                    <i class="fa-solid fa-sliders"></i>
+                    <?= $iconSvg('fa-sliders') ?>
                     <span><?= htmlspecialchars($filter_label) ?></span>
                 </div>
                 <div class="filter-state-note">
@@ -743,7 +743,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         <?php if (empty($products)): ?>
             <div class="col-12">
                 <div class="empty-state">
-                    <i class="fa-solid fa-ghost fa-3x text-secondary opacity-50 mb-3"></i>
+                    <?= $iconSvg('fa-ghost', 'fa-3x text-secondary opacity-50 mb-3') ?>
                     <h4 class="text-white"><?= htmlspecialchars($t('empty_title', 'Nothing here yet')) ?></h4>
                     <p class="text-secondary mb-0"><?= htmlspecialchars($t('empty_desc', 'Try adjusting your filters.')) ?></p>
                 </div>
@@ -766,7 +766,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
                         <?php else: ?>
                             <div class="product-cover-fallback">
                                 <div class="text-center">
-                                    <i class="fa-regular fa-image fa-2x mb-2"></i>
+                                    <?= $iconSvg('fa-image', 'fa-2x mb-2') ?>
                                     <div><?= htmlspecialchars($t('product_no_preview', 'No Preview')) ?></div>
                                 </div>
                             </div>
@@ -794,12 +794,12 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
                         <div class="product-meta">
                             <div class="product-badges">
-                                <span class="mini-badge"><i class="fa-solid fa-bolt"></i> <?= htmlspecialchars($instantLabel) ?></span>
-                                <span class="mini-badge"><i class="fa-solid fa-code"></i> <?= htmlspecialchars($digitalLabel) ?></span>
-                                <?php if (!empty($p['has_license'])): ?><span class="mini-badge"><i class="fa-solid fa-key"></i> <?= htmlspecialchars($licensedLabel) ?></span><?php endif; ?>
+                                <span class="mini-badge"><?= $iconSvg('fa-bolt') ?> <?= htmlspecialchars($instantLabel) ?></span>
+                                <span class="mini-badge"><?= $iconSvg('fa-code') ?> <?= htmlspecialchars($digitalLabel) ?></span>
+                                <?php if (!empty($p['has_license'])): ?><span class="mini-badge"><?= $iconSvg('fa-key') ?> <?= htmlspecialchars($licensedLabel) ?></span><?php endif; ?>
                             </div>
                             <a class="product-link" href="<?= htmlspecialchars($productUrl) ?>">
-                                <?= htmlspecialchars($t('btn_get', 'Get')) ?> <i class="fa-solid fa-arrow-right ms-1"></i>
+                                <?= htmlspecialchars($t('btn_get', 'Get')) ?> <?= $iconSvg('fa-arrow-right', 'ms-1') ?>
                             </a>
                         </div>
                     </div>
@@ -843,7 +843,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         <section class="value-grid mb-5">
             <?php foreach (($why_items ?? []) as $item): ?>
                 <article class="value-card" data-aos="fade-up">
-                    <div class="value-icon"><i class="fa-solid <?= htmlspecialchars($item['icon'] ?? 'fa-bolt') ?>"></i></div>
+                    <div class="value-icon"><?= $iconSvg((string)($item['icon'] ?? 'fa-bolt')) ?></div>
                     <h3><?= htmlspecialchars($item['title'] ?? '') ?></h3>
                     <p><?= htmlspecialchars($item['text'] ?? '') ?></p>
                 </article>
