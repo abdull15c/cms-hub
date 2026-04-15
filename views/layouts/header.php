@@ -65,7 +65,11 @@ $optimizedStorefrontViews = [
     'pages/terms',
 ];
 $usesStorefrontSvgIcons = empty($is_admin_view) && in_array((string)($view_name ?? ''), $optimizedStorefrontViews, true);
+$usesStorefrontLiteCss = $usesStorefrontSvgIcons;
 $loadFontAwesome = !empty($is_admin_view) || !$usesStorefrontSvgIcons;
+$storefrontCssPath = ROOT_PATH . '/public/assets/storefront.css';
+$storefrontCssVersion = file_exists($storefrontCssPath) ? (string)filemtime($storefrontCssPath) : '1';
+$outfitFontHref = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap';
 $iconSvg = static function (string $icon, string $class = '', string $label = ''): string {
     return \Src\Services\StorefrontIcon::render($icon, $class, $label);
 };
@@ -105,8 +109,15 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <?php if ($loadFontAwesome): ?><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin><?php endif; ?>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <?php if ($usesStorefrontLiteCss): ?>
+        <link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL . '/assets/storefront.css?v=' . $storefrontCssVersion) ?>">
+        <link rel="preload" as="style" href="<?= htmlspecialchars($outfitFontHref) ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars($outfitFontHref) ?>" media="print" onload="this.media='all'">
+        <noscript><link href="<?= htmlspecialchars($outfitFontHref) ?>" rel="stylesheet"></noscript>
+    <?php else: ?>
+        <link href="<?= htmlspecialchars($outfitFontHref) ?>" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <?php endif; ?>
     <?php if ($loadFontAwesome): ?><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><?php endif; ?>
 
     <style>
