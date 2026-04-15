@@ -67,10 +67,14 @@ $optimizedStorefrontViews = [
 $usesStorefrontSvgIcons = empty($is_admin_view) && in_array((string)($view_name ?? ''), $optimizedStorefrontViews, true);
 $usesStorefrontLiteCss = $usesStorefrontSvgIcons;
 $loadFontAwesome = !empty($is_admin_view) || !$usesStorefrontSvgIcons;
-$needsJsDelivr = !$usesStorefrontLiteCss || (string)($view_name ?? '') === 'product';
+$needsGoogleFonts = !$usesStorefrontLiteCss;
+$needsJsDelivr = !$usesStorefrontLiteCss;
 $storefrontCssPath = ROOT_PATH . '/public/assets/storefront.css';
 $storefrontCssVersion = file_exists($storefrontCssPath) ? (string)filemtime($storefrontCssPath) : '1';
 $outfitFontHref = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap';
+$themeVars['--font-sans'] = $usesStorefrontLiteCss
+    ? 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    : '"Outfit", sans-serif';
 $iconSvg = static function (string $icon, string $class = '', string $label = ''): string {
     return \Src\Services\StorefrontIcon::render($icon, $class, $label);
 };
@@ -106,15 +110,14 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         <link rel="icon" href="<?= BASE_URL ?>/uploads/branding/<?= $fav ?>" type="image/x-icon">
     <?php endif; ?>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <?php if ($needsGoogleFonts): ?>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <?php endif; ?>
     <?php if ($needsJsDelivr): ?><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><?php endif; ?>
     <?php if ($loadFontAwesome): ?><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin><?php endif; ?>
     <?php if ($usesStorefrontLiteCss): ?>
         <link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL . '/assets/storefront.css?v=' . $storefrontCssVersion) ?>">
-        <link rel="preload" as="style" href="<?= htmlspecialchars($outfitFontHref) ?>">
-        <link rel="stylesheet" href="<?= htmlspecialchars($outfitFontHref) ?>" media="print" onload="this.media='all'">
-        <noscript><link href="<?= htmlspecialchars($outfitFontHref) ?>" rel="stylesheet"></noscript>
     <?php else: ?>
         <link href="<?= htmlspecialchars($outfitFontHref) ?>" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -127,7 +130,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
             <?= $var ?>: <?= $value ?>;
 <?php endforeach; ?>
         }
-        body { background-color: var(--bg-color); background-image: var(--body-gradient); color: var(--text-main); font-family: 'Outfit', sans-serif; min-height: 100vh; overflow-x: hidden; cursor: auto; }
+        body { background-color: var(--bg-color); background-image: var(--body-gradient); color: var(--text-main); font-family: var(--font-sans); min-height: 100vh; overflow-x: hidden; cursor: auto; }
         .glass-card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px); border-radius: 16px; position: relative; z-index: 2; }
         .btn-cyber { border: 1px solid var(--primary-neon); color: var(--primary-neon); background: transparent; transition: 0.3s; }
         .btn-cyber:hover { background: var(--primary-neon); color: var(--button-text); box-shadow: 0 0 15px var(--primary-soft); }

@@ -12,15 +12,21 @@ $regularPrice = (float)($product['price'] ?? 0);
 $displayPrice = $isOnSale ? (float)$product['sale_price'] : $regularPrice;
 $reviewCount = count($reviews ?? []);
 $averageRating = (float)($avg_rating ?? 0);
-$mainImage = !empty($images[0]['image_path']) ? BASE_URL . '/uploads/images/' . rawurlencode((string)$images[0]['image_path']) : '';
+$galleryImages = [];
+foreach ($images as $image) {
+    $imagePath = trim((string)($image['image_path'] ?? ''));
+    if ($imagePath !== '') {
+        $galleryImages[] = BASE_URL . '/uploads/images/' . rawurlencode($imagePath);
+    }
+}
+$galleryImages = array_values(array_unique($galleryImages));
+$mainImage = $galleryImages[0] ?? '';
 $heroBadges = [
     $isRu ? 'Мгновенная выдача' : 'Instant delivery',
     $isRu ? 'Безопасная оплата' : 'Secure checkout',
     !empty($product['has_license']) ? ($isRu ? 'Лицензия включена' : 'License included') : ($isRu ? 'Цифровой товар' : 'Digital product'),
 ];
 ?>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
 
 <style>
     .dt-wrap{position:relative;z-index:1}
@@ -35,8 +41,9 @@ $heroBadges = [
     .dt-sale{position:absolute;top:18px;right:18px;border-radius:999px;padding:10px 14px;background:rgba(255,0,80,.16);border:1px solid rgba(255,0,80,.35);color:#fff;font-size:.84rem;font-weight:700}
     .dt-empty{padding:40px 20px;text-align:center;color:var(--muted-text)}
     .dt-thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;margin-top:14px}
-    .dt-thumb{border-radius:18px;overflow:hidden;border:1px solid var(--surface-border);cursor:pointer;background:rgba(255,255,255,.03);transition:.2s}
+    .dt-thumb{padding:0;border-radius:18px;overflow:hidden;border:1px solid var(--surface-border);cursor:pointer;background:rgba(255,255,255,.03);transition:.2s;appearance:none}
     .dt-thumb:hover,.dt-thumb.is-active{transform:translateY(-2px);border-color:var(--primary-neon);box-shadow:0 0 0 1px var(--primary-soft)}
+    .dt-thumb:focus-visible{outline:2px solid var(--primary-neon);outline-offset:3px}
     .dt-thumb img{width:100%;height:82px;object-fit:cover;display:block}
     .dt-stack{display:grid;gap:18px}
     .dt-pad{padding:28px}
@@ -84,8 +91,20 @@ $heroBadges = [
     .dt-related-body{padding:18px}
     .dt-related-meta{display:flex;justify-content:space-between;gap:12px;align-items:center;padding-top:14px;margin-top:14px;border-top:1px solid rgba(255,255,255,.06)}
     .dt-link{color:var(--primary-neon);text-decoration:none;font-weight:700}
+    body.dt-lightbox-open{overflow:hidden}
+    .dt-lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(4,8,15,.92);backdrop-filter:blur(16px);z-index:1200}
+    .dt-lightbox.is-open{display:flex}
+    .dt-lightbox__dialog{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;width:min(100%,1180px)}
+    .dt-lightbox__surface{position:relative;background:rgba(11,15,25,.82);border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:18px;box-shadow:0 25px 60px rgba(0,0,0,.45)}
+    .dt-lightbox__image{display:block;max-width:min(86vw,980px);max-height:82vh;width:auto;height:auto;border-radius:18px;object-fit:contain}
+    .dt-lightbox__close,.dt-lightbox__nav{border:none;background:rgba(255,255,255,.06);color:#fff;display:grid;place-items:center;cursor:pointer;transition:.2s}
+    .dt-lightbox__close:hover,.dt-lightbox__nav:hover{background:rgba(255,255,255,.12);transform:translateY(-1px)}
+    .dt-lightbox__close{position:absolute;top:18px;right:18px;width:46px;height:46px;border-radius:14px}
+    .dt-lightbox__nav{width:56px;height:56px;border-radius:18px}
+    .dt-lightbox__nav[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+    .dt-lightbox__meta{position:absolute;left:18px;bottom:18px;display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:.45rem .75rem;background:rgba(255,255,255,.08);color:#fff;font-size:.82rem}
     @media (max-width:1199.98px){.dt-grid,.dt-facts,.dt-perks,.dt-related{grid-template-columns:1fr}.dt-buy{position:static}}
-    @media (max-width:767.98px){.dt-main,.dt-main img{min-height:320px;height:320px}.dt-card{border-radius:22px}.dt-pad,.dt-reviewform,.dt-review,.dt-faq-item,.dt-merchant{padding:22px}.dt-paygrid,.dt-trust{grid-template-columns:1fr}.dt-reviewhead,.dt-related-meta{flex-direction:column;align-items:flex-start}}
+    @media (max-width:767.98px){.dt-main,.dt-main img{min-height:320px;height:320px}.dt-card{border-radius:22px}.dt-pad,.dt-reviewform,.dt-review,.dt-faq-item,.dt-merchant{padding:22px}.dt-paygrid,.dt-trust{grid-template-columns:1fr}.dt-reviewhead,.dt-related-meta{flex-direction:column;align-items:flex-start}.dt-lightbox{padding:18px}.dt-lightbox__dialog{grid-template-columns:1fr}.dt-lightbox__surface{padding:14px}.dt-lightbox__image{max-width:100%;max-height:72vh}.dt-lightbox__nav{position:absolute;bottom:18px;z-index:2}.dt-lightbox__nav--prev{left:18px}.dt-lightbox__nav--next{right:18px}.dt-lightbox__meta{left:50%;transform:translateX(-50%);bottom:18px}}
 </style>
 
 <div class="container py-4 py-lg-5 dt-wrap">
@@ -102,8 +121,8 @@ $heroBadges = [
             <div class="dt-card dt-gallery">
                 <div class="dt-main">
                     <?php if ($mainImage !== ''): ?>
-                        <a data-fancybox="gallery" href="<?= htmlspecialchars($mainImage) ?>" class="w-100 h-100">
-                            <img id="mainImage" src="<?= htmlspecialchars($mainImage) ?>" alt="<?= htmlspecialchars($product['title']) ?>">
+                        <a href="<?= htmlspecialchars($mainImage) ?>" class="w-100 h-100" onclick="openLightbox(); return false;">
+                            <img id="mainImage" src="<?= htmlspecialchars($mainImage) ?>" alt="<?= htmlspecialchars($product['title']) ?>" loading="eager" fetchpriority="high" decoding="async">
                         </a>
                     <?php else: ?>
                         <div class="dt-empty">
@@ -115,13 +134,12 @@ $heroBadges = [
                 <?php if ($isOnSale): ?><div class="dt-sale"><?= $iconSvg('fa-fire', 'me-1') ?><?= htmlspecialchars($t('product_flash_sale', 'FLASH SALE')) ?></div><?php endif; ?>
             </div>
 
-            <?php if (count($images) > 1): ?>
+            <?php if (count($galleryImages) > 1): ?>
                 <div class="dt-thumbs">
-                    <?php foreach ($images as $index => $image): ?>
-                        <?php $imageUrl = BASE_URL . '/uploads/images/' . rawurlencode((string)$image['image_path']); ?>
-                        <div class="dt-thumb <?= $index === 0 ? 'is-active' : '' ?>" onclick="updateMainImage(this, '<?= htmlspecialchars($imageUrl, ENT_QUOTES) ?>')">
+                    <?php foreach ($galleryImages as $index => $imageUrl): ?>
+                        <button type="button" class="dt-thumb <?= $index === 0 ? 'is-active' : '' ?>" onclick="updateMainImage(this, '<?= htmlspecialchars($imageUrl, ENT_QUOTES) ?>', <?= (int)$index ?>)" aria-label="<?= htmlspecialchars($t('product_preview_image', 'Preview image')) ?> <?= (int)$index + 1 ?>" aria-pressed="<?= $index === 0 ? 'true' : 'false' ?>">
                             <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($product['title']) ?>">
-                        </div>
+                        </button>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
@@ -358,17 +376,76 @@ $heroBadges = [
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
-<script>
-    Fancybox.bind("[data-fancybox='gallery']", { Thumbs: { autoStart: false } });
+<div class="dt-lightbox" id="productLightbox" aria-hidden="true">
+    <div class="dt-lightbox__dialog">
+        <button type="button" class="dt-lightbox__nav dt-lightbox__nav--prev" id="productLightboxPrev" aria-label="<?= htmlspecialchars($t('product_prev_image', 'Previous image')) ?>">
+            <?= $iconSvg('fa-chevron-left') ?>
+        </button>
+        <div class="dt-lightbox__surface">
+            <button type="button" class="dt-lightbox__close" id="productLightboxClose" aria-label="<?= htmlspecialchars($t('product_close_preview', 'Close preview')) ?>">
+                <?= $iconSvg('fa-xmark') ?>
+            </button>
+            <img id="productLightboxImage" class="dt-lightbox__image" src="" alt="<?= htmlspecialchars($product['title']) ?>">
+            <div class="dt-lightbox__meta" id="productLightboxMeta"></div>
+        </div>
+        <button type="button" class="dt-lightbox__nav dt-lightbox__nav--next" id="productLightboxNext" aria-label="<?= htmlspecialchars($t('product_next_image', 'Next image')) ?>">
+            <?= $iconSvg('fa-chevron-right') ?>
+        </button>
+    </div>
+</div>
 
-    function updateMainImage(thumb, src) {
+<script>
+    const productGalleryImages = <?= json_encode($galleryImages, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    let currentGalleryIndex = 0;
+    const lightbox = document.getElementById('productLightbox');
+    const lightboxImage = document.getElementById('productLightboxImage');
+    const lightboxMeta = document.getElementById('productLightboxMeta');
+    const lightboxPrev = document.getElementById('productLightboxPrev');
+    const lightboxNext = document.getElementById('productLightboxNext');
+
+    function syncLightbox() {
+        if (!lightboxImage || productGalleryImages.length === 0) return;
+        lightboxImage.src = productGalleryImages[currentGalleryIndex] || '';
+        lightboxMeta.textContent = productGalleryImages.length > 1 ? `${currentGalleryIndex + 1} / ${productGalleryImages.length}` : '';
+        lightboxMeta.hidden = productGalleryImages.length <= 1;
+        lightboxPrev.disabled = productGalleryImages.length <= 1;
+        lightboxNext.disabled = productGalleryImages.length <= 1;
+    }
+
+    function openLightbox(index = currentGalleryIndex) {
+        if (!lightbox || productGalleryImages.length === 0) return;
+        currentGalleryIndex = Math.max(0, Math.min(index, productGalleryImages.length - 1));
+        syncLightbox();
+        lightbox.classList.add('is-open');
+        lightbox.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('dt-lightbox-open');
+    }
+
+    function closeLightbox() {
+        if (!lightbox) return;
+        lightbox.classList.remove('is-open');
+        lightbox.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('dt-lightbox-open');
+    }
+
+    function stepLightbox(direction) {
+        if (productGalleryImages.length <= 1) return;
+        currentGalleryIndex = (currentGalleryIndex + direction + productGalleryImages.length) % productGalleryImages.length;
+        syncLightbox();
+    }
+
+    function updateMainImage(thumb, src, index = 0) {
         const mainImage = document.getElementById('mainImage');
         if (!mainImage) return;
+        currentGalleryIndex = index;
         mainImage.src = src;
         if (mainImage.parentElement) mainImage.parentElement.href = src;
-        document.querySelectorAll('.dt-thumb').forEach((item) => item.classList.remove('is-active'));
+        document.querySelectorAll('.dt-thumb').forEach((item) => {
+            item.classList.remove('is-active');
+            item.setAttribute('aria-pressed', 'false');
+        });
         thumb.classList.add('is-active');
+        thumb.setAttribute('aria-pressed', 'true');
     }
 
     function applyCoupon() {
@@ -392,4 +469,18 @@ $heroBadges = [
             }
         });
     }
+
+    lightboxPrev?.addEventListener('click', () => stepLightbox(-1));
+    lightboxNext?.addEventListener('click', () => stepLightbox(1));
+    document.getElementById('productLightboxClose')?.addEventListener('click', closeLightbox);
+    lightbox?.addEventListener('click', (event) => {
+        if (event.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (!lightbox?.classList.contains('is-open')) return;
+        if (event.key === 'Escape') closeLightbox();
+        if (event.key === 'ArrowLeft') stepLightbox(-1);
+        if (event.key === 'ArrowRight') stepLightbox(1);
+    });
 </script>

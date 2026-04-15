@@ -1,7 +1,7 @@
 <style>
     .footer-nebula { background: transparent; border-top: 1px solid var(--footer-border); position: relative; margin-top: auto; padding-top: 80px; padding-bottom: 30px; overflow: hidden; }
     .footer-glow { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(circle, var(--footer-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; }
-    .footer-brand { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.8rem; background: linear-gradient(90deg, #fff, var(--muted-text)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; display: inline-block; text-decoration: none; }
+    .footer-brand { font-family: var(--font-sans); font-weight: 800; font-size: 1.8rem; background: linear-gradient(90deg, #fff, var(--muted-text)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; display: inline-block; text-decoration: none; }
     .footer-link { color: var(--muted-text); text-decoration: none; margin-bottom: 12px; display: block; transition: 0.3s; font-size: 0.95rem; }
     .footer-link:hover { color: #fff; transform: translateX(5px); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
     .social-btn { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #fff; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); text-decoration: none; }
