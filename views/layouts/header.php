@@ -174,11 +174,112 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         .hover-info:hover { color: var(--primary-neon) !important; transition: 0.2s; }
         .dropdown-menu { background: var(--dropdown-bg); backdrop-filter: blur(10px); border: 1px solid var(--card-border); }
         .dropdown-item:hover { background: var(--dropdown-hover); color: var(--primary-neon) !important; }
-        .navbar-search-input { background: var(--surface-bg-alt); color: var(--text-main); border-color: var(--surface-border); }
-        .navbar-search-input:focus { background: var(--surface-bg); color: var(--text-main); border-color: var(--primary-neon); box-shadow: 0 0 0 0.2rem var(--primary-soft); }
-        .navbar-search-btn { border-color: var(--surface-border); color: var(--muted-text); }
-        .navbar-search-btn:hover { border-color: var(--primary-neon); color: var(--primary-neon); background: transparent; }
-        .theme-chip { background: var(--badge-bg); color: var(--badge-text); border: 1px solid transparent; border-radius: 999px; font-size: 0.72rem; padding: 0.25rem 0.55rem; }
+        .site-navbar {
+            background: rgba(11, 15, 25, 0.92);
+            background: color-mix(in srgb, var(--nav-bg) 92%, rgba(8, 12, 20, 0.98));
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--nav-border);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+        }
+        .site-nav-shell { gap: 1rem; min-height: 78px; }
+        .site-nav-branding { display: flex; align-items: center; gap: 0.8rem; min-width: 0; }
+        .site-nav-collapse { gap: 0.9rem; }
+        .site-nav-links,
+        .site-nav-actions { gap: 0.35rem; }
+        .site-nav-links .nav-link,
+        .site-nav-actions .nav-link {
+            border: 1px solid transparent;
+            border-radius: 999px;
+            padding: 0.6rem 0.9rem;
+            color: var(--muted-text);
+            transition: 0.2s ease;
+        }
+        .site-nav-links .nav-link:hover,
+        .site-nav-actions .nav-link:hover,
+        .site-nav-links .nav-link:focus-visible,
+        .site-nav-actions .nav-link:focus-visible {
+            color: #fff !important;
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+            text-decoration: none;
+        }
+        .site-nav-actions .dropdown-toggle,
+        .site-nav-actions .nav-link,
+        .site-nav-logout {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .site-nav-userform { display: flex; align-items: center; }
+        .site-nav-logout {
+            border: 1px solid transparent;
+            border-radius: 999px;
+            padding: 0.6rem 0.95rem;
+            color: #f38ba8;
+            background: transparent;
+            transition: 0.2s ease;
+        }
+        .site-nav-logout:hover,
+        .site-nav-logout:focus-visible {
+            color: #fff;
+            background: rgba(255, 0, 80, 0.12);
+            border-color: rgba(255, 0, 80, 0.22);
+            text-decoration: none;
+        }
+        .site-nav-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 1 1 300px;
+            max-width: 360px;
+            margin-left: auto;
+        }
+        .navbar-search-input {
+            min-height: 48px;
+            padding-right: 3.2rem;
+            border-radius: 999px !important;
+            background: rgba(255,255,255,0.04);
+            color: var(--text-main);
+            border-color: rgba(255,255,255,0.08);
+        }
+        .navbar-search-input::placeholder { color: var(--muted-text); }
+        .navbar-search-input::placeholder { color: color-mix(in srgb, var(--muted-text) 90%, #fff); }
+        .navbar-search-input:focus {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-main);
+            border-color: var(--primary-neon);
+            box-shadow: 0 0 0 0.2rem var(--primary-soft);
+        }
+        .navbar-search-btn {
+            position: absolute;
+            top: 50%;
+            right: 0.35rem;
+            transform: translateY(-50%);
+            width: 2.35rem;
+            height: 2.35rem;
+            border-radius: 999px !important;
+            border: 1px solid transparent;
+            color: #041518;
+            background: linear-gradient(135deg, var(--primary-neon), #7df8f2);
+            box-shadow: 0 10px 22px var(--primary-soft);
+        }
+        .navbar-search-btn:hover {
+            border-color: transparent;
+            color: #041518;
+            background: linear-gradient(135deg, #8ffcf6, var(--primary-neon));
+        }
+        .theme-chip {
+            background: rgba(255,255,255,0.04);
+            color: var(--badge-text);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            font-size: 0.68rem;
+            padding: 0.42rem 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .theme-chip-inline { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02); }
         .admin-theme-link:hover { color: var(--primary-neon) !important; }
         .icon-svg { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; flex-shrink: 0; }
         .fa-lg { font-size: 1.3333333em; line-height: 0.75em; vertical-align: -0.0667em; }
@@ -186,6 +287,58 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         .fa-3x { font-size: 3em; }
         .fa-4x { font-size: 4em; }
         .fa-5x { font-size: 5em; }
+        @media (max-width: 991.98px) {
+            .site-nav-shell { min-height: 72px; }
+            .site-nav-branding { max-width: calc(100% - 72px); }
+            .site-nav-collapse {
+                margin-top: 0.85rem;
+                padding: 1rem;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 1.3rem;
+                background: rgba(8, 12, 20, 0.9);
+                box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+            }
+            .site-nav-search {
+                order: 1;
+                width: 100%;
+                max-width: none;
+                margin: 0 0 0.5rem;
+            }
+            .site-nav-links,
+            .site-nav-actions {
+                width: 100%;
+            }
+            .site-nav-links { order: 2; }
+            .site-nav-actions { order: 3; }
+            .site-nav-links .nav-item,
+            .site-nav-actions .nav-item,
+            .site-nav-userform { width: 100%; }
+            .site-nav-links .nav-link,
+            .site-nav-actions .nav-link,
+            .site-nav-logout {
+                width: 100%;
+                justify-content: space-between;
+                border-radius: 1rem;
+                padding: 0.82rem 0.95rem;
+            }
+            .theme-chip-inline { display: none; }
+        }
+        @media (min-width: 992px) {
+            .site-nav-shell { flex-wrap: nowrap !important; }
+            .site-nav-collapse {
+                display: flex !important;
+                align-items: center;
+                justify-content: flex-end;
+                flex-basis: auto;
+                width: auto;
+            }
+            .site-nav-links,
+            .site-nav-actions {
+                align-items: center;
+                flex-direction: row;
+            }
+            .site-nav-links { margin-left: 0.35rem; }
+        }
     </style>
     <meta name="csrf-token" content="<?= \Src\Core\Csrf::token() ?>">
     <?php foreach ($structuredData as $jsonLd): ?>
@@ -213,31 +366,36 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
 </div>
 <?php endif; ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--nav-border);">
-  <div class="container">
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top site-navbar">
+  <div class="container site-nav-shell">
     <?php $logo = \Src\Services\SettingsService::get('site_logo'); ?>
-    <a class="navbar-brand<?= $logo ? '' : ' glitch' ?>" href="<?= htmlspecialchars($publicUrl('/')) ?>">
-        <?php if($logo): ?>
-            <img src="<?= BASE_URL ?>/uploads/branding/<?= $logo ?>" alt="Logo" style="height: 40px; max-width: 150px;">
-        <?php else: ?>
-            <span><?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?></span>
+    <div class="site-nav-branding">
+        <a class="navbar-brand<?= $logo ? '' : ' glitch' ?>" href="<?= htmlspecialchars($publicUrl('/')) ?>">
+            <?php if($logo): ?>
+                <img src="<?= BASE_URL ?>/uploads/branding/<?= $logo ?>" alt="Logo" style="height: 40px; max-width: 150px;">
+            <?php else: ?>
+                <span><?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?></span>
+            <?php endif; ?>
+        </a>
+        <?php if (empty($is_admin_view) && !empty($theme['name'])): ?>
+            <span class="theme-chip theme-chip-inline"><?= htmlspecialchars($theme['name']) ?></span>
         <?php endif; ?>
-    </a>
+    </div>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-label="<?= htmlspecialchars($t('nav_toggle', 'Toggle navigation')) ?>"><span class="navbar-toggler-icon"></span></button>
-    <div class="collapse navbar-collapse" id="nav">
-      <form class="d-flex mx-auto my-2 my-lg-0" action="<?= BASE_URL ?>/" method="GET" style="width: 100%; max-width: 400px;">
-          <input type="hidden" name="lang" value="<?= htmlspecialchars($currentLanguage) ?>">
-          <input class="form-control navbar-search-input rounded-start" type="search" name="q" placeholder="<?= htmlspecialchars($t('nav_search', 'Search...')) ?>" value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-          <button class="btn navbar-search-btn rounded-end" type="submit" aria-label="<?= htmlspecialchars($t('nav_search_submit', 'Search catalog')) ?>"><?= $iconSvg('fa-search') ?></button>
-      </form>
-
-      <ul class="navbar-nav ms-3 d-none d-lg-flex">
+    <div class="collapse navbar-collapse site-nav-collapse" id="nav">
+      <ul class="navbar-nav site-nav-links">
         <li class="nav-item"><a class="nav-link text-secondary hover-info" href="<?= htmlspecialchars($publicUrl('/blog')) ?>"><?= htmlspecialchars($t('nav_blog', 'Blog')) ?></a></li>
         <li class="nav-item"><a class="nav-link text-secondary hover-info" href="<?= htmlspecialchars($publicUrl('/faq')) ?>"><?= htmlspecialchars($t('nav_faq', 'FAQ')) ?></a></li>
       </ul>
 
-      <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item dropdown me-3">
+      <form class="site-nav-search" action="<?= BASE_URL ?>/" method="GET">
+          <input type="hidden" name="lang" value="<?= htmlspecialchars($currentLanguage) ?>">
+          <input class="form-control navbar-search-input" type="search" name="q" placeholder="<?= htmlspecialchars($t('nav_search', 'Search...')) ?>" value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+          <button class="btn navbar-search-btn" type="submit" aria-label="<?= htmlspecialchars($t('nav_search_submit', 'Search catalog')) ?>"><?= $iconSvg('fa-search') ?></button>
+      </form>
+
+      <ul class="navbar-nav site-nav-actions">
+        <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-info" href="#" data-bs-toggle="dropdown">
                 <?= $iconSvg('fa-language', 'me-1') ?> <?= htmlspecialchars(strtoupper($langCode ?? 'ru')) ?>
             </a>
@@ -246,7 +404,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
                 <li><a class="dropdown-item text-light" href="<?= htmlspecialchars($buildCurrentLink('en')) ?>" rel="alternate" hreflang="en"><?= htmlspecialchars($t('lang_en', 'English')) ?></a></li>
             </ul>
         </li>
-        <li class="nav-item dropdown me-3">
+        <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-warning" href="#" data-bs-toggle="dropdown">
                 <?= $iconSvg('fa-coins', 'me-1') ?> <?= \Src\Services\SessionService::get('currency', 'RUB') ?>
             </a>
@@ -268,9 +426,9 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
                 <li class="nav-item"><a class="nav-link text-secondary" title="<?= htmlspecialchars($t('nav_settings', 'Settings')) ?>" href="<?= BASE_URL ?>/admin/settings"><?= $iconSvg('fa-cog') ?></a></li>
             <?php endif; ?>
             <li class="nav-item">
-                <form action="<?= BASE_URL ?>/logout" method="POST" class="d-inline">
+                <form action="<?= BASE_URL ?>/logout" method="POST" class="site-nav-userform">
                     <?= \Src\Core\Csrf::field() ?>
-                    <button type="submit" class="nav-link btn btn-link text-danger border-0 p-0 ms-2"><?= htmlspecialchars($t('nav_logout', 'Logout')) ?></button>
+                    <button type="submit" class="nav-link btn btn-link border-0 site-nav-logout"><?= htmlspecialchars($t('nav_logout', 'Logout')) ?></button>
                 </form>
             </li>
         <?php else: ?>
@@ -282,10 +440,3 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
   </div>
 </nav>
 <main id="main-content">
-<?php if (empty($is_admin_view) && !empty($theme['name'])): ?>
-    <div class="container mt-3">
-        <div class="d-flex justify-content-end">
-            <span class="theme-chip"><?= htmlspecialchars($theme['name']) ?></span>
-        </div>
-    </div>
-<?php endif; ?>
