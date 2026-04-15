@@ -1,0 +1,15 @@
+{
+  "name": "abdull15c/cms-hub",
+  "description": "CMS Hub marketplace application",
+  "type": "project",
+  "require": {
+    "php": "^8.4",
+    "ext-dom": "*",
+    "ext-fileinfo": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-openssl": "*",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*"
+  }
+}
