@@ -122,11 +122,10 @@ $step = $_GET['step'] ?? 1;
                     </span>
                 </div>
             </div>
-            <a href="?step=2" class="btn btn-cyber w-100">Next Step <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            <a href="?step=2&amp;setup_token=<?= urlencode($requestToken) ?>" class="btn btn-cyber w-100">Next Step <i class="fa-solid fa-arrow-right ms-2"></i></a>
 
         <?php elseif($step == 2): ?>
             <form action="process.php" method="POST">
-                <input type="hidden" name="setup_token" value="<?= htmlspecialchars($requestToken, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="setup_token" value="<?= htmlspecialchars($requestToken, ENT_QUOTES, 'UTF-8') ?>">
                 <h5 class="mb-3 text-info"><i class="fa-solid fa-database me-2"></i> Database</h5>
                 <div class="row g-2">
