@@ -31,6 +31,18 @@ $mailFrom = 'noreply@' . $mailHost;
 try {
     $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $columnExists = static function (PDO $pdo, string $table, string $column): bool {
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM `$table` LIKE ?");
+        $stmt->execute([$column]);
+        return (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+    };
+
+    $indexExists = static function (PDO $pdo, string $table, string $index): bool {
+        $stmt = $pdo->prepare("SHOW INDEX FROM `$table` WHERE Key_name = ?");
+        $stmt->execute([$index]);
+        return (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+    };
     
     // 1. Create DB
     $pdo->exec("CREATE DATABASE IF NOT EXISTS `$name`");
@@ -104,7 +116,18 @@ try {
     ";
     
     $pdo->exec($sql);
-    $pdo->exec("ALTER TABLE users ADD INDEX idx_users_oauth_provider (oauth_provider, oauth_provider_id)");
+
+    if (!$columnExists($pdo, 'users', 'oauth_provider')) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN oauth_provider VARCHAR(50) NULL");
+    }
+
+    if (!$columnExists($pdo, 'users', 'oauth_provider_id')) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN oauth_provider_id VARCHAR(191) NULL");
+    }
+
+    if (!$indexExists($pdo, 'users', 'idx_users_oauth_provider')) {
+        $pdo->exec("ALTER TABLE users ADD INDEX idx_users_oauth_provider (oauth_provider, oauth_provider_id)");
+    }
 
     // 3. Secure Admin Insert (Prepared Statement)
     $stmt = $pdo->prepare("INSERT INTO users (email, password, role, name, email_verified_at) VALUES (?, ?, 'admin', 'Administrator', NOW())");
@@ -120,5 +143,6 @@ try {
 
     header("Location: $url/login");
 } catch(Exception $e) {
-    exit("<div style='font-family:sans-serif;padding:20px;color:red;'><h3>Installation Error</h3>" . htmlspecialchars($e->getMessage()) . "<br><br><a href='index.php?step=2'>Try Again</a></div>");
+    $retryUrl = 'index.php?step=2&setup_token=' . urlencode($requestToken);
+    exit("<div style='font-family:sans-serif;padding:20px;color:red;'><h3>Installation Error</h3>" . htmlspecialchars($e->getMessage()) . "<br><br><a href='" . htmlspecialchars($retryUrl, ENT_QUOTES, 'UTF-8') . "'>Try Again</a></div>");
 }
