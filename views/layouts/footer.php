@@ -1,7 +1,34 @@
 <style>
     .footer-nebula { background: transparent; border-top: 1px solid var(--footer-border); position: relative; margin-top: auto; padding-top: 80px; padding-bottom: 30px; overflow: hidden; }
     .footer-glow { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(circle, var(--footer-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; }
-    .footer-brand { font-family: var(--font-sans); font-weight: 800; font-size: 1.8rem; background: linear-gradient(90deg, #fff, var(--muted-text)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; display: inline-block; text-decoration: none; }
+    .footer-brand {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(1.95rem, 1.4rem + 0.9vw, 2.7rem);
+        letter-spacing: -0.04em;
+        line-height: 0.95;
+        margin-bottom: 20px;
+        text-decoration: none;
+    }
+    .footer-brand::before {
+        content: "";
+        width: 0.78rem;
+        height: 0.78rem;
+        border-radius: 0.22rem;
+        background: linear-gradient(135deg, var(--primary-neon), var(--secondary-neon));
+        box-shadow: 0 0 20px var(--primary-soft);
+        flex-shrink: 0;
+    }
+    .footer-brand span {
+        background: linear-gradient(90deg, #fff 0%, #d8fbff 35%, var(--muted-text) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
     .footer-link { color: var(--muted-text); text-decoration: none; margin-bottom: 12px; display: block; transition: 0.3s; font-size: 0.95rem; }
     .footer-link:hover { color: #fff; transform: translateX(5px); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
     .social-btn { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #fff; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); text-decoration: none; }
@@ -36,7 +63,7 @@ $socialLinks = array_filter([
     <div class="container position-relative z-1">
         <div class="row g-5">
             <div class="col-lg-4">
-                <a href="<?= htmlspecialchars($publicUrl('/')) ?>" class="footer-brand"><?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?></a>
+                <a href="<?= htmlspecialchars($publicUrl('/')) ?>" class="footer-brand"><span><?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?></span></a>
                 <p class="text-secondary small mb-4" style="line-height: 1.6; max-width: 300px;"><?= htmlspecialchars($footerText) ?></p>
                 <?php if (!empty($socialLinks)): ?>
                     <div class="d-flex gap-2 flex-wrap">

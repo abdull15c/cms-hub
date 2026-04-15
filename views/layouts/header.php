@@ -75,6 +75,9 @@ $outfitFontHref = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;
 $themeVars['--font-sans'] = $usesStorefrontLiteCss
     ? 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
     : '"Outfit", sans-serif';
+$themeVars['--font-display'] = $usesStorefrontLiteCss
+    ? '"Segoe UI Variable Display", "Segoe UI", "Trebuchet MS", system-ui, sans-serif'
+    : '"Outfit", sans-serif';
 $iconSvg = static function (string $icon, string $class = '', string $label = ''): string {
     return \Src\Services\StorefrontIcon::render($icon, $class, $label);
 };
@@ -137,7 +140,38 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
         .floating-icon { position: absolute; color: var(--primary-neon); opacity: 0.05; animation: floatUp linear infinite; }
         @keyframes floatUp { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
-        .glitch { position: relative; color: white; font-weight: 900; letter-spacing: -1px; text-shadow: 0 0 22px var(--primary-soft); }
+        .glitch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: white;
+            font-family: var(--font-display);
+            font-size: clamp(1.45rem, 1.1rem + 0.9vw, 2.1rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            text-decoration: none;
+            text-shadow: 0 0 22px var(--primary-soft);
+        }
+        .glitch::before {
+            content: "";
+            width: 0.72rem;
+            height: 0.72rem;
+            border-radius: 0.22rem;
+            background: linear-gradient(135deg, var(--primary-neon), var(--secondary-neon));
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 0 22px var(--primary-soft);
+            flex-shrink: 0;
+        }
+        .glitch span {
+            background: linear-gradient(120deg, #ffffff 0%, #c6f7ff 48%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glitch:hover {
+            text-shadow: 0 0 28px var(--primary-soft);
+        }
         .hover-info:hover { color: var(--primary-neon) !important; transition: 0.2s; }
         .dropdown-menu { background: var(--dropdown-bg); backdrop-filter: blur(10px); border: 1px solid var(--card-border); }
         .dropdown-item:hover { background: var(--dropdown-hover); color: var(--primary-neon) !important; }
@@ -182,12 +216,12 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--nav-border);">
   <div class="container">
-    <a class="navbar-brand glitch" href="<?= htmlspecialchars($publicUrl('/')) ?>">
-        <?php $logo = \Src\Services\SettingsService::get('site_logo'); ?>
+    <?php $logo = \Src\Services\SettingsService::get('site_logo'); ?>
+    <a class="navbar-brand<?= $logo ? '' : ' glitch' ?>" href="<?= htmlspecialchars($publicUrl('/')) ?>">
         <?php if($logo): ?>
             <img src="<?= BASE_URL ?>/uploads/branding/<?= $logo ?>" alt="Logo" style="height: 40px; max-width: 150px;">
         <?php else: ?>
-            <?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?>
+            <span><?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?></span>
         <?php endif; ?>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-label="<?= htmlspecialchars($t('nav_toggle', 'Toggle navigation')) ?>"><span class="navbar-toggler-icon"></span></button>
