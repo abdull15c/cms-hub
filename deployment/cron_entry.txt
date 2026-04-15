@@ -1,0 +1,14 @@
+# Linux cron example:
+# Change '/path/to/your/site' and '/usr/bin/php' to the real values on your server.
+# This fallback runs up to 10 queue jobs per minute. For instant processing, keep a dedicated worker running too.
+
+* * * * * cd /path/to/your/site && /usr/bin/php public/cron.php >> storage/logs/cron.log 2>&1
+
+# HTTP fallback for shared hosting if CLI cron is not available:
+# * * * * * curl -fsS "https://example.com/cron.php?token=YOUR_CRON_TOKEN" >> /path/to/your/site/storage/logs/cron.log 2>&1
+
+# Manual worker run example:
+# WORKER_SLEEP_SECONDS=3 WORKER_MAX_JOBS=500 WORKER_MAX_RUNTIME=3600 /usr/bin/php /path/to/your/site/worker.php >> /path/to/your/site/storage/logs/worker.log 2>&1
+
+# Windows Task Scheduler example:
+# C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe C:\path\to\your\site\public\cron.php

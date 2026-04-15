@@ -1,0 +1,13 @@
+[Unit]
+Description=Market scheduled cron runner
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User={{APP_USER}}
+Group={{APP_GROUP}}
+WorkingDirectory={{APP_ROOT}}
+ExecStart={{PHP_BIN}} {{APP_ROOT}}/public/cron.php
+StandardOutput=append:{{APP_ROOT}}/storage/logs/cron.log
+StandardError=append:{{APP_ROOT}}/storage/logs/cron.log

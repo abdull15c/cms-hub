@@ -1,0 +1,22 @@
+[Unit]
+Description=Market queue worker
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{APP_USER}}
+Group={{APP_GROUP}}
+WorkingDirectory={{APP_ROOT}}
+Environment=WORKER_HEARTBEAT_FILE={{APP_ROOT}}/storage/logs/worker-heartbeat
+Environment=WORKER_SLEEP_SECONDS=3
+Environment=WORKER_MAX_JOBS=500
+Environment=WORKER_MAX_RUNTIME=3600
+ExecStart={{PHP_BIN}} {{APP_ROOT}}/worker.php
+Restart=always
+RestartSec=5
+StandardOutput=append:{{APP_ROOT}}/storage/logs/worker.log
+StandardError=append:{{APP_ROOT}}/storage/logs/worker.log
+
+[Install]
+WantedBy=multi-user.target
