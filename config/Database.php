@@ -75,6 +75,21 @@ class Database {
                 if (php_sapi_name() === 'cli') {
                     throw new \RuntimeException('Database connection failed: ' . $e->getMessage(), 0, $e);
                 }
+                $debug = strtolower((string)Env::get('APP_DEBUG', 'false'));
+                if (in_array($debug, ['1', 'true', 'yes', 'on'], true)) {
+                    $details = htmlspecialchars(
+                        "Database connection failed.\n"
+                        . "host={$host}\n"
+                        . "port={$port}\n"
+                        . "db={$db}\n"
+                        . "user={$user}\n"
+                        . "message=" . $e->getMessage(),
+                        ENT_QUOTES,
+                        'UTF-8'
+                    );
+                    http_response_code(500);
+                    die("<h1>Database Debug</h1><pre>{$details}</pre>");
+                }
                 http_response_code(500);
                 die("<h1>Service Unavailable</h1><p>The system is currently experiencing technical difficulties.</p>");
             }
