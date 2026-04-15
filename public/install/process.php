@@ -2,9 +2,9 @@
 // INSTALLER PROCESSOR (SECURE)
 $setupToken = (string)($_ENV['INSTALLER_SETUP_TOKEN'] ?? getenv('INSTALLER_SETUP_TOKEN') ?: getenv('INSTALLER_TOKEN') ?: '');
 $requestToken = (string)($_POST['setup_token'] ?? ($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ''));
-$allowInstaller = (string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '') === '1';
-$appEnv = strtolower((string)($_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: ''));
-if ($appEnv === 'production' || !$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $requestToken)) {
+$allowInstallerRaw = strtolower(trim((string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '')));
+$allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true);
+if (!$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $requestToken)) {
     http_response_code(403);
     exit('Installer is locked');
 }

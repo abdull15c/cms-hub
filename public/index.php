@@ -4,14 +4,14 @@ $envPath = dirname(__DIR__) . '/.env';
 $installerPath = __DIR__ . '/install/index.php';
 $installLock = dirname(__DIR__) . '/storage/.installed.lock';
 if (!file_exists($envPath) && file_exists($installerPath) && !file_exists($installLock)) {
-    $appEnv = strtolower((string)($_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: ''));
-    $allowInstaller = (string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '') === '1';
+    $allowInstallerRaw = strtolower(trim((string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '')));
+    $allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true);
     $setupToken = (string)($_ENV['INSTALLER_SETUP_TOKEN'] ?? getenv('INSTALLER_SETUP_TOKEN') ?: getenv('INSTALLER_TOKEN') ?: '');
     $requestToken = (string)($_GET['setup_token'] ?? ($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ''));
 
-    if ($appEnv === 'production' || !$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $requestToken)) {
+    if (!$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $requestToken)) {
         http_response_code(403);
-        exit('Installer is disabled. Provide valid setup token and non-production environment.');
+        exit('Installer is disabled. Provide valid setup token and enable web installer.');
     }
     header('Location: install/index.php?setup_token=' . urlencode($requestToken));
     exit;
