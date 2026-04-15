@@ -5,6 +5,17 @@ use Src\Core\Env;
 class Database {
     private static $pdo;
 
+    private static function firstNonEmpty(...$values): string {
+        foreach ($values as $value) {
+            $value = trim((string)$value);
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
+    }
+
     private static function parseDatabaseUrl(?string $url): array {
         $url = trim((string)$url);
         if ($url === '') {
@@ -40,21 +51,47 @@ class Database {
         if (!self::$pdo) {
             Env::load();
             $urlConfig = self::parseDatabaseUrl(
-                Env::get('DATABASE_URL',
-                    Env::get('DB_URL',
-                        Env::get('MYSQL_URL',
-                            Env::get('INSTALL_DATABASE_URL', Env::get('INSTALL_DB_URL', ''))
-                        )
-                    )
+                self::firstNonEmpty(
+                    Env::get('DATABASE_URL', ''),
+                    Env::get('DB_URL', ''),
+                    Env::get('MYSQL_URL', ''),
+                    Env::get('INSTALL_DATABASE_URL', ''),
+                    Env::get('INSTALL_DB_URL', '')
                 )
             );
 
-            $host = Env::get('DB_HOST', Env::get('INSTALL_DB_HOST', $urlConfig['host'] ?? 'localhost'));
-            $port = Env::get('DB_PORT', Env::get('INSTALL_DB_PORT', $urlConfig['port'] ?? ''));
-            $db   = Env::get('DB_NAME', Env::get('INSTALL_DB_NAME', $urlConfig['db'] ?? 'dle_market_db'));
-            $user = Env::get('DB_USER', Env::get('INSTALL_DB_USER', $urlConfig['user'] ?? 'root'));
-            $pass = Env::get('DB_PASS', Env::get('INSTALL_DB_PASS', $urlConfig['pass'] ?? ''));
-            $charset = Env::get('CHARSET', 'utf8mb4');
+            $host = self::firstNonEmpty(
+                Env::get('DB_HOST', ''),
+                Env::get('INSTALL_DB_HOST', ''),
+                $urlConfig['host'] ?? '',
+                'localhost'
+            );
+            $port = self::firstNonEmpty(
+                Env::get('DB_PORT', ''),
+                Env::get('INSTALL_DB_PORT', ''),
+                $urlConfig['port'] ?? ''
+            );
+            $db = self::firstNonEmpty(
+                Env::get('DB_NAME', ''),
+                Env::get('INSTALL_DB_NAME', ''),
+                $urlConfig['db'] ?? '',
+                'dle_market_db'
+            );
+            $user = self::firstNonEmpty(
+                Env::get('DB_USER', ''),
+                Env::get('INSTALL_DB_USER', ''),
+                $urlConfig['user'] ?? '',
+                'root'
+            );
+            $pass = self::firstNonEmpty(
+                Env::get('DB_PASS', ''),
+                Env::get('INSTALL_DB_PASS', ''),
+                $urlConfig['pass'] ?? ''
+            );
+            $charset = self::firstNonEmpty(
+                Env::get('CHARSET', ''),
+                'utf8mb4'
+            );
 
             if (strtolower((string)$host) === 'localhost') {
                 $host = '127.0.0.1';
@@ -83,6 +120,7 @@ class Database {
                         . "port={$port}\n"
                         . "db={$db}\n"
                         . "user={$user}\n"
+                        . "charset={$charset}\n"
                         . "message=" . $e->getMessage(),
                         ENT_QUOTES,
                         'UTF-8'
