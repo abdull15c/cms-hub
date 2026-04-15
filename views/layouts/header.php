@@ -67,6 +67,7 @@ $optimizedStorefrontViews = [
 $usesStorefrontSvgIcons = empty($is_admin_view) && in_array((string)($view_name ?? ''), $optimizedStorefrontViews, true);
 $usesStorefrontLiteCss = $usesStorefrontSvgIcons;
 $loadFontAwesome = !empty($is_admin_view) || !$usesStorefrontSvgIcons;
+$needsJsDelivr = !$usesStorefrontLiteCss || (string)($view_name ?? '') === 'product';
 $storefrontCssPath = ROOT_PATH . '/public/assets/storefront.css';
 $storefrontCssVersion = file_exists($storefrontCssPath) ? (string)filemtime($storefrontCssPath) : '1';
 $outfitFontHref = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap';
@@ -107,7 +108,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <?php if ($needsJsDelivr): ?><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><?php endif; ?>
     <?php if ($loadFontAwesome): ?><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin><?php endif; ?>
     <?php if ($usesStorefrontLiteCss): ?>
         <link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL . '/assets/storefront.css?v=' . $storefrontCssVersion) ?>">

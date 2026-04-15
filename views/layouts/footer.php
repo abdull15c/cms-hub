@@ -20,6 +20,9 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 };
 $footerText = \Src\Services\SettingsService::get('footer_text') ?: $t('footer_text', 'Premium digital marketplace.');
 $contactEmail = \Src\Services\SettingsService::get('contact_email');
+$usesStorefrontLiteCss = (bool)($usesStorefrontLiteCss ?? false);
+$storefrontJsPath = ROOT_PATH . '/public/assets/storefront.js';
+$storefrontJsVersion = file_exists($storefrontJsPath) ? (string)filemtime($storefrontJsPath) : '1';
 $socialLinks = array_filter([
     ['url' => \Src\Services\SettingsService::get('telegram_url'), 'icon' => 'fa-telegram', 'label' => 'Telegram'],
     ['url' => \Src\Services\SettingsService::get('discord_url'), 'icon' => 'fa-discord', 'label' => 'Discord'],
@@ -88,9 +91,13 @@ $socialLinks = array_filter([
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script nonce="<?= CSP_NONCE ?>">
-    document.documentElement.classList.add('app-ready');
-</script>
+<?php if ($usesStorefrontLiteCss): ?>
+    <script src="<?= htmlspecialchars(BASE_URL . '/assets/storefront.js?v=' . $storefrontJsVersion) ?>"></script>
+<?php else: ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="<?= CSP_NONCE ?>">
+        document.documentElement.classList.add('app-ready');
+    </script>
+<?php endif; ?>
 </body>
 </html>
