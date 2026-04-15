@@ -10,6 +10,40 @@ $instantLabel = $isRu ? 'Мгновенно' : 'Instant';
 $digitalLabel = $isRu ? 'Digital' : 'Digital';
 $licensedLabel = $isRu ? 'Лицензия' : 'Licensed';
 $saleLabel = $isRu ? 'Скидка' : 'Sale';
+$themeSlug = (string)($theme['slug'] ?? 'dark-tech');
+$homeVariant = (string)($theme['home_variant'] ?? 'tech-grid');
+$homeVariantClass = preg_replace('/[^a-z0-9-]+/', '-', strtolower($homeVariant)) ?: 'tech-grid';
+$storefrontShellClass = 'storefront-shell storefront-shell--' . $homeVariantClass;
+$statsCaption = $isRu ? 'Кратко о витрине' : 'Storefront snapshot';
+$statsLead = $isRu ? 'Фокус на быстрый запуск и готовые решения' : 'Built around ready-made solutions and fast launch';
+$previewTitle = '';
+$previewText = '';
+$previewRibbon = '';
+$previewItems = [];
+
+if ($homeVariant === 'luxe-editorial') {
+    $statsCaption = $isRu ? 'Premium-витрина' : 'Premium storefront';
+    $statsLead = $isRu ? 'Для дорогих офферов, услуг и готовых решений под клиента' : 'Built for high-ticket offers, services and client-ready solutions';
+    $previewTitle = $isRu ? 'Кураторская подача для premium digital-продуктов' : 'Curated presentation for premium digital products';
+    $previewText = $isRu ? 'Подходит для готовых сайтов, агентских пакетов, брендированной кастомизации и high-ticket продажи.' : 'Fits ready-made sites, agency packs, branded customization and high-ticket delivery.';
+    $previewRibbon = $isRu ? 'Подача с premium-акцентом' : 'Premium-first positioning';
+    $previewItems = [
+        ['title' => $isRu ? 'Готовые сайты' : 'Ready websites', 'text' => $isRu ? 'Запуск под клиента' : 'Client launch'],
+        ['title' => $isRu ? 'Custom build' : 'Custom build', 'text' => $isRu ? 'Доработка под бренд' : 'Brand refinement'],
+        ['title' => $isRu ? 'Сопровождение' : 'Support layer', 'text' => $isRu ? 'Настройка и запуск' : 'Setup and delivery'],
+    ];
+} elseif ($homeVariant === 'ocean-catalog') {
+    $statsCaption = $isRu ? 'Спокойный каталог' : 'Calm catalog';
+    $statsLead = $isRu ? 'Для маркетов, подписок, сервисов и широких витрин' : 'Built for markets, memberships, services and wide storefronts';
+    $previewTitle = $isRu ? 'Мягкая и понятная витрина для длинного каталога' : 'A softer storefront for wide catalogs and long-term offers';
+    $previewText = $isRu ? 'Хорошо работает там, где важны навигация, доверие, услуги и понятный каталог без перегруза.' : 'Works well where navigation, trust, services and calm catalog browsing matter most.';
+    $previewRibbon = $isRu ? 'Фокус на навигацию и каталог' : 'Focused on navigation and browsing';
+    $previewItems = [
+        ['title' => $isRu ? 'Каталог' : 'Catalog', 'text' => $isRu ? 'Удобный просмотр' : 'Easy browsing'],
+        ['title' => $isRu ? 'Услуги' : 'Services', 'text' => $isRu ? 'Подключение и помощь' : 'Setup and support'],
+        ['title' => $isRu ? 'Подписки' : 'Retention', 'text' => $isRu ? 'Апдейты и допы' : 'Updates and add-ons'],
+    ];
+}
 ?>
 
 <style>
@@ -240,6 +274,71 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
             linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
             radial-gradient(circle at top right, var(--primary-soft), transparent 38%),
             radial-gradient(circle at bottom left, var(--secondary-soft), transparent 42%);
+    }
+
+    .preview-showcase {
+        display: grid;
+        gap: 18px;
+        height: 100%;
+        align-content: start;
+        padding: 8px;
+    }
+
+    .preview-showcase-title {
+        color: #fff;
+        font-size: clamp(1.35rem, 2vw, 1.85rem);
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        margin: 0;
+    }
+
+    .preview-showcase-text {
+        color: var(--muted-text);
+        line-height: 1.72;
+        margin: 0;
+    }
+
+    .preview-stack-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .preview-stack-card {
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+        min-height: 118px;
+        display: grid;
+        align-content: start;
+        gap: 8px;
+    }
+
+    .preview-stack-card strong {
+        color: #fff;
+        font-size: 0.96rem;
+        line-height: 1.2;
+    }
+
+    .preview-stack-card span {
+        color: var(--muted-text);
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .preview-ribbon {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        justify-self: start;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: var(--text-main);
+        font-size: 0.84rem;
+        font-weight: 700;
     }
 
     .preview-browser {
@@ -747,6 +846,117 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         margin-bottom: 10px;
     }
 
+    .storefront-shell--luxe-editorial .hero-grid {
+        grid-template-columns: minmax(0, 1.06fr) minmax(360px, 0.94fr);
+    }
+
+    .storefront-shell--luxe-editorial .hero-panel {
+        padding: 52px;
+        border-radius: 38px;
+        background:
+            linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02)),
+            radial-gradient(circle at top left, rgba(224,166,74,0.18), transparent 34%),
+            linear-gradient(180deg, rgba(249,115,22,0.05), transparent 48%);
+    }
+
+    .storefront-shell--luxe-editorial .hero-panel::before {
+        background: radial-gradient(circle, rgba(249,115,22,0.20) 0%, transparent 68%);
+    }
+
+    .storefront-shell--luxe-editorial .hero-panel::after {
+        background: radial-gradient(circle, rgba(224,166,74,0.22) 0%, transparent 72%);
+    }
+
+    .storefront-shell--luxe-editorial .hero-title {
+        max-width: 12ch;
+        font-size: clamp(3rem, 5.6vw, 5.3rem);
+    }
+
+    .storefront-shell--luxe-editorial .preview-card,
+    .storefront-shell--luxe-editorial .stats-card,
+    .storefront-shell--luxe-editorial .catalog-group-card,
+    .storefront-shell--luxe-editorial .value-card,
+    .storefront-shell--luxe-editorial .service-card,
+    .storefront-shell--luxe-editorial .faq-card,
+    .storefront-shell--luxe-editorial .about-card,
+    .storefront-shell--luxe-editorial .cta-card {
+        border-color: rgba(224,166,74,0.14);
+        box-shadow: 0 24px 44px rgba(0,0,0,0.22);
+    }
+
+    .storefront-shell--luxe-editorial .product-card {
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.018)),
+            linear-gradient(180deg, rgba(224,166,74,0.06), transparent 42%);
+        border-color: rgba(224,166,74,0.14);
+    }
+
+    .storefront-shell--luxe-editorial .product-card:hover {
+        border-color: var(--primary-neon);
+        box-shadow: 0 26px 46px rgba(0,0,0,0.26), 0 0 28px var(--primary-soft);
+    }
+
+    .storefront-shell--luxe-editorial .preview-showcase {
+        gap: 20px;
+    }
+
+    .storefront-shell--luxe-editorial .preview-stack-card {
+        background: rgba(35, 29, 24, 0.72);
+        border-color: rgba(224,166,74,0.14);
+    }
+
+    .storefront-shell--luxe-editorial .preview-ribbon {
+        background: rgba(224,166,74,0.10);
+        border-color: rgba(224,166,74,0.16);
+    }
+
+    .storefront-shell--ocean-catalog .hero-grid {
+        grid-template-columns: minmax(0, 1.12fr) minmax(340px, 0.88fr);
+    }
+
+    .storefront-shell--ocean-catalog .hero-panel {
+        background:
+            linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
+            radial-gradient(circle at top right, rgba(56,189,248,0.16), transparent 34%),
+            linear-gradient(180deg, rgba(45,212,191,0.05), transparent 46%);
+    }
+
+    .storefront-shell--ocean-catalog .hero-panel::before {
+        background: radial-gradient(circle, rgba(45,212,191,0.22) 0%, transparent 68%);
+    }
+
+    .storefront-shell--ocean-catalog .hero-panel::after {
+        background: radial-gradient(circle, rgba(56,189,248,0.20) 0%, transparent 72%);
+    }
+
+    .storefront-shell--ocean-catalog .preview-card,
+    .storefront-shell--ocean-catalog .stats-card,
+    .storefront-shell--ocean-catalog .catalog-group-card,
+    .storefront-shell--ocean-catalog .value-card,
+    .storefront-shell--ocean-catalog .service-card,
+    .storefront-shell--ocean-catalog .faq-card,
+    .storefront-shell--ocean-catalog .about-card,
+    .storefront-shell--ocean-catalog .cta-card {
+        background: rgba(8,30,46,0.56);
+    }
+
+    .storefront-shell--ocean-catalog .product-card {
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.018)),
+            linear-gradient(180deg, rgba(56,189,248,0.05), transparent 40%);
+        border-color: rgba(56,189,248,0.12);
+    }
+
+    .storefront-shell--ocean-catalog .preview-stack-card {
+        background: rgba(12, 37, 53, 0.72);
+        border-color: rgba(56,189,248,0.14);
+    }
+
+    .storefront-shell--ocean-catalog .preview-ribbon {
+        background: rgba(56,189,248,0.10);
+        border-color: rgba(56,189,248,0.14);
+    }
+
     .empty-state {
         padding: 48px 24px;
         text-align: center;
@@ -760,6 +970,10 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         .catalog-group-grid,
         .value-grid,
         .service-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .preview-stack-grid {
             grid-template-columns: 1fr;
         }
 
@@ -821,7 +1035,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 </style>
 
-<div class="container py-4 py-lg-5 storefront-shell">
+<div class="container py-4 py-lg-5 <?= htmlspecialchars($storefrontShellClass) ?>">
     <?php if ($plain_listing): ?>
         <section class="hero-grid mb-5" data-aos="fade-up">
             <div class="hero-panel">
@@ -855,25 +1069,42 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
             <div class="hero-side">
                 <div class="preview-card">
-                    <div class="preview-browser">
-                        <div class="preview-top"><span></span><span></span><span></span></div>
-                        <div class="preview-hero">
-                            <div class="preview-line"></div>
-                            <div class="preview-line short"></div>
+                    <?php if ($homeVariant === 'tech-grid'): ?>
+                        <div class="preview-browser">
+                            <div class="preview-top"><span></span><span></span><span></span></div>
+                            <div class="preview-hero">
+                                <div class="preview-line"></div>
+                                <div class="preview-line short"></div>
+                            </div>
+                            <div class="preview-grid">
+                                <div class="preview-block primary"></div>
+                                <div class="preview-block"></div>
+                                <div class="preview-block"></div>
+                                <div class="preview-block secondary"></div>
+                            </div>
                         </div>
-                        <div class="preview-grid">
-                            <div class="preview-block primary"></div>
-                            <div class="preview-block"></div>
-                            <div class="preview-block"></div>
-                            <div class="preview-block secondary"></div>
+                    <?php else: ?>
+                        <div class="preview-showcase preview-showcase--<?= htmlspecialchars($homeVariantClass) ?>">
+                            <span class="hero-eyebrow"><?= $iconSvg($homeVariant === 'luxe-editorial' ? 'fa-star' : 'fa-layer-group') ?> <?= htmlspecialchars($theme['name'] ?? 'Storefront Theme') ?></span>
+                            <h3 class="preview-showcase-title"><?= htmlspecialchars($previewTitle) ?></h3>
+                            <p class="preview-showcase-text"><?= htmlspecialchars($previewText) ?></p>
+                            <div class="preview-stack-grid">
+                                <?php foreach ($previewItems as $item): ?>
+                                    <div class="preview-stack-card">
+                                        <strong><?= htmlspecialchars($item['title'] ?? '') ?></strong>
+                                        <span><?= htmlspecialchars($item['text'] ?? '') ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="preview-ribbon"><?= $iconSvg($homeVariant === 'luxe-editorial' ? 'fa-tag' : 'fa-chart-line') ?> <?= htmlspecialchars($previewRibbon) ?></div>
                         </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="stats-card">
                     <div>
-                        <div class="stats-caption"><?= htmlspecialchars($isRu ? 'Кратко о витрине' : 'Storefront snapshot') ?></div>
-                        <div class="stats-lead"><?= htmlspecialchars($isRu ? 'Фокус на быстрый запуск и готовые решения' : 'Built around ready-made solutions and fast launch') ?></div>
+                        <div class="stats-caption"><?= htmlspecialchars($statsCaption) ?></div>
+                        <div class="stats-lead"><?= htmlspecialchars($statsLead) ?></div>
                     </div>
                     <div class="stats-grid">
                         <?php foreach (($stats ?? []) as $stat): ?>
@@ -1033,7 +1264,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     <?php endif; ?>
 
     <?php if ($plain_listing): ?>
-        <section id="why-dark-tech" class="section-head" data-aos="fade-up">
+        <section id="why-storefront" class="section-head" data-aos="fade-up">
             <div>
                 <h2><?= htmlspecialchars($isRu ? 'Почему этот магазин удобен' : 'Why this store is easy to work with') ?></h2>
                 <p><?= htmlspecialchars($isRu ? 'Главная страница и каталог теперь подают витрину как магазин готовых решений для запуска, продажи и кастомизации.' : 'The homepage and catalog now present the storefront as a ready-made solutions store built for launch, resale and customization.') ?></p>

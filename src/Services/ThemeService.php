@@ -14,6 +14,9 @@ class ThemeService
                 'tagline' => 'Cyber storefront for code, AI and digital tools.',
                 'description' => 'High-contrast dark theme with neon cyan and magenta accents. Best fit for scripts, templates, SaaS kits and developer products.',
                 'badge' => 'Default',
+                'layout_name' => 'Tech Grid',
+                'best_for' => 'Scripts, AI products, dev stores and code marketplaces.',
+                'home_variant' => 'tech-grid',
                 'palette' => [
                     'bootstrap_theme' => 'dark',
                     'bg_color' => '#0b0f19',
@@ -52,6 +55,9 @@ class ThemeService
                 'tagline' => 'Premium dark storefront with gold editorial accents.',
                 'description' => 'A polished luxury palette with graphite panels, warm highlights and a more premium tone for curated shops and high-ticket products.',
                 'badge' => 'Premium',
+                'layout_name' => 'Luxe Editorial',
+                'best_for' => 'Premium catalogs, agency delivery and high-ticket offers.',
+                'home_variant' => 'luxe-editorial',
                 'palette' => [
                     'bootstrap_theme' => 'dark',
                     'bg_color' => '#111111',
@@ -90,6 +96,9 @@ class ThemeService
                 'tagline' => 'Deep blue storefront for modern product catalogs.',
                 'description' => 'Cool blue and emerald palette with softer surfaces. Great for digital catalogs, memberships and marketplaces with a calm professional look.',
                 'badge' => 'Fresh',
+                'layout_name' => 'Calm Catalog',
+                'best_for' => 'Broad catalogs, memberships, services and evergreen products.',
+                'home_variant' => 'ocean-catalog',
                 'palette' => [
                     'bootstrap_theme' => 'dark',
                     'bg_color' => '#071722',

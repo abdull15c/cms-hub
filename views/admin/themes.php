@@ -1,8 +1,9 @@
+<?php $isRu = ($langCode ?? 'ru') === 'ru'; ?>
 <div class="container py-5">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
             <h2 class="text-light mb-1"><?= htmlspecialchars($t('themes_title', 'Themes')) ?></h2>
-            <p class="text-secondary mb-0"><?= htmlspecialchars($t('themes_subtitle', 'Choose the storefront look for your current shop. The admin panel keeps its own stable style.')) ?></p>
+            <p class="text-secondary mb-0"><?= htmlspecialchars($isRu ? 'Выбирайте не только палитру, но и стиль подачи главной страницы. Админка остаётся в своём стабильном оформлении.' : 'Choose not only the palette, but also the homepage presentation style. The admin panel keeps its own stable appearance.') ?></p>
         </div>
         <div class="d-flex gap-2">
             <a href="<?= BASE_URL ?>/admin/settings" class="btn btn-outline-secondary"><?= htmlspecialchars($t('themes_open_settings', 'Brand Settings')) ?></a>
@@ -19,6 +20,14 @@
                     <span class="badge rounded-pill" style="background: <?= htmlspecialchars(($activeTheme['palette']['badge_bg'] ?? 'rgba(0,242,234,0.12)')) ?>; color: <?= htmlspecialchars(($activeTheme['palette']['badge_text'] ?? '#9ffcf6')) ?>;">
                         <?= htmlspecialchars($activeTheme['badge'] ?? 'Default') ?>
                     </span>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <?php if (!empty($activeTheme['layout_name'])): ?>
+                        <span class="theme-meta-chip"><?= htmlspecialchars($isRu ? 'Макет' : 'Layout') ?>: <?= htmlspecialchars($activeTheme['layout_name']) ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($activeTheme['best_for'])): ?>
+                        <span class="theme-meta-chip"><?= htmlspecialchars($isRu ? 'Подходит для' : 'Best for') ?>: <?= htmlspecialchars($activeTheme['best_for']) ?></span>
+                    <?php endif; ?>
                 </div>
                 <p class="text-secondary mb-0 mt-2" style="max-width: 760px;"><?= htmlspecialchars($activeTheme['description'] ?? '') ?></p>
             </div>
@@ -69,6 +78,15 @@
                         </div>
 
                         <p class="text-secondary small flex-grow-1 mb-4"><?= htmlspecialchars($themeItem['description'] ?? '') ?></p>
+
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <?php if (!empty($themeItem['layout_name'])): ?>
+                                <span class="theme-meta-chip"><?= htmlspecialchars($isRu ? 'Макет' : 'Layout') ?>: <?= htmlspecialchars($themeItem['layout_name']) ?></span>
+                            <?php endif; ?>
+                            <?php if (!empty($themeItem['best_for'])): ?>
+                                <span class="theme-meta-chip"><?= htmlspecialchars($isRu ? 'Подходит для' : 'Best for') ?>: <?= htmlspecialchars($themeItem['best_for']) ?></span>
+                            <?php endif; ?>
+                        </div>
 
                         <div class="d-flex gap-2 align-items-center">
                             <?php if ($isActive): ?>
@@ -169,5 +187,18 @@
     height: 72px;
     border-radius: 14px;
     opacity: 0.9;
+}
+
+.theme-meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    font-size: 0.72rem;
+    line-height: 1.3;
 }
 </style>
