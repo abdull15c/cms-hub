@@ -6,6 +6,15 @@ $installLock = dirname(__DIR__) . '/storage/.installed.lock';
 if (!file_exists($envPath) && file_exists($installerPath) && !file_exists($installLock)) {
     $allowInstallerRaw = strtolower(trim((string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '')));
     $allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true);
+    $runtimeConfigured = (string)($_ENV['APP_URL'] ?? getenv('APP_URL') ?: '') !== ''
+        && (string)($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '') !== ''
+        && (string)($_ENV['INSTALL_DB_NAME'] ?? getenv('INSTALL_DB_NAME') ?: $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: '') !== ''
+        && (string)($_ENV['INSTALL_DB_USER'] ?? getenv('INSTALL_DB_USER') ?: $_ENV['DB_USER'] ?? getenv('DB_USER') ?: '') !== '';
+
+    if ($runtimeConfigured && !$allowInstaller) {
+        goto bootstrap_app;
+    }
+
     $setupToken = (string)($_ENV['INSTALLER_SETUP_TOKEN'] ?? getenv('INSTALLER_SETUP_TOKEN') ?: getenv('INSTALLER_TOKEN') ?: '');
     $requestToken = (string)($_GET['setup_token'] ?? ($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ''));
 
@@ -17,6 +26,7 @@ if (!file_exists($envPath) && file_exists($installerPath) && !file_exists($insta
     exit;
 }
 
+bootstrap_app:
 require_once dirname(__DIR__) . '/src/app_bootstrap.php';
 if(!defined('CSP_NONCE')) define('CSP_NONCE', bin2hex(random_bytes(16)));
 

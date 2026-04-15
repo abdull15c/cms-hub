@@ -8,11 +8,11 @@ class Database {
     public static function connect() {
         if (!self::$pdo) {
             Env::load();
-            $host = Env::get('DB_HOST', 'localhost');
-            $port = Env::get('DB_PORT', '');
-            $db   = Env::get('DB_NAME', 'dle_market_db');
-            $user = Env::get('DB_USER', 'root');
-            $pass = Env::get('DB_PASS', '');
+            $host = Env::get('DB_HOST', Env::get('INSTALL_DB_HOST', 'localhost'));
+            $port = Env::get('DB_PORT', Env::get('INSTALL_DB_PORT', ''));
+            $db   = Env::get('DB_NAME', Env::get('INSTALL_DB_NAME', 'dle_market_db'));
+            $user = Env::get('DB_USER', Env::get('INSTALL_DB_USER', 'root'));
+            $pass = Env::get('DB_PASS', Env::get('INSTALL_DB_PASS', ''));
             $charset = Env::get('CHARSET', 'utf8mb4');
 
             try {

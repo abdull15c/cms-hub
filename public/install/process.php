@@ -160,15 +160,29 @@ try {
     $stmt = $pdo->prepare("INSERT INTO users (email, password, role, name, email_verified_at) VALUES (?, ?, 'admin', 'Administrator', NOW())");
     $stmt->execute([$admEmail, $admPass]);
 
-    // 4. Write .env
+    // 4. Persist installation markers
     $env = "APP_URL=$url\nAPP_ENV=production\nDB_HOST=$host\nDB_PORT=$port\nDB_NAME=$name\nDB_USER=$user\nDB_PASS=$pass\nAPP_DEBUG=false\nCHARSET=utf8mb4\nCRON_TOKEN=" . bin2hex(random_bytes(16)) . "\nANALYTICS_IP_HASH_SALT={$analyticsSalt}\nMAIL_FROM_NAME=Market\nMAIL_FROM_ADDRESS={$mailFrom}\nSMTP_HOST=\nSMTP_PORT=587\nSMTP_ENCRYPTION=tls\nSMTP_USER=\nSMTP_PASS=\nSMTP_TIMEOUT=15\nSMTP_VERIFY_PEER=true\nBACKUP_DIR=storage/backups\nBACKUP_KEEP_DAYS=7\nMYSQLDUMP_BIN=mysqldump\nMYSQL_BIN=mysql";
-    file_put_contents('../../.env', $env);
+
     if (!is_dir('../../storage')) {
-        mkdir('../../storage', 0755, true);
+        @mkdir('../../storage', 0755, true);
     }
-    file_put_contents('../../storage/.installed.lock', date('c'));
+    $envWritten = @file_put_contents('../../.env', $env) !== false;
+    $lockPayload = json_encode([
+        'installed_at' => date('c'),
+        'env_written' => $envWritten,
+        'db_host' => $host,
+        'db_port' => $port,
+        'db_name' => $name,
+        'db_user' => $user,
+    ], JSON_UNESCAPED_SLASHES);
+    $lockWritten = @file_put_contents('../../storage/.installed.lock', $lockPayload) !== false;
+
+    if (!$envWritten && !$lockWritten) {
+        throw new RuntimeException('Installation succeeded, but config could not be persisted. Ensure storage/ is writable or disable installer and keep DB_* env variables in Coolify.');
+    }
 
     header("Location: $url/login");
+    exit;
 } catch(Exception $e) {
     $retryUrl = 'index.php?step=2&setup_token=' . urlencode($requestToken);
     exit("<div style='font-family:sans-serif;padding:20px;color:red;'><h3>Installation Error</h3>" . htmlspecialchars($e->getMessage()) . "<br><br><a href='" . htmlspecialchars($retryUrl, ENT_QUOTES, 'UTF-8') . "'>Try Again</a></div>");
