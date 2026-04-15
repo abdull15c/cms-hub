@@ -367,7 +367,7 @@ $heroBadges = [
         <div class="modal-content border-secondary" style="background:#131a29;border-radius:24px;">
             <div class="modal-header border-secondary border-opacity-10">
                 <h5 class="modal-title text-white"><?= htmlspecialchars($t('product_presale_chat', 'Pre-sale Chat')) ?></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="<?= htmlspecialchars($t('product_close_chat', 'Close chat')) ?>"></button>
             </div>
             <div class="modal-body">
                 <p class="mb-0 text-secondary text-center py-4"><?= htmlspecialchars($t('product_chat_active', 'Chat feature is active.')) ?></p>

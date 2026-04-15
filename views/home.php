@@ -744,7 +744,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
             <div class="col-12">
                 <div class="empty-state">
                     <?= $iconSvg('fa-ghost', 'fa-3x text-secondary opacity-50 mb-3') ?>
-                    <h4 class="text-white"><?= htmlspecialchars($t('empty_title', 'Nothing here yet')) ?></h4>
+                    <h3 class="text-white"><?= htmlspecialchars($t('empty_title', 'Nothing here yet')) ?></h3>
                     <p class="text-secondary mb-0"><?= htmlspecialchars($t('empty_desc', 'Try adjusting your filters.')) ?></p>
                 </div>
             </div>

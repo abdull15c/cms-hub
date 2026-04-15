@@ -173,7 +173,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         <?php foreach($messages as $msg): ?>
             <div class="alert alert-<?= $type === 'error' ? 'danger' : 'success' ?> alert-dismissible fade show glass-card border-<?= $type === 'error' ? 'danger' : 'success' ?> text-light shadow-lg" role="alert">
                 <?= $iconSvg($type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check', 'me-2') ?> <?= htmlspecialchars($msg) ?>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="<?= htmlspecialchars($t('close_alert', 'Dismiss message')) ?>"></button>
             </div>
         <?php endforeach; ?>
     <?php endforeach; ?>
@@ -190,12 +190,12 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
             <?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?>
         <?php endif; ?>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-label="<?= htmlspecialchars($t('nav_toggle', 'Toggle navigation')) ?>"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="nav">
       <form class="d-flex mx-auto my-2 my-lg-0" action="<?= BASE_URL ?>/" method="GET" style="width: 100%; max-width: 400px;">
           <input type="hidden" name="lang" value="<?= htmlspecialchars($currentLanguage) ?>">
           <input class="form-control navbar-search-input rounded-start" type="search" name="q" placeholder="<?= htmlspecialchars($t('nav_search', 'Search...')) ?>" value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-          <button class="btn navbar-search-btn rounded-end" type="submit"><?= $iconSvg('fa-search') ?></button>
+          <button class="btn navbar-search-btn rounded-end" type="submit" aria-label="<?= htmlspecialchars($t('nav_search_submit', 'Search catalog')) ?>"><?= $iconSvg('fa-search') ?></button>
       </form>
 
       <ul class="navbar-nav ms-3 d-none d-lg-flex">
@@ -248,6 +248,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
     </div>
   </div>
 </nav>
+<main id="main-content">
 <?php if (empty($is_admin_view) && !empty($theme['name'])): ?>
     <div class="container mt-3">
         <div class="d-flex justify-content-end">

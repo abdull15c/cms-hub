@@ -30,7 +30,8 @@ $socialLinks = array_filter([
 ], static fn(array $item): bool => trim((string)$item['url']) !== '');
 ?>
 
-<footer class="footer-nebula">
+    </main>
+<footer class="footer-nebula" aria-label="<?= htmlspecialchars($t('footer_label', 'Footer')) ?>">
     <div class="footer-glow"></div>
     <div class="container position-relative z-1">
         <div class="row g-5">
@@ -53,14 +54,14 @@ $socialLinks = array_filter([
                 <?php endif; ?>
             </div>
             <div class="col-6 col-lg-2">
-                <h6 class="text-white fw-bold mb-4"><?= htmlspecialchars($t('col_platform', 'Platform')) ?></h6>
+                <p class="text-white fw-bold mb-4"><?= htmlspecialchars($t('col_platform', 'Platform')) ?></p>
                 <a href="<?= htmlspecialchars($publicUrl('/')) ?>" class="footer-link"><?= htmlspecialchars($t('site_title', 'Marketplace')) ?></a>
                 <a href="<?= htmlspecialchars($publicUrl('/blog')) ?>" class="footer-link"><?= htmlspecialchars($t('nav_blog', 'Blog')) ?></a>
                 <a href="<?= htmlspecialchars($publicUrl('/register')) ?>" class="footer-link"><?= htmlspecialchars($t('nav_register', 'Join')) ?></a>
                 <a href="<?= htmlspecialchars($publicUrl('/faq')) ?>" class="footer-link"><?= htmlspecialchars($t('nav_faq', 'FAQ')) ?></a>
             </div>
             <div class="col-6 col-lg-2">
-                <h6 class="text-white fw-bold mb-4"><?= htmlspecialchars($t('col_legal', 'Legal')) ?></h6>
+                <p class="text-white fw-bold mb-4"><?= htmlspecialchars($t('col_legal', 'Legal')) ?></p>
                 <a href="<?= htmlspecialchars($publicUrl('/page/terms')) ?>" class="footer-link"><?= htmlspecialchars($t('link_terms', 'Terms')) ?></a>
                 <a href="<?= htmlspecialchars($publicUrl('/page/privacy')) ?>" class="footer-link"><?= htmlspecialchars($t('link_privacy', 'Privacy')) ?></a>
                 <a href="<?= htmlspecialchars($publicUrl('/page/contact')) ?>" class="footer-link"><?= htmlspecialchars($t('link_contact', 'Contact')) ?></a>
@@ -68,11 +69,11 @@ $socialLinks = array_filter([
             </div>
             <div class="col-lg-4">
                 <div class="p-4 rounded-4" style="background: var(--badge-bg); border: 1px solid var(--footer-border);">
-                    <h6 class="text-white fw-bold mb-2"><?= htmlspecialchars($t('col_subscribe', 'Stay Updated')) ?></h6>
+                    <p class="text-white fw-bold mb-2"><?= htmlspecialchars($t('col_subscribe', 'Stay Updated')) ?></p>
                     <p class="text-secondary small mb-3"><?= htmlspecialchars($t('sub_text', 'Subscribe for updates.')) ?></p>
                     <form action="#" class="position-relative">
                         <input type="email" class="form-control newsletter-input" placeholder="<?= htmlspecialchars($t('newsletter_placeholder', 'Email...')) ?>">
-                        <button class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-3" style="background: var(--primary-neon); border:none; color: var(--button-text);">
+                        <button class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-3" type="submit" aria-label="<?= htmlspecialchars($t('newsletter_submit', 'Subscribe to updates')) ?>" style="background: var(--primary-neon); border:none; color: var(--button-text);">
                             <?= $iconSvg('fa-paper-plane') ?>
                         </button>
                     </form>
