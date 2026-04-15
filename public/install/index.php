@@ -13,6 +13,7 @@ if (!$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $request
 }
 $step = $_GET['step'] ?? 1;
 $defaultDbHost = (string)($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost');
+$defaultDbPort = (string)($_ENV['INSTALL_DB_PORT'] ?? getenv('INSTALL_DB_PORT') ?: $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: '3306');
 $defaultDbName = (string)($_ENV['INSTALL_DB_NAME'] ?? getenv('INSTALL_DB_NAME') ?: $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'cmshub_db');
 $defaultDbUser = (string)($_ENV['INSTALL_DB_USER'] ?? getenv('INSTALL_DB_USER') ?: $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root');
 $defaultAdminEmail = (string)($_ENV['INSTALL_ADMIN_EMAIL'] ?? getenv('INSTALL_ADMIN_EMAIL') ?: 'admin@example.com');
@@ -146,11 +147,15 @@ $hasPresetSecrets = ((string)($_ENV['INSTALL_DB_PASS'] ?? getenv('INSTALL_DB_PAS
                         <input type="text" name="db_host" class="form-control" value="<?= htmlspecialchars($defaultDbHost, ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                     <div class="col-md-6 mb-2">
-                        <label>DB Name</label>
-                        <input type="text" name="db_name" class="form-control" value="<?= htmlspecialchars($defaultDbName, ENT_QUOTES, 'UTF-8') ?>" required>
+                        <label>DB Port</label>
+                        <input type="text" name="db_port" class="form-control" value="<?= htmlspecialchars($defaultDbPort, ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                 </div>
                 <div class="row g-2">
+                    <div class="col-md-6 mb-2">
+                        <label>DB Name</label>
+                        <input type="text" name="db_name" class="form-control" value="<?= htmlspecialchars($defaultDbName, ENT_QUOTES, 'UTF-8') ?>" required>
+                    </div>
                     <div class="col-md-6 mb-2">
                         <label>DB User</label>
                         <input type="text" name="db_user" class="form-control" value="<?= htmlspecialchars($defaultDbUser, ENT_QUOTES, 'UTF-8') ?>" required>

@@ -14,6 +14,7 @@ if (file_exists('../../.env') || file_exists('../../storage/.installed.lock')) {
 }
 
 $host = trim((string)($_POST['db_host'] ?? ($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '')));
+$port = trim((string)($_POST['db_port'] ?? ($_ENV['INSTALL_DB_PORT'] ?? getenv('INSTALL_DB_PORT') ?: $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: '3306')));
 $name = trim((string)($_POST['db_name'] ?? ($_ENV['INSTALL_DB_NAME'] ?? getenv('INSTALL_DB_NAME') ?: $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: '')));
 $user = trim((string)($_POST['db_user'] ?? ($_ENV['INSTALL_DB_USER'] ?? getenv('INSTALL_DB_USER') ?: $_ENV['DB_USER'] ?? getenv('DB_USER') ?: '')));
 $pass = (string)($_POST['db_pass'] ?? '');
@@ -30,6 +31,17 @@ if ($host === '' || $name === '' || $user === '' || $admEmail === '' || $rawAdmi
     http_response_code(422);
     exit('Missing required installation fields');
 }
+
+if (preg_match('/^(.+);port=(\d+)$/i', $host, $matches)) {
+    $host = trim($matches[1]);
+    $port = trim($matches[2]);
+}
+
+if (strtolower($host) === 'localhost') {
+    $host = '127.0.0.1';
+}
+
+$port = preg_replace('/\D+/', '', $port);
 $admPass = password_hash($rawAdminPass, PASSWORD_ARGON2ID);
 $analyticsSalt = bin2hex(random_bytes(32));
 $mailHost = strtolower((string)(parse_url($url, PHP_URL_HOST) ?: 'example.test'));
@@ -40,7 +52,11 @@ if ($mailHost === '' || strpos($mailHost, '.') === false) {
 $mailFrom = 'noreply@' . $mailHost;
 
 try {
-    $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass);
+    $dsn = "mysql:host=$host;charset=utf8mb4";
+    if ($port !== '') {
+        $dsn = "mysql:host=$host;port=$port;charset=utf8mb4";
+    }
+    $pdo = new PDO($dsn, $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $columnExists = static function (PDO $pdo, string $table, string $column): bool {
@@ -145,7 +161,7 @@ try {
     $stmt->execute([$admEmail, $admPass]);
 
     // 4. Write .env
-    $env = "APP_URL=$url\nAPP_ENV=production\nDB_HOST=$host\nDB_NAME=$name\nDB_USER=$user\nDB_PASS=$pass\nAPP_DEBUG=false\nCHARSET=utf8mb4\nCRON_TOKEN=" . bin2hex(random_bytes(16)) . "\nANALYTICS_IP_HASH_SALT={$analyticsSalt}\nMAIL_FROM_NAME=Market\nMAIL_FROM_ADDRESS={$mailFrom}\nSMTP_HOST=\nSMTP_PORT=587\nSMTP_ENCRYPTION=tls\nSMTP_USER=\nSMTP_PASS=\nSMTP_TIMEOUT=15\nSMTP_VERIFY_PEER=true\nBACKUP_DIR=storage/backups\nBACKUP_KEEP_DAYS=7\nMYSQLDUMP_BIN=mysqldump\nMYSQL_BIN=mysql";
+    $env = "APP_URL=$url\nAPP_ENV=production\nDB_HOST=$host\nDB_PORT=$port\nDB_NAME=$name\nDB_USER=$user\nDB_PASS=$pass\nAPP_DEBUG=false\nCHARSET=utf8mb4\nCRON_TOKEN=" . bin2hex(random_bytes(16)) . "\nANALYTICS_IP_HASH_SALT={$analyticsSalt}\nMAIL_FROM_NAME=Market\nMAIL_FROM_ADDRESS={$mailFrom}\nSMTP_HOST=\nSMTP_PORT=587\nSMTP_ENCRYPTION=tls\nSMTP_USER=\nSMTP_PASS=\nSMTP_TIMEOUT=15\nSMTP_VERIFY_PEER=true\nBACKUP_DIR=storage/backups\nBACKUP_KEEP_DAYS=7\nMYSQLDUMP_BIN=mysqldump\nMYSQL_BIN=mysql";
     file_put_contents('../../.env', $env);
     if (!is_dir('../../storage')) {
         mkdir('../../storage', 0755, true);
