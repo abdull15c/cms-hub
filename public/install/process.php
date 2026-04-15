@@ -13,13 +13,24 @@ if (file_exists('../../.env') || file_exists('../../storage/.installed.lock')) {
     exit('System already installed');
 }
 
-$host = $_POST['db_host']; 
-$name = $_POST['db_name']; 
-$user = $_POST['db_user']; 
-$pass = $_POST['db_pass'];
-$admEmail = $_POST['admin_email']; 
-$admPass = password_hash($_POST['admin_pass'], PASSWORD_ARGON2ID);
-$url = rtrim($_POST['app_url'], '/');
+$host = trim((string)($_POST['db_host'] ?? ($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '')));
+$name = trim((string)($_POST['db_name'] ?? ($_ENV['INSTALL_DB_NAME'] ?? getenv('INSTALL_DB_NAME') ?: $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: '')));
+$user = trim((string)($_POST['db_user'] ?? ($_ENV['INSTALL_DB_USER'] ?? getenv('INSTALL_DB_USER') ?: $_ENV['DB_USER'] ?? getenv('DB_USER') ?: '')));
+$pass = (string)($_POST['db_pass'] ?? '');
+if ($pass === '') {
+    $pass = (string)($_ENV['INSTALL_DB_PASS'] ?? getenv('INSTALL_DB_PASS') ?: $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '');
+}
+$admEmail = trim((string)($_POST['admin_email'] ?? ($_ENV['INSTALL_ADMIN_EMAIL'] ?? getenv('INSTALL_ADMIN_EMAIL') ?: '')));
+$rawAdminPass = (string)($_POST['admin_pass'] ?? '');
+if ($rawAdminPass === '') {
+    $rawAdminPass = (string)($_ENV['INSTALL_ADMIN_PASSWORD'] ?? getenv('INSTALL_ADMIN_PASSWORD') ?: '');
+}
+$url = rtrim(trim((string)($_POST['app_url'] ?? ($_ENV['INSTALL_APP_URL'] ?? getenv('INSTALL_APP_URL') ?: $_ENV['APP_URL'] ?? getenv('APP_URL') ?: ''))), '/');
+if ($host === '' || $name === '' || $user === '' || $admEmail === '' || $rawAdminPass === '' || $url === '') {
+    http_response_code(422);
+    exit('Missing required installation fields');
+}
+$admPass = password_hash($rawAdminPass, PASSWORD_ARGON2ID);
 $analyticsSalt = bin2hex(random_bytes(32));
 $mailHost = strtolower((string)(parse_url($url, PHP_URL_HOST) ?: 'example.test'));
 $mailHost = preg_replace('/[^a-z0-9.-]/', '', $mailHost);

@@ -12,6 +12,13 @@ if ($appEnv === 'production' || !$allowInstaller || $setupToken === '' || !hash_
     exit("<div style='color:white;background:#0b0f19;padding:50px;text-align:center;font-family:sans-serif;'>Installer is locked.</div>");
 }
 $step = $_GET['step'] ?? 1;
+$defaultDbHost = (string)($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost');
+$defaultDbName = (string)($_ENV['INSTALL_DB_NAME'] ?? getenv('INSTALL_DB_NAME') ?: $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'cmshub_db');
+$defaultDbUser = (string)($_ENV['INSTALL_DB_USER'] ?? getenv('INSTALL_DB_USER') ?: $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root');
+$defaultAdminEmail = (string)($_ENV['INSTALL_ADMIN_EMAIL'] ?? getenv('INSTALL_ADMIN_EMAIL') ?: 'admin@example.com');
+$defaultAppUrl = (string)($_ENV['INSTALL_APP_URL'] ?? getenv('INSTALL_APP_URL') ?: $_ENV['APP_URL'] ?? getenv('APP_URL') ?: ('http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')));
+$hasPresetSecrets = ((string)($_ENV['INSTALL_DB_PASS'] ?? getenv('INSTALL_DB_PASS') ?: '') !== '')
+    || ((string)($_ENV['INSTALL_ADMIN_PASSWORD'] ?? getenv('INSTALL_ADMIN_PASSWORD') ?: '') !== '');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -127,41 +134,46 @@ $step = $_GET['step'] ?? 1;
         <?php elseif($step == 2): ?>
             <form action="process.php" method="POST">
                 <input type="hidden" name="setup_token" value="<?= htmlspecialchars($requestToken, ENT_QUOTES, 'UTF-8') ?>">
+                <?php if ($hasPresetSecrets): ?>
+                    <div class="mb-3 small text-info bg-black bg-opacity-25 border border-secondary border-opacity-10 rounded p-3">
+                        Preset installer secrets were found in environment variables. You can leave password fields blank to use them.
+                    </div>
+                <?php endif; ?>
                 <h5 class="mb-3 text-info"><i class="fa-solid fa-database me-2"></i> Database</h5>
                 <div class="row g-2">
                     <div class="col-md-6 mb-2">
                         <label>DB Host</label>
-                        <input type="text" name="db_host" class="form-control" value="localhost" required>
+                        <input type="text" name="db_host" class="form-control" value="<?= htmlspecialchars($defaultDbHost, ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                     <div class="col-md-6 mb-2">
                         <label>DB Name</label>
-                        <input type="text" name="db_name" class="form-control" placeholder="cmshub_db" required>
+                        <input type="text" name="db_name" class="form-control" value="<?= htmlspecialchars($defaultDbName, ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                 </div>
                 <div class="row g-2">
                     <div class="col-md-6 mb-2">
                         <label>DB User</label>
-                        <input type="text" name="db_user" class="form-control" placeholder="root" required>
+                        <input type="text" name="db_user" class="form-control" value="<?= htmlspecialchars($defaultDbUser, ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                     <div class="col-md-6 mb-2">
                         <label>DB Password</label>
-                        <input type="password" name="db_pass" class="form-control" placeholder="">
+                        <input type="password" name="db_pass" class="form-control" placeholder="Leave blank to use env preset">
                     </div>
                 </div>
 
                 <h5 class="mb-3 mt-4 text-warning"><i class="fa-solid fa-user-shield me-2"></i> Admin Account</h5>
                 <div class="mb-2">
                     <label>Admin Email</label>
-                    <input type="email" name="admin_email" class="form-control" placeholder="admin@example.com" required>
+                    <input type="email" name="admin_email" class="form-control" value="<?= htmlspecialchars($defaultAdminEmail, ENT_QUOTES, 'UTF-8') ?>" required>
                 </div>
                 <div class="mb-2">
                     <label>Admin Password</label>
-                    <input type="password" name="admin_pass" class="form-control" placeholder="Create strong password" required>
+                    <input type="password" name="admin_pass" class="form-control" placeholder="Leave blank to use env preset">
                 </div>
                 
                 <div class="mb-4 mt-3">
                     <label>Site URL</label>
-                    <input type="text" name="app_url" class="form-control" value="http://<?=$_SERVER['HTTP_HOST']?>" required>
+                    <input type="text" name="app_url" class="form-control" value="<?= htmlspecialchars($defaultAppUrl, ENT_QUOTES, 'UTF-8') ?>" required>
                 </div>
 
                 <button type="submit" class="btn btn-cyber w-100">Install System <i class="fa-solid fa-rocket ms-2"></i></button>
