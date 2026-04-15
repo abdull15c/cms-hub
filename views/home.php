@@ -16,64 +16,82 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     .storefront-shell {
         position: relative;
         z-index: 1;
+        display: grid;
+        gap: 12px;
     }
 
     .hero-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-        gap: 28px;
+        grid-template-columns: minmax(0, 1.24fr) minmax(320px, 0.76fr);
+        gap: 24px;
         align-items: stretch;
     }
 
     .hero-panel {
-        background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-        border: 1px solid var(--card-border);
+        background:
+            linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
+            linear-gradient(180deg, rgba(0,242,234,0.03), transparent 35%);
+        border: 1px solid rgba(255,255,255,0.08);
         border-radius: 32px;
-        padding: 38px;
+        padding: 42px;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 28px 60px rgba(0, 0, 0, 0.25);
+        display: flex;
+        min-height: 100%;
     }
 
     .hero-panel::before {
         content: '';
         position: absolute;
-        inset: auto auto -120px -80px;
-        width: 280px;
-        height: 280px;
-        background: radial-gradient(circle, var(--secondary-soft) 0%, transparent 70%);
+        inset: auto auto -140px -100px;
+        width: 340px;
+        height: 340px;
+        background: radial-gradient(circle, rgba(255,0,80,0.24) 0%, transparent 68%);
         pointer-events: none;
     }
 
     .hero-panel::after {
         content: '';
         position: absolute;
-        inset: -120px -80px auto auto;
-        width: 320px;
-        height: 320px;
-        background: radial-gradient(circle, var(--primary-soft) 0%, transparent 72%);
+        inset: -150px -90px auto auto;
+        width: 360px;
+        height: 360px;
+        background: radial-gradient(circle, rgba(0,242,234,0.18) 0%, transparent 72%);
         pointer-events: none;
+    }
+
+    .hero-panel-inner {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 28px;
+        width: 100%;
     }
 
     .hero-eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 0.5rem 0.9rem;
+        padding: 0.55rem 0.95rem;
         border-radius: 999px;
-        background: var(--badge-bg);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
         color: var(--badge-text);
-        font-size: 0.8rem;
-        letter-spacing: 0.08em;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
     }
 
     .hero-title {
-        font-size: clamp(2.4rem, 5vw, 4.2rem);
-        line-height: 1.02;
+        font-size: clamp(2.65rem, 5.3vw, 4.75rem);
+        line-height: 0.98;
         letter-spacing: -0.04em;
-        margin: 22px 0 18px;
+        max-width: 11ch;
+        margin: 20px 0 18px;
         color: #fff;
+        text-wrap: balance;
     }
 
     .hero-title span {
@@ -83,45 +101,68 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .hero-subtitle {
-        font-size: 1.05rem;
-        line-height: 1.75;
+        font-size: 1.02rem;
+        line-height: 1.82;
         color: var(--muted-text);
-        max-width: 760px;
-        margin-bottom: 28px;
+        max-width: 640px;
+        margin: 0;
     }
 
     .hero-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 14px;
-        margin-bottom: 26px;
+        gap: 12px;
     }
 
     .hero-cta-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         background: linear-gradient(90deg, var(--primary-neon), var(--secondary-neon));
         color: var(--button-text);
         border: none;
         border-radius: 18px;
+        min-height: 54px;
         padding: 14px 22px;
-        font-weight: 700;
+        font-weight: 800;
         text-decoration: none;
         box-shadow: 0 18px 34px var(--primary-soft);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .hero-cta-secondary {
-        border: 1px solid var(--surface-border);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 54px;
+        border: 1px solid rgba(255,255,255,0.08);
         color: var(--text-main);
         border-radius: 18px;
         padding: 14px 22px;
         text-decoration: none;
-        background: rgba(255,255,255,0.02);
+        background: rgba(255,255,255,0.03);
+        transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .hero-cta-primary:hover,
+    .hero-cta-secondary:hover {
+        transform: translateY(-1px);
+        text-decoration: none;
+    }
+
+    .hero-cta-primary:hover {
+        box-shadow: 0 22px 38px var(--primary-soft);
+    }
+
+    .hero-cta-secondary:hover {
+        border-color: rgba(255,255,255,0.14);
+        background: rgba(255,255,255,0.05);
     }
 
     .trust-row {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
-        margin-bottom: 22px;
     }
 
     .trust-pill {
@@ -131,40 +172,54 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         border-radius: 999px;
         padding: 10px 14px;
         background: rgba(255,255,255,0.04);
-        border: 1px solid var(--card-border);
+        border: 1px solid rgba(255,255,255,0.08);
         color: var(--text-main);
-        font-size: 0.92rem;
+        font-size: 0.86rem;
+    }
+
+    .hero-foot {
+        display: grid;
+        gap: 18px;
     }
 
     .hero-search {
         display: flex;
-        gap: 10px;
+        gap: 12px;
         align-items: stretch;
-        margin-top: 8px;
+        padding: 12px;
+        border-radius: 24px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
 
     .hero-search input {
         flex: 1;
         min-height: 56px;
-        background: var(--surface-bg);
-        border: 1px solid var(--surface-border);
+        background: rgba(9,17,29,0.86);
+        border: 1px solid rgba(255,255,255,0.06);
         color: var(--text-main);
         border-radius: 18px;
         padding: 0 18px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
     }
 
     .hero-search button {
-        min-width: 64px;
+        min-width: 142px;
         border-radius: 18px;
         border: none;
-        background: var(--primary-neon);
+        padding: 0 20px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-neon), #8ffcf6);
         color: var(--button-text);
-        font-size: 1.1rem;
+        font-size: 0.96rem;
+        box-shadow: 0 16px 28px var(--primary-soft);
     }
 
     .hero-side {
         display: grid;
         gap: 18px;
+        grid-template-rows: minmax(0, 1fr) auto;
     }
 
     .preview-card,
@@ -178,8 +233,8 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .preview-card {
-        min-height: 260px;
-        padding: 20px;
+        min-height: 286px;
+        padding: 22px;
         display: grid;
         background:
             linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
@@ -191,9 +246,9 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         background: rgba(11, 15, 25, 0.82);
         border: 1px solid rgba(255,255,255,0.08);
         border-radius: 22px;
-        padding: 16px;
+        padding: 18px;
         display: grid;
-        gap: 16px;
+        gap: 18px;
     }
 
     .preview-top {
@@ -210,7 +265,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
     .preview-hero {
         display: grid;
-        gap: 12px;
+        gap: 14px;
     }
 
     .preview-line {
@@ -220,7 +275,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .preview-line.short {
-        width: 58%;
+        width: 54%;
     }
 
     .preview-grid {
@@ -231,8 +286,8 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
     .preview-block {
         border-radius: 18px;
-        min-height: 92px;
-        background: rgba(255,255,255,0.06);
+        min-height: 104px;
+        background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.05);
     }
 
@@ -247,7 +302,24 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .stats-card {
-        padding: 22px;
+        padding: 24px;
+        display: grid;
+        gap: 18px;
+    }
+
+    .stats-lead {
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .stats-caption {
+        color: var(--muted-text);
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
     }
 
     .stats-grid {
@@ -257,15 +329,16 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .stat-tile {
-        padding: 16px;
+        padding: 18px;
         border-radius: 20px;
         background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
     }
 
     .stat-value {
         color: #fff;
-        font-size: 1.35rem;
+        font-size: 1.45rem;
         font-weight: 800;
         letter-spacing: -0.03em;
     }
@@ -283,19 +356,26 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         justify-content: space-between;
         align-items: end;
         gap: 16px;
-        margin: 54px 0 24px;
+        margin: 48px 0 22px;
+    }
+
+    .hero-grid + .section-head,
+    .filter-state + .section-head {
+        margin-top: 6px;
     }
 
     .section-head h2 {
         color: #fff;
-        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        font-size: clamp(1.9rem, 3vw, 2.7rem);
+        letter-spacing: -0.035em;
         margin: 0;
     }
 
     .section-head p {
         margin: 8px 0 0;
         color: var(--muted-text);
-        max-width: 720px;
+        max-width: 680px;
+        line-height: 1.72;
     }
 
     .catalog-pills {
@@ -337,7 +417,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         text-decoration: none;
         border-radius: 999px;
         padding: 10px 18px;
-        border: 1px solid var(--surface-border);
+        border: 1px solid rgba(255,255,255,0.08);
         background: rgba(255,255,255,0.03);
         color: var(--muted-text);
         transition: 0.2s ease;
@@ -352,36 +432,60 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .product-card {
-        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
-        border: 1px solid var(--surface-border);
-        border-radius: 28px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015)),
+            linear-gradient(180deg, rgba(0,242,234,0.02), transparent 38%);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 30px;
         overflow: hidden;
         height: 100%;
         transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
 
+    .product-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
+        pointer-events: none;
+    }
+
     .product-card:hover {
         transform: translateY(-6px);
         border-color: var(--primary-neon);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.24), 0 0 26px var(--primary-soft);
+        box-shadow: 0 24px 44px rgba(0,0,0,0.24), 0 0 26px var(--primary-soft);
     }
 
     .product-cover {
         position: relative;
-        min-height: 220px;
+        min-height: 238px;
         background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
         border-bottom: 1px solid var(--card-border);
     }
 
+    .product-cover a {
+        display: block;
+        overflow: hidden;
+    }
+
     .product-cover img {
         width: 100%;
-        height: 220px;
+        height: 238px;
         object-fit: cover;
         display: block;
+        transition: transform 0.35s ease;
+    }
+
+    .product-card:hover .product-cover img {
+        transform: scale(1.04);
     }
 
     .product-cover-fallback {
-        height: 220px;
+        height: 238px;
         display: grid;
         place-items: center;
         color: var(--muted-text);
@@ -391,22 +495,12 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
             rgba(255,255,255,0.02);
     }
 
-    .price-chip,
     .category-chip {
         position: absolute;
         border-radius: 999px;
         padding: 8px 12px;
         font-size: 0.8rem;
         backdrop-filter: blur(10px);
-    }
-
-    .price-chip {
-        right: 14px;
-        bottom: 14px;
-        background: rgba(10, 15, 24, 0.78);
-        border: 1px solid rgba(255,255,255,0.12);
-        color: #fff;
-        font-weight: 700;
     }
 
     .sale-chip {
@@ -431,16 +525,31 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .product-body {
-        padding: 22px;
+        padding: 22px 22px 24px;
         display: flex;
         flex-direction: column;
-        height: calc(100% - 220px);
+        gap: 14px;
+        flex: 1;
+    }
+
+    .product-price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .product-price-main {
+        color: #fff;
+        font-size: 1.45rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
     }
 
     .product-title {
-        font-size: 1.08rem;
-        line-height: 1.35;
-        margin-bottom: 10px;
+        font-size: 1.12rem;
+        line-height: 1.34;
+        margin: 0;
     }
 
     .product-title a {
@@ -453,15 +562,20 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         font-size: 0.92rem;
         line-height: 1.7;
         flex-grow: 1;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
-    .product-meta {
+    .product-footer {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: end;
         gap: 12px;
-        margin-top: 18px;
-        padding-top: 16px;
+        margin-top: auto;
+        padding-top: 18px;
         border-top: 1px solid var(--card-border);
     }
 
@@ -475,36 +589,34 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 6px 9px;
+        padding: 6px 10px;
         border-radius: 999px;
         background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.06);
         color: var(--muted-text);
         font-size: 0.74rem;
-    }
-
-    .price-stack {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 2px;
     }
 
     .price-old {
         color: var(--muted-text);
-        font-size: 0.74rem;
+        font-size: 0.86rem;
         text-decoration: line-through;
         opacity: 0.8;
     }
 
     .product-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
         text-decoration: none;
         color: var(--button-text);
-        background: var(--primary-neon);
+        background: linear-gradient(135deg, var(--primary-neon), #86fbf4);
         border-radius: 999px;
-        padding: 10px 14px;
-        font-weight: 700;
+        padding: 10px 16px;
+        font-weight: 800;
         white-space: nowrap;
+        box-shadow: 0 14px 24px var(--primary-soft);
     }
 
     .value-grid,
@@ -522,6 +634,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         border: 1px solid var(--card-border);
         border-radius: 26px;
         padding: 24px;
+        box-shadow: 0 18px 34px rgba(0,0,0,0.16);
     }
 
     .value-icon {
@@ -597,7 +710,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     }
 
     .empty-state {
-        padding: 40px 20px;
+        padding: 48px 24px;
         text-align: center;
         border: 1px dashed var(--card-border);
         border-radius: 28px;
@@ -612,12 +725,21 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
         }
 
         .hero-panel {
-            padding: 28px;
+            padding: 32px 28px;
+        }
+
+        .hero-title {
+            max-width: none;
+        }
+
+        .hero-side {
+            grid-template-rows: auto;
         }
     }
 
     @media (max-width: 767.98px) {
         .hero-panel,
+        .preview-card,
         .stats-card,
         .value-card,
         .use-case-card,
@@ -632,19 +754,28 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
 
         .hero-search button {
             min-height: 52px;
+            width: 100%;
         }
 
         .stats-grid {
             grid-template-columns: 1fr 1fr;
         }
 
-        .product-meta {
+        .product-footer {
             flex-direction: column;
             align-items: stretch;
         }
 
         .product-link {
             text-align: center;
+        }
+
+        .product-body {
+            padding: 20px;
+        }
+
+        .section-head {
+            margin: 36px 0 18px;
         }
     }
 </style>
@@ -653,26 +784,32 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
     <?php if ($plain_listing): ?>
         <section class="hero-grid mb-5" data-aos="fade-up">
             <div class="hero-panel">
-                <span class="hero-eyebrow"><?= $iconSvg('fa-satellite-dish') ?> <?= htmlspecialchars($hero['eyebrow'] ?? 'Digital Storefront') ?></span>
-                <h1 class="hero-title"><?= htmlspecialchars($hero['title'] ?? '') ?> <span>Dark Tech</span></h1>
-                <p class="hero-subtitle"><?= htmlspecialchars($hero['subtitle'] ?? '') ?></p>
+                <div class="hero-panel-inner">
+                    <div>
+                        <span class="hero-eyebrow"><?= $iconSvg('fa-satellite-dish') ?> <?= htmlspecialchars($hero['eyebrow'] ?? 'Digital Storefront') ?></span>
+                        <h1 class="hero-title"><?= htmlspecialchars($hero['title'] ?? '') ?> <span>Dark Tech</span></h1>
+                        <p class="hero-subtitle"><?= htmlspecialchars($hero['subtitle'] ?? '') ?></p>
+                    </div>
 
-                <div class="hero-actions">
-                    <a href="#product-grid" class="hero-cta-primary"><?= htmlspecialchars($hero['primary_cta'] ?? 'Browse catalog') ?></a>
-                    <a href="#why-dark-tech" class="hero-cta-secondary"><?= htmlspecialchars($hero['secondary_cta'] ?? 'Why Dark Tech') ?></a>
+                    <div class="hero-foot">
+                        <div class="hero-actions">
+                            <a href="#product-grid" class="hero-cta-primary"><?= htmlspecialchars($hero['primary_cta'] ?? 'Browse catalog') ?></a>
+                            <a href="#why-dark-tech" class="hero-cta-secondary"><?= htmlspecialchars($hero['secondary_cta'] ?? 'Why Dark Tech') ?></a>
+                        </div>
+
+                        <div class="trust-row">
+                            <?php foreach (($trust_badges ?? []) as $badge): ?>
+                                <span class="trust-pill"><?= $iconSvg('fa-check') ?> <?= htmlspecialchars($badge) ?></span>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <form action="<?= BASE_URL ?>/" method="GET" class="hero-search">
+                            <input type="hidden" name="lang" value="<?= htmlspecialchars($langCode ?? 'ru') ?>">
+                            <input type="text" name="q" placeholder="<?= htmlspecialchars($t('search_placeholder', 'Search for scripts, themes...')) ?>" value="<?= htmlspecialchars($currentQ ?? '') ?>">
+                            <button type="submit" aria-label="Search"><?= $iconSvg('fa-search', 'me-2') ?><?= htmlspecialchars($t('nav_search_submit', 'Search catalog')) ?></button>
+                        </form>
+                    </div>
                 </div>
-
-                <div class="trust-row">
-                    <?php foreach (($trust_badges ?? []) as $badge): ?>
-                        <span class="trust-pill"><?= $iconSvg('fa-check') ?> <?= htmlspecialchars($badge) ?></span>
-                    <?php endforeach; ?>
-                </div>
-
-                <form action="<?= BASE_URL ?>/" method="GET" class="hero-search">
-                    <input type="hidden" name="lang" value="<?= htmlspecialchars($langCode ?? 'ru') ?>">
-                    <input type="text" name="q" placeholder="<?= htmlspecialchars($t('search_placeholder', 'Search for scripts, themes...')) ?>" value="<?= htmlspecialchars($currentQ ?? '') ?>">
-                    <button type="submit" aria-label="Search"><?= $iconSvg('fa-search') ?></button>
-                </form>
             </div>
 
             <div class="hero-side">
@@ -693,6 +830,10 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
                 </div>
 
                 <div class="stats-card">
+                    <div>
+                        <div class="stats-caption"><?= htmlspecialchars($isRu ? 'Витрина в цифрах' : 'Storefront pulse') ?></div>
+                        <div class="stats-lead"><?= htmlspecialchars($isRu ? 'Метрики, которые усиливают конверсию' : 'Conversion-ready metrics') ?></div>
+                    </div>
                     <div class="stats-grid">
                         <?php foreach (($stats ?? []) as $stat): ?>
                             <div class="stat-tile">
@@ -776,15 +917,13 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
                         <?php if ($cardIsOnSale): ?>
                             <span class="sale-chip"><?= htmlspecialchars($saleLabel) ?></span>
                         <?php endif; ?>
-                        <span class="price-chip">
-                            <span class="price-stack">
-                                <span><?= \Src\Services\CurrencyService::format($displayPrice) ?></span>
-                                <?php if ($cardIsOnSale): ?><span class="price-old"><?= \Src\Services\CurrencyService::format((float)$p['price']) ?></span><?php endif; ?>
-                            </span>
-                        </span>
                     </div>
 
                     <div class="product-body">
+                        <div class="product-price-row">
+                            <span class="product-price-main"><?= \Src\Services\CurrencyService::format($displayPrice) ?></span>
+                            <?php if ($cardIsOnSale): ?><span class="price-old"><?= \Src\Services\CurrencyService::format((float)$p['price']) ?></span><?php endif; ?>
+                        </div>
                         <h3 class="product-title">
                             <a href="<?= htmlspecialchars($productUrl) ?>">
                                 <?= htmlspecialchars($p['title']) ?>
@@ -792,7 +931,7 @@ $saleLabel = $isRu ? 'Скидка' : 'Sale';
                         </h3>
                         <p class="product-desc"><?= htmlspecialchars(mb_strimwidth(strip_tags($p['description'] ?? ''), 0, 150, '...')) ?></p>
 
-                        <div class="product-meta">
+                        <div class="product-footer">
                             <div class="product-badges">
                                 <span class="mini-badge"><?= $iconSvg('fa-bolt') ?> <?= htmlspecialchars($instantLabel) ?></span>
                                 <span class="mini-badge"><?= $iconSvg('fa-code') ?> <?= htmlspecialchars($digitalLabel) ?></span>
