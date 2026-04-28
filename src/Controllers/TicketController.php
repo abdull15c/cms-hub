@@ -27,13 +27,31 @@ class TicketController extends Controller {
         $this->verifyCsrf();
         
         $uid = $this->currentUserId();
-        $subject = strip_tags($_POST['subject']);
-        $dept = $_POST['department'];
-        $prio = $_POST['priority'];
-        $trxId = !empty($_POST['transaction_id']) ? $_POST['transaction_id'] : null;
-        $msg = strip_tags($_POST['message']);
+        $subject = trim(mb_substr(strip_tags((string)($_POST['subject'] ?? '')), 0, 255));
+        $dept = (string)($_POST['department'] ?? 'general');
+        $prio = (string)($_POST['priority'] ?? 'normal');
+        $trxId = !empty($_POST['transaction_id']) ? (int)$_POST['transaction_id'] : null;
+        $msg = trim(strip_tags((string)($_POST['message'] ?? '')));
+        $allowedDepartments = ['general', 'billing', 'technical', 'support'];
+        $allowedPriorities = ['low', 'normal', 'high'];
+        if ($subject === '' || $msg === '') {
+            $this->redirect('/tickets/new', 'Subject and message are required.');
+        }
+        if (!in_array($dept, $allowedDepartments, true)) {
+            $dept = 'general';
+        }
+        if (!in_array($prio, $allowedPriorities, true)) {
+            $prio = 'normal';
+        }
 
         $pdo = Database::connect();
+        if ($trxId !== null) {
+            $check = $pdo->prepare("SELECT id FROM transactions WHERE id = ? AND user_id = ? AND status = 'paid'");
+            $check->execute([$trxId, $uid]);
+            if (!$check->fetch()) {
+                $this->redirect('/tickets/new', 'Selected order is unavailable.');
+            }
+        }
         $pdo->prepare("INSERT INTO tickets (user_id, transaction_id, subject, department, priority) VALUES (?, ?, ?, ?, ?)")
             ->execute([$uid, $trxId, $subject, $dept, $prio]);
         $tid = $pdo->lastInsertId();

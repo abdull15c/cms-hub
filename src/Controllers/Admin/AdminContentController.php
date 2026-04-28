@@ -3,6 +3,7 @@ namespace Src\Controllers\Admin;
 use Config\Database;
 use Src\Services\QueueService;
 use Src\Services\Security;
+use Src\Services\Gate;
 
 class AdminContentController extends BaseAdminController {
     private function sanitizeHtml($html) {
@@ -14,14 +15,16 @@ class AdminContentController extends BaseAdminController {
     // --- BLOG ---
     public function index() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $posts = Database::connect()->query("SELECT * FROM posts ORDER BY created_at DESC")->fetchAll();
         $this->view('admin/content/blog_list', ['posts' => $posts]);
     }
 
-    public function createPost() { $this->checkAuth(); $this->view('admin/content/blog_form'); }
+    public function createPost() { $this->checkAuth(); Gate::authorize('dashboard.view'); $this->view('admin/content/blog_form'); }
     
     public function storePost() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $this->verifyCsrf();
         $title = $_POST['title'];
         $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
@@ -36,6 +39,7 @@ class AdminContentController extends BaseAdminController {
     
     public function deletePost($id) {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $this->verifyCsrf();
         Database::connect()->prepare("DELETE FROM posts WHERE id=?")->execute([$id]);
         QueueService::push('Src\Jobs\GenerateSitemapJob', []);
@@ -45,12 +49,14 @@ class AdminContentController extends BaseAdminController {
     // --- FAQ ---
     public function faq() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $faqs = Database::connect()->query("SELECT * FROM faqs ORDER BY sort_order ASC")->fetchAll();
         $this->view('admin/content/faq_list', ['faqs' => $faqs]);
     }
     
     public function storeFaq() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $this->verifyCsrf();
         $q = $_POST['question'];
         $a = $_POST['answer'];
@@ -65,6 +71,7 @@ class AdminContentController extends BaseAdminController {
     
     public function deleteFaq($id) {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $this->verifyCsrf();
         Database::connect()->prepare("DELETE FROM faqs WHERE id=?")->execute([$id]);
         QueueService::push('Src\Jobs\GenerateSitemapJob', []);
@@ -73,6 +80,7 @@ class AdminContentController extends BaseAdminController {
 
     public function ajaxAiPost() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         header('Content-Type: application/json');
         
         $input = json_decode(file_get_contents('php://input'), true);

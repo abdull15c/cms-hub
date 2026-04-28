@@ -16,8 +16,12 @@
                 
                 <div class="bg-black bg-opacity-50 p-3 rounded border border-secondary mb-3">
                     <small class="text-secondary d-block mb-1">Your Bearer Token:</small>
-                    <?php if(!empty($user['api_token'])): ?>
-                        <code class="text-info d-block text-break user-select-all"><?= $user['api_token'] ?></code>
+                    <?php $newToken = $flashes['api_token'][0] ?? null; ?>
+                    <?php if(!empty($newToken)): ?>
+                        <code class="text-info d-block text-break user-select-all"><?= htmlspecialchars((string)$newToken) ?></code>
+                        <small class="text-warning d-block mt-2">Copy it now. For security, only a hash is stored.</small>
+                    <?php elseif(!empty($user['api_token'])): ?>
+                        <span class="text-success">Token generated. Regenerate if you need to copy a new token.</span>
                     <?php else: ?>
                         <span class="text-muted fst-italic">Not generated yet</span>
                     <?php endif; ?>
@@ -33,6 +37,9 @@
                 <hr class="border-secondary opacity-25 my-4">
                 <div class="alert alert-info bg-opacity-10 border-info small">
                     <i class="fa-solid fa-circle-info"></i> Do not share this token. It grants full access to your account.
+                </div>
+                <div class="alert alert-warning bg-opacity-10 border-warning small mt-3">
+                    <i class="fa-solid fa-triangle-exclamation"></i> API access must comply with Terms and Privacy policy. You are responsible for lawful data processing in your integrations.
                 </div>
             </div>
         </div>
@@ -52,6 +59,7 @@
                     <div class="tab-pane fade show active" id="endpoint1">
                         <span class="badge bg-success mb-2">GET</span> <code class="fs-5 text-light">/api/me</code>
                         <p class="text-secondary mt-2">Returns details about your account and wallet balance.</p>
+                        <p class="text-secondary small mb-2">Recommended limits: 60 requests/minute per token. Use retries with backoff on 429/5xx.</p>
                         
                         <h6 class="text-light mt-4">Example Request (cURL)</h6>
                         <pre class="bg-black p-3 rounded text-success border border-secondary">curl -X GET <?= BASE_URL ?>/api/me \
@@ -70,6 +78,7 @@
                     <div class="tab-pane fade" id="endpoint2">
                         <span class="badge bg-warning text-dark mb-2">POST</span> <code class="fs-5 text-light">/api/license/check</code>
                         <p class="text-secondary mt-2">Validate a license key in your own scripts. Use this to protect your products.</p>
+                        <p class="text-secondary small mb-2">Do not send unnecessary personal data. Transmit only license and domain fields required for validation.</p>
                         
                         <h6 class="text-light mt-4">Example Request (PHP)</h6>
                         <pre class="bg-black p-3 rounded text-info border border-secondary">$ch = curl_init('<?= BASE_URL ?>/api/license/check');

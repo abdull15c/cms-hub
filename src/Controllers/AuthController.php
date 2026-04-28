@@ -42,9 +42,7 @@ class AuthController extends Controller {
 
             // 2FA Check
             if (!empty($user['totp_secret'])) {
-                SessionService::set('2fa_pending_uid', $user['id']);
-                SessionService::set('2fa_pending_email', $user['email']);
-                SessionService::set('2fa_pending_role', $user['role']);
+                $this->begin2faPending($user);
                 $this->redirect('/login'); // Will render 2fa_verify
                 return;
             }
@@ -62,6 +60,12 @@ class AuthController extends Controller {
         $this->verifyCsrf();
         $code = $_POST['totp_code'];
         $uid = SessionService::get('2fa_pending_uid');
+        $createdAt = (int)SessionService::get('2fa_pending_created_at', 0);
+        $attempts = (int)SessionService::get('2fa_pending_attempts', 0);
+        if (!$uid || $createdAt <= 0 || time() - $createdAt > 300 || $attempts >= 5) {
+            $this->clear2faPending();
+            $this->redirect('/login', '2FA challenge expired. Please sign in again.');
+        }
 
         if ($this->auth->verify2FA($uid, $code)) {
             $user = [
@@ -71,13 +75,12 @@ class AuthController extends Controller {
             ];
             
             // Cleanup Temp Session
-            SessionService::forget('2fa_pending_uid');
-            SessionService::forget('2fa_pending_email');
-            SessionService::forget('2fa_pending_role');
+            $this->clear2faPending();
             
             $this->auth->loginUser($user);
             $this->redirect($user['role'] === 'admin' ? '/admin/dashboard' : '/profile', null, "2FA Verified.");
         } else {
+            SessionService::set('2fa_pending_attempts', $attempts + 1);
             $this->redirect('/login', "Invalid 2FA Code.");
         }
     }
@@ -118,7 +121,7 @@ class AuthController extends Controller {
     
     // --- 2FA SETTINGS ---
     public function setup2fa() {
-        if (!SessionService::get('user_id')) $this->redirect('/login');
+        $this->requireAuth();
         $secret = (new TotpService())->generateSecret();
         SessionService::set('2fa_new_secret', $secret);
         $qrUrl = (new TotpService())->getQrUrl(SessionService::get('user_email'), $secret);
@@ -127,7 +130,7 @@ class AuthController extends Controller {
 
     public function enable2fa() {
         $this->verifyCsrf();
-        if (!SessionService::get('user_id')) $this->redirect('/login');
+        $this->requireAuth();
         $code = $_POST['code'];
         $secret = SessionService::get('2fa_new_secret');
         if ((new TotpService())->verify($secret, $code)) {
@@ -141,21 +144,27 @@ class AuthController extends Controller {
     
     public function disable2fa() {
         $this->verifyCsrf();
-        if (!SessionService::get('user_id')) $this->redirect('/login');
+        $this->requireAuth();
+        $code = trim((string)($_POST['code'] ?? ''));
+        if ($code === '' || !$this->auth->verify2FA($this->currentUserId(), $code)) {
+            $this->redirect('/profile', 'Enter a valid 2FA code to disable 2FA.');
+        }
         Database::connect()->prepare("UPDATE users SET totp_secret = NULL WHERE id = ?")->execute([SessionService::get('user_id')]);
         $this->redirect('/profile', null, '2FA Disabled');
     }
 
     // --- API TOKEN (WAS MISSING) ---
     public function generateToken() {
-        if (!SessionService::get('user_id')) $this->redirect('/login');
+        $this->requireAuth();
         $this->verifyCsrf();
         
         $token = bin2hex(random_bytes(32));
         $uid = SessionService::get('user_id');
+        $tokenHash = 'sha256:' . hash('sha256', $token);
         
-        Database::connect()->prepare("UPDATE users SET api_token = ? WHERE id = ?")->execute([$token, $uid]);
-        $this->redirect('/profile/api', null, 'New API Token Generated');
+        Database::connect()->prepare("UPDATE users SET api_token = ? WHERE id = ?")->execute([$tokenHash, $uid]);
+        SessionService::setFlash('api_token', $token);
+        $this->redirect('/profile/api', null, 'New API token generated. Copy it now; it will not be shown again.');
     }
 
     // --- SOCIAL AUTH (WAS MISSING) ---
@@ -192,11 +201,31 @@ class AuthController extends Controller {
 
         try {
             $user = $this->auth->findOrCreateSocialUser($provider, $data);
+            if (!empty($user['totp_secret'])) {
+                $this->begin2faPending($user);
+                $this->redirect('/login', null, 'Complete 2FA to finish social login.');
+            }
             $this->auth->loginUser($user);
             $this->redirect('/profile', null, ucfirst($provider) . ' login complete.');
         } catch (\Exception $e) {
             $this->redirect('/login', $e->getMessage());
         }
+    }
+
+    private function begin2faPending(array $user): void {
+        SessionService::set('2fa_pending_uid', $user['id']);
+        SessionService::set('2fa_pending_email', $user['email']);
+        SessionService::set('2fa_pending_role', $user['role']);
+        SessionService::set('2fa_pending_created_at', time());
+        SessionService::set('2fa_pending_attempts', 0);
+    }
+
+    private function clear2faPending(): void {
+        SessionService::forget('2fa_pending_uid');
+        SessionService::forget('2fa_pending_email');
+        SessionService::forget('2fa_pending_role');
+        SessionService::forget('2fa_pending_created_at');
+        SessionService::forget('2fa_pending_attempts');
     }
     
     public function forgotForm() { $this->view('auth/forgot'); }

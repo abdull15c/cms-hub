@@ -6,7 +6,7 @@ require __DIR__ . '/bootstrap_test_env.php';
 skipIfRootDbUnavailable();
 
 $dbName = 'market_test_webhook_' . date('Ymd_His') . '_' . random_int(1000, 9999);
-$secret = getenv('TEST_CRYPTO_WEBHOOK_SECRET') ?: 'integration-secret';
+$secret = getenv('TEST_CRYPTOMUS_PAYMENT_KEY') ?: 'integration-secret';
 $phpBin = PHP_BINARY;
 $runner = __DIR__ . '/webhook_runner.php';
 
@@ -28,9 +28,9 @@ function execPhp(string $phpBin, array $args): array
     return [$code, implode("\n", $output)];
 }
 
-function buildSignature(string $secret, string $timestamp, string $payload): string
+function buildSignature(string $secret, array $payload): string
 {
-    return hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
+    return md5(base64_encode(json_encode($payload, JSON_UNESCAPED_UNICODE)) . $secret);
 }
 
 setTestEnv($dbName);
@@ -52,12 +52,14 @@ CREATE TABLE transactions (
   user_id INT NOT NULL,
   product_id INT NOT NULL DEFAULT 0,
   provider VARCHAR(50) NOT NULL,
+  provider_payment_id VARCHAR(191) NULL,
   amount DECIMAL(10,2) NOT NULL,
   status VARCHAR(20) NOT NULL,
   coupon_id INT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL
 )");
+$rootPdo->exec("CREATE TABLE settings (setting_key VARCHAR(100) PRIMARY KEY, setting_value TEXT)");
 $rootPdo->exec("
 CREATE TABLE coupons (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -77,18 +79,19 @@ CREATE TABLE wallet_logs (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
 $rootPdo->exec("INSERT INTO users (email, balance) VALUES ('int@test.local', 0.00)");
-$rootPdo->exec("INSERT INTO transactions (id, user_id, product_id, provider, amount, status) VALUES (1001, 1, 0, 'crypto', 10.00, 'pending')");
+$rootPdo->exec("INSERT INTO settings (setting_key, setting_value) VALUES ('cryptomus_payment_key', " . $rootPdo->quote($secret) . "), ('cryptomus_currency', 'USD')");
+$rootPdo->exec("INSERT INTO transactions (id, user_id, product_id, provider, provider_payment_id, amount, status) VALUES (1001, 1, 0, 'cryptomus', 'cryptomus-test-1001', 10.00, 'pending')");
 
-$payload = json_encode([
+$payload = [
     'status' => 'paid',
     'order_id' => 1001,
-    'amount_usd' => '10.00',
-], JSON_UNESCAPED_UNICODE);
-assertTrue($payload !== false, 'Failed to build test payload.');
+    'amount' => '10.00',
+    'currency' => 'USD',
+    'uuid' => 'cryptomus-test-1001',
+];
 
 // 1) Invalid signature should fail and keep transaction pending.
-$timestamp1 = (string)time();
-[$code1, $out1] = execPhp($phpBin, [$runner, $dbName, '1001', '10.00', $timestamp1, 'invalid-signature']);
+[$code1, $out1] = execPhp($phpBin, [$runner, $dbName, '1001', '10.00', 'invalid-signature']);
 $invalidRejected = (strpos($out1, 'Sign Error') !== false) || (strpos($out1, 'Invalid webhook payload') !== false);
 assertTrue($invalidRejected, 'Invalid signature run must be rejected by webhook guard.');
 $trxStatus = (string)$rootPdo->query("SELECT status FROM transactions WHERE id = 1001")->fetchColumn();
@@ -96,9 +99,8 @@ assertTrue($trxStatus === 'pending', 'Transaction must remain pending after inva
 echo "[INT-OK] Invalid signature is rejected.\n";
 
 // 2) Valid signature should mark paid and apply deposit exactly once.
-$timestamp2 = (string)time();
-$validSign = buildSignature($secret, $timestamp2, $payload);
-[$code2, $out2] = execPhp($phpBin, [$runner, $dbName, '1001', '10.00', $timestamp2, $validSign]);
+$validSign = buildSignature($secret, $payload);
+[$code2, $out2] = execPhp($phpBin, [$runner, $dbName, '1001', '10.00', $validSign]);
 assertTrue(strpos($out2, 'OK') !== false, 'Valid signature run must return OK.');
 $trxStatus2 = (string)$rootPdo->query("SELECT status FROM transactions WHERE id = 1001")->fetchColumn();
 $balance2 = (float)$rootPdo->query("SELECT balance FROM users WHERE id = 1")->fetchColumn();
@@ -108,14 +110,13 @@ assertTrue(abs($balance2 - 10.00) < 0.001, 'Balance must increase by 10.00 after
 assertTrue($walletLogs2 === 1, 'Exactly one deposit log expected after valid signature.');
 echo "[INT-OK] Valid signature processes payment.\n";
 
-// 3) Replay should be rejected and must not duplicate wallet effect.
-[$code3, $out3] = execPhp($phpBin, [$runner, $dbName, '1001', '10.00', $timestamp2, $validSign]);
-assertTrue(strpos($out3, 'Replay detected') !== false, 'Replay run must be rejected.');
+// 3) Replay should be idempotent and must not duplicate wallet effect.
+[$code3, $out3] = execPhp($phpBin, [$runner, $dbName, '1001', '10.00', $validSign]);
 $balance3 = (float)$rootPdo->query("SELECT balance FROM users WHERE id = 1")->fetchColumn();
 $walletLogs3 = (int)$rootPdo->query("SELECT COUNT(*) FROM wallet_logs WHERE reference_id = 1001")->fetchColumn();
 assertTrue(abs($balance3 - 10.00) < 0.001, 'Replay must not change balance.');
 assertTrue($walletLogs3 === 1, 'Replay must not create additional wallet logs.');
-echo "[INT-OK] Replay is blocked and idempotent behavior preserved.\n";
+echo "[INT-OK] Replay is idempotent.\n";
 
 $rootPdo->exec("DROP DATABASE `$dbName`");
 echo "[INT-OK] Webhook integration suite passed.\n";

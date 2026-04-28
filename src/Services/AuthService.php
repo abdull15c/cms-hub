@@ -50,6 +50,9 @@ class AuthService {
     }
 
     public function loginUser($user) {
+        if (!empty($user['is_banned'])) {
+            throw new \Exception('Account is banned.');
+        }
         SessionService::set('user_id', $user['id']);
         SessionService::set('user_email', $user['email']);
         SessionService::set('role', $user['role']);
@@ -72,7 +75,7 @@ class AuthService {
         $stmt->execute([$email, $hash, $verifyToken]);
         
         $uid = $this->pdo->lastInsertId();
-        $user = ['id' => $uid, 'email' => $email, 'role' => 'user', 'token' => $verifyToken];
+        $user = ['id' => $uid, 'email' => $email, 'role' => 'user', 'token' => $verifyToken, 'registration_source' => 'local'];
 
         Logger::info("New user registered: $email");
         Event::fire('user.registered', $user);
@@ -120,7 +123,7 @@ class AuthService {
         }
 
         $hash = password_hash($password, PASSWORD_ARGON2ID);
-        $this->pdo->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires_at = NULL WHERE id = ?")
+        $this->pdo->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires_at = NULL, api_token = NULL WHERE id = ?")
             ->execute([$hash, $user['id']]);
         AuditService::log('user', 'password_reset', (int)$user['id']);
         return true;
@@ -137,6 +140,9 @@ class AuthService {
         $stmt->execute([$provider, $providerId]);
         $user = $stmt->fetch();
         if ($user) {
+            if (!empty($user['is_banned'])) {
+                throw new \Exception('Account is banned.');
+            }
             return $user;
         }
 
@@ -145,6 +151,9 @@ class AuthService {
             $stmt->execute([$email]);
             $user = $stmt->fetch();
             if ($user) {
+                if (!empty($user['is_banned'])) {
+                    throw new \Exception('Account is banned.');
+                }
                 $this->pdo->prepare("UPDATE users SET oauth_provider = ?, oauth_provider_id = ?, email_verified_at = COALESCE(email_verified_at, NOW()), verify_token = NULL WHERE id = ?")
                     ->execute([$provider, $providerId, $user['id']]);
                 $stmt->execute([$email]);
@@ -165,7 +174,17 @@ class AuthService {
         AuditService::log('user', 'social_register', $id, $provider);
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->execute([$id]);
-        return $stmt->fetch();
+        $user = $stmt->fetch();
+        if ($user) {
+            Event::fire('user.registered', [
+                'id' => (int)$user['id'],
+                'email' => (string)$user['email'],
+                'role' => (string)$user['role'],
+                'token' => (string)($user['verify_token'] ?? ''),
+                'registration_source' => $provider,
+            ]);
+        }
+        return $user;
     }
 
     public function resendVerification(int $userId): bool {

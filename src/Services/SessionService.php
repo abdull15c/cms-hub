@@ -5,14 +5,18 @@ class SessionService {
     
     public static function start() {
         if (session_status() === PHP_SESSION_NONE) {
-            // Secure params
-            ini_set('session.cookie_httponly', 1);
-            ini_set('session.use_only_cookies', 1);
-            if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-                ini_set('session.cookie_secure', 1);
-            }
-            ini_set('session.cookie_samesite', 'Lax');
-            
+            $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+            ini_set('session.use_only_cookies', '1');
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path' => '/',
+                'domain' => '',
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+             
             session_start();
             self::checkFingerprint();
         }

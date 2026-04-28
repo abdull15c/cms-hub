@@ -3,7 +3,8 @@
   "description": "CMS Hub marketplace application",
   "type": "project",
   "require": {
-    "php": "^8.4",
+    "php": "^8.2",
+    "ext-curl": "*",
     "ext-dom": "*",
     "ext-fileinfo": "*",
     "ext-json": "*",

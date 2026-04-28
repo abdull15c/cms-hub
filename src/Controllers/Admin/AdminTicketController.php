@@ -2,10 +2,12 @@
 namespace Src\Controllers\Admin;
 use Config\Database;
 use Src\Services\AuditLogger;
+use Src\Services\Gate;
 
 class AdminTicketController extends BaseAdminController {
     public function index() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $pdo = Database::connect();
         $status = $_GET['status'] ?? 'open';
         $sql = "SELECT t.*, u.email FROM tickets t JOIN users u ON t.user_id = u.id ";
@@ -16,6 +18,7 @@ class AdminTicketController extends BaseAdminController {
 
     public function show($id) {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $pdo = Database::connect();
         // FIXED: PREPARED STATEMENT
         $stmt = $pdo->prepare("SELECT t.*, u.email, tr.amount, p.title as product_title 
@@ -37,9 +40,12 @@ class AdminTicketController extends BaseAdminController {
 
     public function reply($id) {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $this->verifyCsrf();
         $msg = trim($_POST['message']);
-        $status = $_POST['status'] ?? 'answered';
+        $status = in_array($_POST['status'] ?? 'answered', ['open', 'answered', 'customer_reply', 'closed'], true)
+            ? $_POST['status']
+            : 'answered';
         $pdo = Database::connect();
         if ($msg) {
             $pdo->prepare("INSERT INTO ticket_messages (ticket_id, user_id, is_admin, message) VALUES (?, ?, 1, ?)")->execute([$id, $this->currentUserId(), $msg]);
@@ -56,6 +62,7 @@ class AdminTicketController extends BaseAdminController {
 
     public function ajaxAiReply() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         header('Content-Type: application/json');
         
         $input = json_decode(file_get_contents('php://input'), true);

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
-$targets = [$root . '/src', $root . '/public'];
+$targets = [$root . '/src', $root . '/public', $root . '/views', $root . '/config', $root . '/deployment', $root . '/tests'];
 $riiFlags = \FilesystemIterator::SKIP_DOTS;
 
 function lintPhpFile(string $path): bool {
@@ -37,6 +37,7 @@ if (file_exists($smokeSuite)) {
 
 $integrationSuites = [
     $root . '/tests/integration/webhook_integration.php',
+    $root . '/tests/integration/stripe_webhook_integration.php',
     $root . '/tests/integration/auth_integration.php',
 ];
 
@@ -48,6 +49,15 @@ if (extension_loaded('pdo_mysql')) {
         passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($suite), $suiteCode);
         $ok = ($suiteCode === 0) && $ok;
     }
+}
+
+$analyticsRegistrationCheck = $root . '/tools/analytics_registration_check.php';
+if (extension_loaded('pdo_mysql') && file_exists($analyticsRegistrationCheck)) {
+    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($analyticsRegistrationCheck), $analyticsCode);
+    if ($analyticsCode !== 0) {
+        echo "[ANALYTICS-REG-FAIL] Registration analytics consistency check failed.\n";
+    }
+    $ok = ($analyticsCode === 0) && $ok;
 }
 
 exit($ok ? 0 : 1);

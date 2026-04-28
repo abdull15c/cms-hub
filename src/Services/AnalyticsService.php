@@ -69,16 +69,65 @@ class AnalyticsService {
         }
     }
 
+    public function trackRegistration(array $user): void
+    {
+        if (php_sapi_name() === 'cli' || empty($user['id']) || $this->isBotRequest()) {
+            return;
+        }
+
+        $context = $this->buildContext();
+        $source = strtolower(trim((string)($user['registration_source'] ?? 'local')));
+        if ($source === '') {
+            $source = 'local';
+        }
+        $provider = in_array($source, ['google', 'github'], true) ? $source : null;
+        if ($source === 'google' || $source === 'github') {
+            $source = 'social';
+        }
+
+        try {
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO analytics_registrations (user_id, source, provider, session_id, ip_hash, country_code, country_name)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)
+                 ON DUPLICATE KEY UPDATE
+                    source = VALUES(source),
+                    provider = VALUES(provider),
+                    session_id = VALUES(session_id),
+                    ip_hash = VALUES(ip_hash),
+                    country_code = VALUES(country_code),
+                    country_name = VALUES(country_name)"
+            );
+            $stmt->execute([
+                (int)$user['id'],
+                $this->truncate($source, 32) ?: 'local',
+                $provider !== null ? ($this->truncate($provider, 32) ?: null) : null,
+                $context['session_id'],
+                $context['ip_hash'],
+                $context['country_code'],
+                $context['country_name'],
+            ]);
+        } catch (\Throwable $e) {
+            Logger::warning('Analytics registration tracking skipped', ['error' => $e->getMessage()]);
+        }
+    }
+
     public function getDashboardSummary(int $days = 7): array {
         $days = $this->normalizeDays($days);
+        [$dayStartUtc, $dayEndUtc] = $this->todayRangeUtc();
+        $dayStart = $dayStartUtc->format('Y-m-d H:i:s');
+        $dayEnd = $dayEndUtc->format('Y-m-d H:i:s');
 
         return [
             'products_total' => $this->scalarInt("SELECT COUNT(*) FROM products"),
             'registered_users_total' => $this->scalarInt("SELECT COUNT(*) FROM users"),
-            'registrations_today' => $this->scalarInt("SELECT COUNT(*) FROM users WHERE created_at >= CURDATE()"),
+            'registrations_today' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_registrations WHERE created_at >= ? AND created_at < ?", [$dayStart, $dayEnd]),
+            'registrations_today_local' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_registrations WHERE created_at >= ? AND created_at < ? AND source = 'local'", [$dayStart, $dayEnd]),
+            'registrations_today_social' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_registrations WHERE created_at >= ? AND created_at < ? AND source = 'social'", [$dayStart, $dayEnd]),
+            'registrations_today_google' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_registrations WHERE created_at >= ? AND created_at < ? AND provider = 'google'", [$dayStart, $dayEnd]),
+            'registrations_today_github' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_registrations WHERE created_at >= ? AND created_at < ? AND provider = 'github'", [$dayStart, $dayEnd]),
             'unique_visitors_period' => $this->uniqueVisitorsSince($days),
             'page_views_period' => $this->scalarInt("SELECT COUNT(*) FROM analytics_page_views WHERE visited_at >= DATE_SUB(NOW(), INTERVAL {$days} DAY)"),
-            'logins_today' => $this->scalarInt("SELECT COUNT(*) FROM analytics_logins WHERE created_at >= CURDATE()"),
+            'logins_today' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_logins WHERE created_at >= ? AND created_at < ?", [$dayStart, $dayEnd]),
             'top_page' => $this->mostVisitedPage($days),
             'chart' => $this->dailyActivity($days),
         ];
@@ -87,16 +136,19 @@ class AnalyticsService {
     public function getOverview(int $days = 30): array {
         $days = $this->normalizeDays($days);
         $topPage = $this->mostVisitedPage($days);
+        [$dayStartUtc, $dayEndUtc] = $this->todayRangeUtc();
+        $dayStart = $dayStartUtc->format('Y-m-d H:i:s');
+        $dayEnd = $dayEndUtc->format('Y-m-d H:i:s');
 
         return [
             'days' => $days,
-            'registrations_total' => $this->scalarInt("SELECT COUNT(*) FROM users"),
-            'registrations_today' => $this->scalarInt("SELECT COUNT(*) FROM users WHERE created_at >= CURDATE()"),
+            'registrations_total' => $this->scalarInt("SELECT COUNT(*) FROM analytics_registrations"),
+            'registrations_today' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_registrations WHERE created_at >= ? AND created_at < ?", [$dayStart, $dayEnd]),
             'logins_total' => $this->scalarInt("SELECT COUNT(*) FROM analytics_logins"),
-            'logins_today' => $this->scalarInt("SELECT COUNT(*) FROM analytics_logins WHERE created_at >= CURDATE()"),
+            'logins_today' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_logins WHERE created_at >= ? AND created_at < ?", [$dayStart, $dayEnd]),
             'page_views_total' => $this->scalarInt("SELECT COUNT(*) FROM analytics_page_views"),
-            'page_views_today' => $this->scalarInt("SELECT COUNT(*) FROM analytics_page_views WHERE visited_at >= CURDATE()"),
-            'unique_visitors_today' => $this->uniqueVisitorsFromCondition("visited_at >= CURDATE()"),
+            'page_views_today' => $this->scalarIntWithParams("SELECT COUNT(*) FROM analytics_page_views WHERE visited_at >= ? AND visited_at < ?", [$dayStart, $dayEnd]),
+            'unique_visitors_today' => $this->uniqueVisitorsFromConditionWithParams("visited_at >= ? AND visited_at < ?", [$dayStart, $dayEnd]),
             'unique_visitors_period' => $this->uniqueVisitorsSince($days),
             'top_page' => $topPage,
         ];
@@ -157,7 +209,7 @@ class AnalyticsService {
             ];
         }
 
-        foreach ($this->groupByDay("SELECT DATE(created_at) AS day_key, COUNT(*) AS total FROM users WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL {$days} DAY) GROUP BY DATE(created_at)") as $row) {
+        foreach ($this->groupByDay("SELECT DATE(created_at) AS day_key, COUNT(*) AS total FROM analytics_registrations WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL {$days} DAY) GROUP BY DATE(created_at)") as $row) {
             if (isset($rows[$row['day_key']])) {
                 $rows[$row['day_key']]['registrations'] = (int)$row['total'];
             }
@@ -386,6 +438,12 @@ class AnalyticsService {
         return $this->scalarInt("SELECT COUNT(DISTINCT {$visitorExpr}) FROM analytics_page_views WHERE {$condition}");
     }
 
+    private function uniqueVisitorsFromConditionWithParams(string $condition, array $params): int
+    {
+        $visitorExpr = $this->visitorKeyExpression();
+        return $this->scalarIntWithParams("SELECT COUNT(DISTINCT {$visitorExpr}) FROM analytics_page_views WHERE {$condition}", $params);
+    }
+
     private function mostVisitedPage(int $days): array {
         try {
             $stmt = $this->pdo->query("SELECT path, COUNT(*) AS views FROM analytics_page_views WHERE visited_at >= DATE_SUB(NOW(), INTERVAL {$days} DAY) GROUP BY path ORDER BY views DESC LIMIT 1");
@@ -412,6 +470,43 @@ class AnalyticsService {
             Logger::warning('Analytics scalar query skipped', ['error' => $e->getMessage()]);
             return 0;
         }
+    }
+
+    private function scalarIntWithParams(string $sql, array $params): int
+    {
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return (int)$stmt->fetchColumn();
+        } catch (\Throwable $e) {
+            Logger::warning('Analytics scalar prepared query skipped', ['error' => $e->getMessage()]);
+            return 0;
+        }
+    }
+
+    private function timezone(): \DateTimeZone
+    {
+        $tz = trim((string)Env::get('APP_TIMEZONE', 'UTC'));
+        if ($tz === '') {
+            $tz = 'UTC';
+        }
+        try {
+            return new \DateTimeZone($tz);
+        } catch (\Throwable $e) {
+            return new \DateTimeZone('UTC');
+        }
+    }
+
+    private function todayRangeUtc(): array
+    {
+        $tz = $this->timezone();
+        $now = new \DateTimeImmutable('now', $tz);
+        $start = $now->setTime(0, 0, 0);
+        $end = $start->modify('+1 day');
+        return [
+            $start->setTimezone(new \DateTimeZone('UTC')),
+            $end->setTimezone(new \DateTimeZone('UTC')),
+        ];
     }
 
     private function visitorKeyExpression(string $alias = ''): string {

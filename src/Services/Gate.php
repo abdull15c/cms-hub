@@ -27,6 +27,25 @@ class Gate {
 
     public static function authorize($permission) {
         $role = SessionService::get('role', 'guest');
+        $userId = (int)SessionService::get('user_id', 0);
+        if ($userId > 0) {
+            try {
+                $stmt = Database::connect()->prepare('SELECT role, is_banned FROM users WHERE id = ? LIMIT 1');
+                $stmt->execute([$userId]);
+                $user = $stmt->fetch();
+                if (!$user || !empty($user['is_banned'])) {
+                    throw new \RuntimeException('Account is unavailable.', 403);
+                }
+                $role = (string)$user['role'];
+                if ((string)SessionService::get('role', '') !== $role) {
+                    SessionService::set('role', $role);
+                }
+            } catch (\RuntimeException $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+                throw new \RuntimeException('Authorization check failed.', 403);
+            }
+        }
         
         if ($role === 'admin') return true; // Admin allows all
         

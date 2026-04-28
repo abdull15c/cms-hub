@@ -29,9 +29,11 @@ class SettingsController extends BaseAdminController {
             'footer_text', 'contact_email', 'telegram_url', 'discord_url', 'youtube_url',
             // Payments
             'yoomoney_enabled', 'yoomoney_wallet', 'yoomoney_secret', 
-            'freekassa_enabled', 'fk_merchant_id', 'fk_secret_1', 'fk_secret_2', 
+            'yookassa_enabled', 'yookassa_shop_id', 'yookassa_secret_key', 'yookassa_currency',
             'payeer_enabled', 'payeer_merchant_id', 'payeer_secret_key',
-            'crypto_enabled', 'crypto_shop_id', 'crypto_api_key',
+            'cryptomus_enabled', 'cryptomus_merchant_uuid', 'cryptomus_payment_key', 'cryptomus_currency',
+            'lemonsqueezy_enabled', 'lemonsqueezy_store_id', 'lemonsqueezy_variant_id', 'lemonsqueezy_api_key', 'lemonsqueezy_webhook_secret', 'lemonsqueezy_currency',
+            'stripe_enabled', 'stripe_secret_key', 'stripe_webhook_secret', 'stripe_currency',
             // Social
             'google_client_id', 'google_client_secret', 
             'github_client_id', 'github_client_secret', 
@@ -42,7 +44,7 @@ class SettingsController extends BaseAdminController {
         ];
 
         // 1. Handle Checkboxes (If unchecked, they are not in $_POST, so we force 0)
-        $toggles = ['maintenance_mode', 'yoomoney_enabled', 'freekassa_enabled', 'payeer_enabled', 'crypto_enabled'];
+        $toggles = ['maintenance_mode', 'yoomoney_enabled', 'yookassa_enabled', 'payeer_enabled', 'cryptomus_enabled', 'lemonsqueezy_enabled', 'stripe_enabled'];
         foreach($toggles as $t) {
             if (!isset($_POST[$t])) $_POST[$t] = '0';
         }

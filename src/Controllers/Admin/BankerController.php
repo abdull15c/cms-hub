@@ -1,12 +1,15 @@
 <?php
 namespace Src\Controllers\Admin;
 use Config\Database;
+use Src\Services\MoneyService;
 use Src\Services\WalletService;
 use Src\Services\AuditLogger;
+use Src\Services\Gate;
 
 class BankerController extends BaseAdminController {
     public function manage($userId) {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $pdo = Database::connect();
         // FIXED: PREPARED STATEMENT
         $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -22,16 +25,19 @@ class BankerController extends BaseAdminController {
 
     public function update() {
         $this->checkAuth();
+        Gate::authorize('dashboard.view');
         $this->verifyCsrf();
         $userId = $_POST['user_id'];
-        $amount = floatval($_POST['amount']);
+        $amount = (float)($_POST['amount'] ?? 0);
         $action = $_POST['action']; 
         $reason = $_POST['reason'] ?? 'Admin Adjustment';
-        if ($amount <= 0) $this->redirect("/admin/users/manage/$userId", "Invalid amount");
-        $finalAmount = ($action === 'sub') ? -$amount : $amount;
+        $amountCents = MoneyService::toCents($amount);
+        if ($amountCents <= 0) $this->redirect("/admin/users/manage/$userId", "Invalid amount");
+        $signedCents = ($action === 'sub') ? -$amountCents : $amountCents;
+        $finalAmount = MoneyService::fromCents($signedCents);
         try {
             WalletService::changeBalance($userId, $finalAmount, 'adjustment', $this->currentUserId(), $reason);
-            AuditLogger::log('admin_balance_change', "User: $userId, Amount: $finalAmount, Reason: $reason");
+            AuditLogger::log('admin_balance_change', "User: $userId, Amount: " . MoneyService::decimalStringFromCents($signedCents) . ", Reason: $reason");
             $this->redirect("/admin/users/manage/$userId", null, "Balance updated.");
         } catch (\Exception $e) {
             $this->redirect("/admin/users/manage/$userId", "Error: " . $e->getMessage());

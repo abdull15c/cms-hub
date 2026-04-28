@@ -85,7 +85,7 @@ function skipIfRootDbUnavailable(): void
 function setTestEnv(string $dbName): void
 {
     $cfg = testDbConfig();
-    $secret = getenv('TEST_CRYPTO_WEBHOOK_SECRET') ?: 'integration-secret';
+    $secret = getenv('TEST_CRYPTOMUS_PAYMENT_KEY') ?: 'integration-secret';
 
     $_ENV['DB_HOST'] = $cfg['host'];
     $_ENV['DB_NAME'] = $dbName;
@@ -95,7 +95,7 @@ function setTestEnv(string $dbName): void
     if ($cfg['port'] !== '') {
         $_ENV['DB_PORT'] = $cfg['port'];
     }
-    $_ENV['CRYPTO_WEBHOOK_SECRET'] = $secret;
+    $_ENV['CRYPTOMUS_PAYMENT_KEY'] = $secret;
 
     putenv("DB_HOST={$cfg['host']}");
     putenv("DB_NAME={$dbName}");
@@ -105,7 +105,7 @@ function setTestEnv(string $dbName): void
     if ($cfg['port'] !== '') {
         putenv("DB_PORT={$cfg['port']}");
     }
-    putenv("CRYPTO_WEBHOOK_SECRET={$secret}");
+    putenv("CRYPTOMUS_PAYMENT_KEY={$secret}");
 }
 
 function pdoRoot(): PDO

@@ -20,6 +20,11 @@
                     <a href="<?= BASE_URL ?>/profile/api" class="badge bg-dark text-decoration-none border border-secondary"><i class="fa-solid fa-code"></i> <?= $t('profile_api', 'API') ?></a>
                     <?php if ($is2faEnabled): ?>
                         <span class="badge bg-success bg-opacity-25 text-success border border-success"><i class="fa-solid fa-shield"></i> <?= $t('profile_2fa_on', '2FA ON') ?></span>
+                        <form action="<?= BASE_URL ?>/auth/2fa/disable" method="POST" class="d-inline-flex gap-1 align-items-center">
+                            <?= \Src\Core\Csrf::field() ?>
+                            <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" class="form-control form-control-sm bg-dark text-light border-secondary" placeholder="2FA code" style="width: 105px;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Disable</button>
+                        </form>
                     <?php else: ?>
                         <a href="<?= BASE_URL ?>/auth/2fa/setup" class="badge bg-warning bg-opacity-25 text-warning border border-warning text-decoration-none"><i class="fa-solid fa-triangle-exclamation"></i> <?= $t('profile_enable_2fa', 'Enable 2FA') ?></a>
                     <?php endif; ?>
@@ -85,8 +90,8 @@
                                 <div class="d-flex gap-2">
                                     <a href="<?= BASE_URL ?>/download/<?= $p['product_id'] ?>" class="btn btn-xs btn-cyber"><i class="fa-solid fa-download"></i> <?= $t('profile_files', 'Files') ?></a>
                                     <?php if ($p['license_key']): ?>
-                                        <button class="btn btn-xs btn-outline-secondary" onclick="prompt('<?= addslashes($t('profile_license_key', 'License Key:')) ?>', '<?= addslashes($p['license_key']) ?>')">
-                                            <i class="fa-solid fa-key"></i> <?= $t('profile_key', 'Key') ?>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary" data-license-key="<?= htmlspecialchars((string)$p['license_key'], ENT_QUOTES, 'UTF-8') ?>" onclick="prompt('<?= htmlspecialchars($t('profile_license_key', 'License Key:'), ENT_QUOTES, 'UTF-8') ?>', this.dataset.licenseKey)">
+                                            <i class="fa-solid fa-key"></i> <?= $t('profile_license', 'License') ?>
                                         </button>
                                     <?php endif; ?>
                                 </div>
@@ -99,7 +104,3 @@
         </div>
     </div>
 </div>
-<style>
-.btn-xs { padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 0.2rem; }
-.object-fit-cover { object-fit: cover; }
-</style>

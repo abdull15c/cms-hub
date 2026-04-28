@@ -28,10 +28,6 @@ class LicenseService {
         $key = trim((string)$key);
         $normalizedDomain = self::normalizeDomain((string)$domain);
         $pdo = Database::connect();
-        
-        $stmt = $pdo->prepare("SELECT * FROM licenses WHERE license_key = ?");
-        $stmt->execute([$key]);
-        $license = $stmt->fetch();
 
         // Standard Response Structure
         $response = [
@@ -41,36 +37,71 @@ class LicenseService {
             'timestamp' => time()
         ];
 
-        if (!$license) return $response;
-
         if ($normalizedDomain === null) {
             $response['message'] = 'Invalid domain';
             return $response;
         }
 
-        if (!$license['is_active']) {
-            $response['message'] = 'License Suspended by Administrator';
-            return $response;
-        }
+        try {
+            if (!$pdo->inTransaction()) {
+                $pdo->beginTransaction();
+            }
+            $stmt = $pdo->prepare("SELECT * FROM licenses WHERE license_key = ? FOR UPDATE");
+            $stmt->execute([$key]);
+            $license = $stmt->fetch();
+            if (!$license) {
+                $pdo->commit();
+                return $response;
+            }
+            if (!(bool)$license['is_active']) {
+                $pdo->commit();
+                $response['message'] = 'License Suspended by Administrator';
+                return $response;
+            }
 
-        // Domain Logic
-        if (empty($license['domain'])) {
-            $update = $pdo->prepare("UPDATE licenses SET domain = ?, activated_at = NOW() WHERE id = ?");
-            $update->execute([$normalizedDomain, $license['id']]);
-            
+            $currentDomain = trim((string)($license['domain'] ?? ''));
+            if ($currentDomain === '') {
+                $update = $pdo->prepare("
+                    UPDATE licenses
+                    SET domain = ?, activated_at = NOW()
+                    WHERE id = ? AND (domain IS NULL OR domain = '')
+                ");
+                $update->execute([$normalizedDomain, $license['id']]);
+                if ($update->rowCount() === 1) {
+                    $pdo->commit();
+                    $response['status'] = 'success';
+                    $response['message'] = "Activated for $normalizedDomain";
+                    return $response;
+                }
+
+                // Domain was bound by concurrent request while we were processing.
+                $refetch = $pdo->prepare("SELECT domain FROM licenses WHERE id = ? FOR UPDATE");
+                $refetch->execute([$license['id']]);
+                $boundDomain = trim((string)$refetch->fetchColumn());
+                $pdo->commit();
+                if ($boundDomain === $normalizedDomain) {
+                    $response['status'] = 'success';
+                    $response['message'] = 'License Valid';
+                    return $response;
+                }
+                $response['message'] = 'Domain mismatch';
+                return $response;
+            }
+
+            $pdo->commit();
+            if ($currentDomain !== $normalizedDomain) {
+                $response['message'] = 'Domain mismatch';
+                return $response;
+            }
             $response['status'] = 'success';
-            $response['message'] = "Activated for $normalizedDomain";
+            $response['message'] = 'License Valid';
+            return $response;
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             return $response;
         }
-
-        if ($license['domain'] !== $normalizedDomain) {
-            $response['message'] = "Domain mismatch. Key bound to: " . $license['domain'];
-            return $response;
-        }
-
-        $response['status'] = 'success';
-        $response['message'] = 'License Valid';
-        return $response;
     }
 
     public static function normalizeDomain(string $domain): ?string

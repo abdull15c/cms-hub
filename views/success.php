@@ -7,10 +7,10 @@
             
             <div class="my-4">
                 <p class="mb-1 text-muted">Your License Key:</p>
-                <div class="license-key fs-4"><?= $key ?></div>
+                <div class="license-key fs-4"><?= htmlspecialchars((string)$key, ENT_QUOTES, 'UTF-8') ?></div>
             </div>
 
-            <a href="<?= BASE_URL ?>/download/<?= $_GET['id'] ?? '1' ?>" class="btn btn-warning btn-lg text-dark shadow mb-3">
+            <a href="<?= BASE_URL ?>/download/<?= (int)($product_id ?? 0) ?>" class="btn btn-warning btn-lg text-dark shadow mb-3">
                 <i class="fa-solid fa-download"></i> Download Files Now
             </a>
             

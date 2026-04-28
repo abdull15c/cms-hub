@@ -287,6 +287,81 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         .fa-3x { font-size: 3em; }
         .fa-4x { font-size: 4em; }
         .fa-5x { font-size: 5em; }
+        body.public-view .glitch {
+            color: #fff;
+            text-shadow: 0 0 18px var(--primary-soft);
+            padding-bottom: 0.32rem;
+            font-size: clamp(1.28rem, 1.05rem + 0.72vw, 1.78rem);
+            letter-spacing: -0.035em;
+        }
+        body.public-view .glitch::after,
+        body.public-view #particles-container,
+        body.public-view .theme-chip-inline {
+            display: block;
+        }
+        body.public-view .glitch span {
+            color: #fff;
+        }
+        body.public-view .site-navbar {
+            background: rgba(11, 15, 25, 0.92);
+            border-bottom: 1px solid var(--nav-border);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+            backdrop-filter: blur(16px);
+        }
+        body.public-view .site-nav-shell { min-height: 72px; }
+        body.public-view .site-nav-links .nav-link,
+        body.public-view .site-nav-actions .nav-link {
+            color: var(--muted-text) !important;
+            background: transparent;
+        }
+        body.public-view .site-nav-links .nav-link:hover,
+        body.public-view .site-nav-actions .nav-link:hover,
+        body.public-view .site-nav-links .nav-link:focus-visible,
+        body.public-view .site-nav-actions .nav-link:focus-visible {
+            color: #fff !important;
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        body.public-view .navbar-search-input {
+            background: rgba(255,255,255,0.04);
+            color: var(--text-main);
+            border-color: rgba(255,255,255,0.08);
+            box-shadow: none;
+        }
+        body.public-view .navbar-search-input::placeholder { color: var(--muted-text); }
+        body.public-view .navbar-search-input:focus {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-main);
+            border-color: var(--primary-neon);
+            box-shadow: 0 0 0 0.2rem var(--primary-soft);
+        }
+        body.public-view .navbar-search-btn {
+            background: linear-gradient(135deg, var(--primary-neon), #7df8f2);
+            color: #041518;
+            border-color: transparent;
+            box-shadow: 0 10px 22px var(--primary-soft);
+        }
+        body.public-view .navbar-search-btn:hover {
+            background: linear-gradient(135deg, #8ffcf6, var(--primary-neon));
+            color: #041518;
+        }
+        body.public-view .navbar-toggler {
+            color: #fff;
+            border-color: rgba(255,255,255,0.2);
+        }
+        body.public-view .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255,255,255,0.92)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+        body.public-view .dropdown-menu {
+            background: var(--dropdown-bg);
+            border-color: var(--card-border);
+            box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+        }
+        body.public-view .dropdown-item { color: var(--text-main) !important; }
+        body.public-view .dropdown-item:hover {
+            background: var(--dropdown-hover);
+            color: var(--primary-neon) !important;
+        }
         @media (max-width: 991.98px) {
             .site-nav-shell { min-height: 72px; }
             .site-nav-branding { max-width: calc(100% - 72px); }
@@ -322,6 +397,11 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
                 padding: 0.82rem 0.95rem;
             }
             .theme-chip-inline { display: none; }
+            body.public-view .site-nav-collapse {
+                background: rgba(8, 12, 20, 0.9);
+                border-color: rgba(255,255,255,0.08);
+                box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+            }
         }
         @media (min-width: 992px) {
             .site-nav-shell { flex-wrap: nowrap !important; }
@@ -404,14 +484,15 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
                 <li><a class="dropdown-item text-light" href="<?= htmlspecialchars($buildCurrentLink('en')) ?>" rel="alternate" hreflang="en"><?= htmlspecialchars($t('lang_en', 'English')) ?></a></li>
             </ul>
         </li>
+        <?php $currentCurrency = \Src\Services\CurrencyService::current(); ?>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-warning" href="#" data-bs-toggle="dropdown">
-                <?= $iconSvg('fa-coins', 'me-1') ?> <?= \Src\Services\SessionService::get('currency', 'RUB') ?>
+                <?= $iconSvg('fa-coins', 'me-1') ?> <?= htmlspecialchars($currentCurrency) ?>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg">
-                <li><a class="dropdown-item text-light" href="<?= BASE_URL ?>/currency/switch/RUB">₽ <?= htmlspecialchars($t('currency_rub', 'Ruble')) ?></a></li>
-                <li><a class="dropdown-item text-light" href="<?= BASE_URL ?>/currency/switch/USD">$ <?= htmlspecialchars($t('currency_usd', 'Dollar')) ?></a></li>
-                <li><a class="dropdown-item text-light" href="<?= BASE_URL ?>/currency/switch/EUR">€ <?= htmlspecialchars($t('currency_eur', 'Euro')) ?></a></li>
+                <li><a class="dropdown-item text-light d-flex justify-content-between align-items-center <?= $currentCurrency === 'RUB' ? 'active' : '' ?>" href="<?= BASE_URL ?>/currency/switch/RUB" <?= $currentCurrency === 'RUB' ? 'aria-current="true"' : '' ?>>₽ <?= htmlspecialchars($t('currency_rub', 'Ruble')) ?><?= $currentCurrency === 'RUB' ? $iconSvg('fa-check', 'ms-2 text-success') : '' ?></a></li>
+                <li><a class="dropdown-item text-light d-flex justify-content-between align-items-center <?= $currentCurrency === 'USD' ? 'active' : '' ?>" href="<?= BASE_URL ?>/currency/switch/USD" <?= $currentCurrency === 'USD' ? 'aria-current="true"' : '' ?>>$ <?= htmlspecialchars($t('currency_usd', 'Dollar')) ?><?= $currentCurrency === 'USD' ? $iconSvg('fa-check', 'ms-2 text-success') : '' ?></a></li>
+                <li><a class="dropdown-item text-light d-flex justify-content-between align-items-center <?= $currentCurrency === 'EUR' ? 'active' : '' ?>" href="<?= BASE_URL ?>/currency/switch/EUR" <?= $currentCurrency === 'EUR' ? 'aria-current="true"' : '' ?>>€ <?= htmlspecialchars($t('currency_eur', 'Euro')) ?><?= $currentCurrency === 'EUR' ? $iconSvg('fa-check', 'ms-2 text-success') : '' ?></a></li>
             </ul>
         </li>
 

@@ -80,6 +80,11 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
                     <?= $iconSvg('fa-shield-halved', 'mt-1') ?>
                     <div><?= htmlspecialchars($isRu ? 'Форма защищена CSRF-проверкой и простой captcha-проверкой.' : 'The form is protected by CSRF validation and a simple captcha check.') ?></div>
                 </div>
+
+                <div class="contact-note">
+                    <?= $iconSvg('fa-clock', 'mt-1') ?>
+                    <div><?= htmlspecialchars($isRu ? 'Обычно отвечаем в течение 1-3 рабочих дней. Для претензий по платежам и правам на данные укажите номер заказа и email аккаунта.' : 'Typical response time is 1-3 business days. For payment disputes or privacy rights requests, include your order number and account email.') ?></div>
+                </div>
             </aside>
         </div>
     </div>

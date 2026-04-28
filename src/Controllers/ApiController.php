@@ -2,7 +2,6 @@
 namespace Src\Controllers;
 use Config\Database;
 use Src\Repositories\ProductRepository;
-use Src\Services\LicenseService;
 use Src\Services\SessionService;
 
 class ApiController {
@@ -43,11 +42,13 @@ class ApiController {
         }
         
         $pdo = Database::connect();
-        $stmt = $pdo->prepare("SELECT id, email, balance, role FROM users WHERE api_token = ?");
-        $stmt->execute([$token]);
+        $tokenHash = 'sha256:' . hash('sha256', $token);
+        $stmt = $pdo->prepare("SELECT id, email, balance, role, is_banned FROM users WHERE api_token = ?");
+        $stmt->execute([$tokenHash]);
         $user = $stmt->fetch();
         
         if(!$user) $this->error('invalid_token', 'Invalid token', 401);
+        if (!empty($user['is_banned'])) $this->error('account_unavailable', 'Account is unavailable', 403);
         return $user;
     }
 
@@ -71,36 +72,5 @@ class ApiController {
             'balance' => $user['balance'],
             'role' => $user['role']
         ]);
-    }
-    
-    // POST /api/license/check
-    public function checkLicense() {
-        $input = json_decode(file_get_contents('php://input'), true) ?: [];
-        $key = trim((string)($input['key'] ?? ''));
-        $domain = LicenseService::normalizeDomain((string)($input['domain'] ?? ''));
-        if ($key === '' || $domain === null) {
-            $this->error('validation_error', 'Missing required fields: key, domain', 422);
-        }
-        if (!preg_match('/^[A-Z0-9-]{8,100}$/i', $key)) {
-            $this->error('validation_error', 'License key format is invalid', 422);
-        }
-        
-        $pdo = Database::connect();
-        $stmt = $pdo->prepare("SELECT * FROM licenses WHERE license_key = ?");
-        $stmt->execute([$key]);
-        $lic = $stmt->fetch();
-        
-        if(!$lic) $this->error('not_found', 'License not found', 404);
-        if(!$lic['is_active']) $this->error('forbidden', 'License blocked', 403);
-        
-        // Domain binding logic
-        if(empty($lic['domain'])) {
-            $pdo->prepare("UPDATE licenses SET domain = ? WHERE id = ?")->execute([$domain, $lic['id']]);
-            $this->json(['valid' => true, 'msg' => 'Activated']);
-        }
-        
-        if($lic['domain'] !== $domain) $this->error('domain_mismatch', 'Domain mismatch', 409);
-        
-        $this->json(['valid' => true, 'msg' => 'Valid']);
     }
 }

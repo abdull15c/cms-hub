@@ -46,17 +46,17 @@ jobs:
 
       - name: Secret fallback checks
         run: |
-          if rg -n "CRON_TOKEN\\s*\\?\\?\\s*'SECRET'" .; then
+          if grep -RIn "CRON_TOKEN\\s*\\?\\?\\s*'SECRET'" .; then
             echo "Found insecure CRON token fallback."
             exit 1
           fi
-          if rg -n "status'\\s*\\?\\?\\s*''\\)\\s*===\\s*'paid'" src/Services/PaymentService.php; then
+          if grep -RIn "status'\\s*\\?\\?\\s*''\\)\\s*===\\s*'paid'" src/Services/PaymentService.php; then
             echo "Found insecure crypto webhook validation pattern."
             exit 1
           fi
           echo "Security static checks passed."
 
-  integration-webhook:
+  integration-tests:
     runs-on: ubuntu-latest
     needs: [php-lint, smoke-tests]
     services:
@@ -87,5 +87,38 @@ jobs:
           TEST_DB_HOST: 127.0.0.1
           TEST_DB_USER: root
           TEST_DB_PASS: root
-          TEST_CRYPTO_WEBHOOK_SECRET: ci-integration-secret
-        run: php tests/integration/webhook_integration.php
+          TEST_CRYPTOMUS_PAYMENT_KEY: ci-integration-secret
+        run: |
+          output=$(php tests/integration/webhook_integration.php 2>&1)
+          echo "$output"
+          if echo "$output" | grep -q "\[INT-SKIP\]"; then
+            echo "Integration tests must not skip in CI."
+            exit 1
+          fi
+
+      - name: Run Stripe webhook integration suite
+        env:
+          TEST_DB_HOST: 127.0.0.1
+          TEST_DB_USER: root
+          TEST_DB_PASS: root
+          TEST_STRIPE_WEBHOOK_SECRET: whsec_ci_secret
+        run: |
+          output=$(php tests/integration/stripe_webhook_integration.php 2>&1)
+          echo "$output"
+          if echo "$output" | grep -q "\[INT-SKIP\]"; then
+            echo "Integration tests must not skip in CI."
+            exit 1
+          fi
+
+      - name: Run auth integration suite
+        env:
+          TEST_DB_HOST: 127.0.0.1
+          TEST_DB_USER: root
+          TEST_DB_PASS: root
+        run: |
+          output=$(php tests/integration/auth_integration.php 2>&1)
+          echo "$output"
+          if echo "$output" | grep -q "\[INT-SKIP\]"; then
+            echo "Integration tests must not skip in CI."
+            exit 1
+          fi

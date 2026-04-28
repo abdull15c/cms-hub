@@ -22,7 +22,8 @@ class Middleware {
         // 0. MAINTENANCE MODE CHECK
         // Allow access to /admin, /login, /auth (for admins to login)
         $isMaintenance = SettingsService::get('maintenance_mode') === '1';
-        $isAdminPath = strpos($uri, '/admin') !== false || strpos($uri, '/login') !== false || strpos($uri, '/auth') !== false;
+        $path = parse_url($uri, PHP_URL_PATH) ?: '/';
+        $isAdminPath = str_starts_with($path, '/admin') || $path === '/login' || str_starts_with($path, '/auth');
         
         if ($isMaintenance && !$isAdminPath) {
             // Check if user is already logged in as admin to bypass
@@ -79,6 +80,7 @@ class Middleware {
         }
 
         $scopedLimits = [
+            ['needle' => '/payment/webhook', 'methods' => ['POST'], 'scope' => 'payment_webhook', 'limit' => 120, 'window' => 60],
             ['needle' => '/api/license/check', 'methods' => ['POST'], 'scope' => 'api_license_check', 'limit' => 60, 'window' => 300],
             ['needle' => '/api/me', 'methods' => ['GET'], 'scope' => 'api_me', 'limit' => 120, 'window' => 300],
             ['needle' => '/auth/token/generate', 'methods' => ['POST'], 'scope' => 'api_token_generate', 'limit' => 5, 'window' => 3600],

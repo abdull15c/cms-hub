@@ -1,18 +1,22 @@
 <?php
-// HYBRID QUEUE WORKER (Web & AJAX)
+// QUEUE WORKER ENTRYPOINT (CLI or signed token only)
 require_once dirname(__DIR__) . '/src/app_bootstrap.php';
 
 use Src\Core\Env;
-use Src\Services\SessionService;
-
-SessionService::start();
-
-$isAdmin = (SessionService::get('role') === 'admin');
+$isCli = (PHP_SAPI === 'cli');
 $cronToken = (string)Env::get('CRON_TOKEN', '');
-$providedToken = (string)($_GET['token'] ?? $_POST['token'] ?? '');
+$authHeader = (string)($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+$bearer = preg_match('/Bearer\s+(\S+)/i', $authHeader, $m) ? $m[1] : '';
+$providedToken = (string)($_POST['token'] ?? ($_SERVER['HTTP_X_CRON_TOKEN'] ?? $bearer));
 $hasToken = ($cronToken !== '' && $providedToken !== '' && hash_equals($cronToken, $providedToken));
 
-if (!$isAdmin && !$hasToken) {
+if (!$isCli && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    http_response_code(405);
+    header('Allow: POST');
+    exit('Method Not Allowed');
+}
+
+if (!$isCli && !$hasToken) {
     http_response_code(403);
     exit('Access Denied');
 }
@@ -27,37 +31,21 @@ $respondJson = static function (array $payload, int $status = 200): void {
     exit;
 };
 
-if ($isAjax) {
+if ($isAjax || !$isCli) {
     try {
-        // Run one job
         $worked = \Src\Services\QueueService::processNext();
         $respondJson(['status' => 'ok', 'worked' => $worked]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         $respondJson(['status' => 'error', 'msg' => $e->getMessage()], 500);
     }
 }
 
-if (!$isAdmin) {
-    try {
-        $worked = \Src\Services\QueueService::processNext();
-        header('Content-Type: text/plain; charset=utf-8');
-        echo $worked ? "OK\n" : "IDLE\n";
-    } catch (Exception $e) {
-        http_response_code(500);
-        header('Content-Type: text/plain; charset=utf-8');
-        echo "ERROR\n";
-    }
-    exit;
+try {
+    $worked = \Src\Services\QueueService::processNext();
+    header('Content-Type: text/plain; charset=utf-8');
+    echo $worked ? "OK\n" : "IDLE\n";
+} catch (Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "ERROR\n";
 }
-
-echo "<h1>Queue Processor</h1>";
-echo "<p>Checking for pending jobs...</p>";
-echo "<pre>";
-$worked = \Src\Services\QueueService::processNext();
-if ($worked) {
-    echo "\n[SUCCESS] Job Processed successfully!";
-} else {
-    echo "\n[INFO] No pending jobs found.";
-}
-echo "</pre>";
-echo '<br><a href="'.BASE_URL.'/admin/dashboard">Back to Dashboard</a>';

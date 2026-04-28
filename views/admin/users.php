@@ -12,7 +12,7 @@
                 <tr>
                     <td><?= htmlspecialchars($u['email']) ?></td>
                     <td><span class="badge bg-secondary"><?= $u['role'] ?></span></td>
-                    <td class="font-monospace text-info">$<?= number_format($u['balance'] ?? 0, 2) ?></td>
+                    <td class="font-monospace text-info"><?= number_format((float)($u['balance'] ?? 0), 2) ?> RUB</td>
                     <td>
                         <?php if($u['is_banned']): ?>
                             <span class="badge bg-danger"><?= $t('users_banned', 'BANNED') ?></span>

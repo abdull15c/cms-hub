@@ -965,6 +965,282 @@ if ($homeVariant === 'luxe-editorial') {
         background: rgba(255,255,255,0.02);
     }
 
+    body.public-view {
+        background: var(--bg-color);
+        color: var(--text-main);
+    }
+
+    .storefront-shell {
+        gap: 0;
+    }
+
+    .hero-grid {
+        grid-template-columns: 1fr;
+        margin-top: 18px;
+    }
+
+    .hero-side {
+        display: none;
+    }
+
+    .hero-panel,
+    .preview-card,
+    .stats-card,
+    .catalog-group-card,
+    .value-card,
+    .service-card,
+    .cta-card,
+    .faq-card,
+    .about-card,
+    .product-card,
+    .filter-state,
+    .empty-state {
+        background: #ffffff;
+        border: 1px solid rgba(20,20,20,0.10);
+        box-shadow: none;
+    }
+
+    .hero-panel {
+        border-radius: 34px;
+        padding: clamp(34px, 7vw, 86px);
+        min-height: auto;
+    }
+
+    .hero-panel::before,
+    .hero-panel::after,
+    .product-card::before {
+        display: none;
+    }
+
+    .hero-panel-inner {
+        max-width: 900px;
+        gap: 30px;
+    }
+
+    .hero-eyebrow,
+    .trust-pill,
+    .mini-badge,
+    .category-chip,
+    .sale-chip,
+    .card-kicker,
+    .preview-ribbon {
+        background: #f0ede6;
+        border-color: rgba(20,20,20,0.08);
+        color: #55514a;
+        backdrop-filter: none;
+    }
+
+    .hero-title {
+        color: #111111;
+        max-width: 820px;
+        font-size: clamp(2.7rem, 6.4vw, 6.35rem);
+        line-height: 0.96;
+        letter-spacing: -0.065em;
+        margin: 18px 0;
+    }
+
+    .hero-title span {
+        background: none;
+        color: inherit;
+    }
+
+    .hero-subtitle,
+    .section-head p,
+    .product-desc,
+    .catalog-group-card p,
+    .value-card p,
+    .service-card p,
+    .cta-card p,
+    .about-card p,
+    .faq-card .accordion-body,
+    .filter-state-note {
+        color: #696763;
+    }
+
+    .hero-cta-primary,
+    .product-link,
+    .hero-search button {
+        background: #151515;
+        color: #ffffff;
+        box-shadow: none;
+        border: 1px solid #151515;
+    }
+
+    .hero-cta-secondary {
+        background: transparent;
+        color: #151515;
+        border-color: rgba(20,20,20,0.16);
+        box-shadow: none;
+    }
+
+    .hero-cta-primary:hover,
+    .hero-cta-secondary:hover,
+    .product-link:hover {
+        transform: translateY(-1px);
+        box-shadow: none;
+        background: #000000;
+        color: #ffffff;
+        border-color: #000000;
+    }
+
+    .trust-row {
+        gap: 8px;
+    }
+
+    .hero-search {
+        max-width: 720px;
+        padding: 8px;
+        background: #f7f5f0;
+        border-color: rgba(20,20,20,0.10);
+        box-shadow: none;
+    }
+
+    .hero-search input {
+        background: #ffffff;
+        color: #151515;
+        border-color: rgba(20,20,20,0.12);
+        box-shadow: none;
+    }
+
+    .section-head {
+        margin: 58px 0 22px;
+    }
+
+    .hero-grid + .section-head,
+    .filter-state + .section-head {
+        margin-top: 28px;
+    }
+
+    .section-head h2,
+    .product-title a,
+    .product-price-main,
+    .value-card h3,
+    .catalog-group-card h3,
+    .service-card h3,
+    .about-card h3,
+    .faq-card .accordion-button,
+    .cta-card h3,
+    .filter-state-label,
+    .empty-state h3 {
+        color: #151515;
+    }
+
+    .section-head h2 {
+        font-size: clamp(1.8rem, 3vw, 3rem);
+    }
+
+    .catalog-pills {
+        padding-bottom: 12px;
+    }
+
+    .catalog-pill {
+        background: transparent;
+        color: #55514a;
+        border-color: rgba(20,20,20,0.12);
+    }
+
+    .catalog-pill:hover,
+    .catalog-pill.active {
+        background: #151515;
+        border-color: #151515;
+        color: #ffffff;
+        box-shadow: none;
+    }
+
+    .product-card {
+        border-radius: 24px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(20,20,20,0.24);
+        box-shadow: none;
+    }
+
+    .product-cover {
+        min-height: 220px;
+        background: #f0ede6;
+        border-bottom-color: rgba(20,20,20,0.08);
+    }
+
+    .product-cover img,
+    .product-cover-fallback {
+        height: 220px;
+    }
+
+    .product-card:hover .product-cover img {
+        transform: none;
+    }
+
+    .product-cover-fallback {
+        background: #f0ede6;
+        color: #696763;
+    }
+
+    .sale-chip {
+        background: #151515;
+        color: #ffffff;
+    }
+
+    .product-body {
+        padding: 22px;
+        gap: 12px;
+    }
+
+    .product-title {
+        font-size: 1.08rem;
+    }
+
+    .product-footer {
+        align-items: center;
+        border-top-color: rgba(20,20,20,0.08);
+    }
+
+    .product-badges .mini-badge:nth-child(n+3) {
+        display: none;
+    }
+
+    .value-icon {
+        background: #f0ede6;
+        color: #55514a;
+    }
+
+    .service-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .service-card,
+    .cta-card {
+        border-radius: 24px;
+    }
+
+    .cta-card {
+        background: #151515;
+        color: #ffffff;
+    }
+
+    .cta-card h3,
+    .cta-card p {
+        color: #ffffff;
+    }
+
+    .cta-card .hero-cta-primary {
+        background: #ffffff;
+        color: #151515;
+        border-color: #ffffff;
+    }
+
+    .cta-card .hero-cta-secondary {
+        color: #ffffff;
+        border-color: rgba(255,255,255,0.28);
+    }
+
+    .page-link {
+        color: #151515;
+        border-color: rgba(20,20,20,0.14);
+    }
+
     @media (max-width: 991.98px) {
         .hero-grid,
         .catalog-group-grid,
@@ -988,6 +1264,88 @@ if ($homeVariant === 'luxe-editorial') {
         .hero-side {
             grid-template-rows: auto;
         }
+    }
+
+    /* Keep storefront in the same dark/neon visual language as login/admin views. */
+    body.public-view .hero-panel,
+    body.public-view .preview-card,
+    body.public-view .stats-card,
+    body.public-view .catalog-group-card,
+    body.public-view .value-card,
+    body.public-view .service-card,
+    body.public-view .cta-card,
+    body.public-view .faq-card,
+    body.public-view .about-card,
+    body.public-view .product-card,
+    body.public-view .filter-state,
+    body.public-view .empty-state {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--card-border) !important;
+        box-shadow: 0 24px 56px rgba(3, 8, 18, 0.46) !important;
+    }
+    body.public-view .hero-title,
+    body.public-view .section-head h2,
+    body.public-view .product-title a,
+    body.public-view .product-price-main,
+    body.public-view .value-card h3,
+    body.public-view .catalog-group-card h3,
+    body.public-view .service-card h3,
+    body.public-view .about-card h3,
+    body.public-view .faq-card .accordion-button,
+    body.public-view .cta-card h3,
+    body.public-view .filter-state-label,
+    body.public-view .empty-state h3 {
+        color: var(--text-main) !important;
+    }
+    body.public-view .hero-subtitle,
+    body.public-view .section-head p,
+    body.public-view .product-desc,
+    body.public-view .catalog-group-card p,
+    body.public-view .value-card p,
+    body.public-view .service-card p,
+    body.public-view .cta-card p,
+    body.public-view .about-card p,
+    body.public-view .faq-card .accordion-body,
+    body.public-view .filter-state-note {
+        color: var(--muted-text) !important;
+    }
+    body.public-view .hero-eyebrow,
+    body.public-view .trust-pill,
+    body.public-view .mini-badge,
+    body.public-view .category-chip,
+    body.public-view .sale-chip,
+    body.public-view .card-kicker,
+    body.public-view .preview-ribbon {
+        background: rgba(255,255,255,0.05) !important;
+        border-color: rgba(255,255,255,0.12) !important;
+        color: var(--text-main) !important;
+    }
+    body.public-view .hero-cta-primary,
+    body.public-view .product-link,
+    body.public-view .hero-search button,
+    body.public-view .catalog-pill:hover,
+    body.public-view .catalog-pill.active {
+        background: var(--primary-neon) !important;
+        border-color: var(--primary-neon) !important;
+        color: var(--button-text) !important;
+        box-shadow: 0 10px 24px var(--primary-soft) !important;
+    }
+    body.public-view .hero-cta-secondary {
+        color: var(--text-main) !important;
+        border-color: rgba(255,255,255,0.24) !important;
+        background: transparent !important;
+    }
+    body.public-view .hero-search {
+        background: rgba(255,255,255,0.04) !important;
+        border-color: rgba(255,255,255,0.12) !important;
+    }
+    body.public-view .hero-search input {
+        background: rgba(8, 12, 20, 0.88) !important;
+        color: var(--text-main) !important;
+        border-color: rgba(255,255,255,0.14) !important;
+    }
+    body.public-view .hero-search input::placeholder {
+        color: var(--muted-text) !important;
     }
 
     @media (max-width: 767.98px) {
@@ -1067,55 +1425,6 @@ if ($homeVariant === 'luxe-editorial') {
                 </div>
             </div>
 
-            <div class="hero-side">
-                <div class="preview-card">
-                    <?php if ($homeVariant === 'tech-grid'): ?>
-                        <div class="preview-browser">
-                            <div class="preview-top"><span></span><span></span><span></span></div>
-                            <div class="preview-hero">
-                                <div class="preview-line"></div>
-                                <div class="preview-line short"></div>
-                            </div>
-                            <div class="preview-grid">
-                                <div class="preview-block primary"></div>
-                                <div class="preview-block"></div>
-                                <div class="preview-block"></div>
-                                <div class="preview-block secondary"></div>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <div class="preview-showcase preview-showcase--<?= htmlspecialchars($homeVariantClass) ?>">
-                            <span class="hero-eyebrow"><?= $iconSvg($homeVariant === 'luxe-editorial' ? 'fa-star' : 'fa-layer-group') ?> <?= htmlspecialchars($theme['name'] ?? 'Storefront Theme') ?></span>
-                            <h3 class="preview-showcase-title"><?= htmlspecialchars($previewTitle) ?></h3>
-                            <p class="preview-showcase-text"><?= htmlspecialchars($previewText) ?></p>
-                            <div class="preview-stack-grid">
-                                <?php foreach ($previewItems as $item): ?>
-                                    <div class="preview-stack-card">
-                                        <strong><?= htmlspecialchars($item['title'] ?? '') ?></strong>
-                                        <span><?= htmlspecialchars($item['text'] ?? '') ?></span>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                            <div class="preview-ribbon"><?= $iconSvg($homeVariant === 'luxe-editorial' ? 'fa-tag' : 'fa-chart-line') ?> <?= htmlspecialchars($previewRibbon) ?></div>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <div class="stats-card">
-                    <div>
-                        <div class="stats-caption"><?= htmlspecialchars($statsCaption) ?></div>
-                        <div class="stats-lead"><?= htmlspecialchars($statsLead) ?></div>
-                    </div>
-                    <div class="stats-grid">
-                        <?php foreach (($stats ?? []) as $stat): ?>
-                            <div class="stat-tile">
-                                <div class="stat-value"><?= htmlspecialchars($stat['value'] ?? '') ?></div>
-                                <div class="stat-label"><?= htmlspecialchars($stat['label'] ?? '') ?></div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </div>
         </section>
     <?php endif; ?>
 
@@ -1132,26 +1441,6 @@ if ($homeVariant === 'luxe-editorial') {
             </div>
             <a href="<?= htmlspecialchars($clear_filters_url ?? $publicUrl('/')) ?>" class="hero-cta-secondary"><?= htmlspecialchars($isRu ? 'Сбросить фильтры' : 'Clear filters') ?></a>
         </div>
-    <?php endif; ?>
-
-    <?php if ($plain_listing): ?>
-        <section id="catalog-groups" class="section-head" data-aos="fade-up">
-            <div>
-                <h2><?= htmlspecialchars($isRu ? 'Что доступно в каталоге' : 'What is available in the catalog') ?></h2>
-                <p><?= htmlspecialchars($isRu ? 'Готовые сайты, standalone-скрипты, WordPress и DLE решения, а также услуги для быстрого запуска и кастомизации.' : 'Ready websites, standalone scripts, WordPress and DLE solutions, plus services for fast launch and customization.') ?></p>
-            </div>
-        </section>
-
-        <section class="catalog-group-grid mb-5">
-            <?php foreach (($catalog_groups ?? []) as $group): ?>
-                <article class="catalog-group-card" data-aos="fade-up">
-                    <div class="value-icon"><?= $iconSvg((string)($group['icon'] ?? 'fa-layer-group')) ?></div>
-                    <div class="card-kicker"><?= htmlspecialchars($isRu ? 'Категория' : 'Category') ?></div>
-                    <h3><?= htmlspecialchars($group['title'] ?? '') ?></h3>
-                    <p><?= htmlspecialchars($group['text'] ?? '') ?></p>
-                </article>
-            <?php endforeach; ?>
-        </section>
     <?php endif; ?>
 
     <section class="section-head" data-aos="fade-up">
@@ -1190,11 +1479,14 @@ if ($homeVariant === 'luxe-editorial') {
                     $cardIsOnSale = !empty($p['sale_price']) && !empty($p['sale_end']) && strtotime((string)$p['sale_end']) > time();
                     $displayPrice = $cardIsOnSale ? (float)$p['sale_price'] : (float)$p['price'];
                 ?>
-                <article class="product-card">
+                <article class="product-card" itemscope itemtype="https://schema.org/Product">
+                    <meta itemprop="name" content="<?= htmlspecialchars($p['title']) ?>">
+                    <meta itemprop="category" content="<?= htmlspecialchars($p['category_name'] ?? '') ?>">
+                    <meta itemprop="url" content="<?= htmlspecialchars($productUrl) ?>">
                     <div class="product-cover">
                         <?php if (!empty($p['thumbnail'])): ?>
                             <a href="<?= htmlspecialchars($productUrl) ?>">
-                                <img src="<?= BASE_URL ?>/uploads/images/<?= htmlspecialchars($p['thumbnail']) ?>" alt="<?= htmlspecialchars($p['title']) ?>" loading="lazy">
+                                <img src="<?= BASE_URL ?>/uploads/images/<?= htmlspecialchars($p['thumbnail']) ?>" alt="<?= htmlspecialchars($p['title']) ?>" loading="lazy" itemprop="image">
                             </a>
                         <?php else: ?>
                             <div class="product-cover-fallback">
@@ -1212,7 +1504,11 @@ if ($homeVariant === 'luxe-editorial') {
                     </div>
 
                     <div class="product-body">
-                        <div class="product-price-row">
+                        <div class="product-price-row" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                            <meta itemprop="price" content="<?= htmlspecialchars(number_format((float)$displayPrice, 2, '.', '')) ?>">
+                            <meta itemprop="priceCurrency" content="RUB">
+                            <link itemprop="availability" href="https://schema.org/InStock">
+                            <link itemprop="url" href="<?= htmlspecialchars($productUrl) ?>">
                             <span class="product-price-main"><?= \Src\Services\CurrencyService::format($displayPrice) ?></span>
                             <?php if ($cardIsOnSale): ?><span class="price-old"><?= \Src\Services\CurrencyService::format((float)$p['price']) ?></span><?php endif; ?>
                         </div>
@@ -1221,7 +1517,7 @@ if ($homeVariant === 'luxe-editorial') {
                                 <?= htmlspecialchars($p['title']) ?>
                             </a>
                         </h3>
-                        <p class="product-desc"><?= htmlspecialchars(mb_strimwidth(strip_tags($p['description'] ?? ''), 0, 150, '...')) ?></p>
+                        <p class="product-desc" itemprop="description"><?= htmlspecialchars(mb_strimwidth(strip_tags($p['description'] ?? ''), 0, 155, '...')) ?></p>
 
                         <div class="product-footer">
                             <div class="product-badges">
@@ -1264,27 +1560,10 @@ if ($homeVariant === 'luxe-editorial') {
     <?php endif; ?>
 
     <?php if ($plain_listing): ?>
-        <section id="why-storefront" class="section-head" data-aos="fade-up">
-            <div>
-                <h2><?= htmlspecialchars($isRu ? 'Почему этот магазин удобен' : 'Why this store is easy to work with') ?></h2>
-                <p><?= htmlspecialchars($isRu ? 'Главная страница и каталог теперь подают витрину как магазин готовых решений для запуска, продажи и кастомизации.' : 'The homepage and catalog now present the storefront as a ready-made solutions store built for launch, resale and customization.') ?></p>
-            </div>
-        </section>
-
-        <section class="value-grid mb-5">
-            <?php foreach (($why_items ?? []) as $item): ?>
-                <article class="value-card" data-aos="fade-up">
-                    <div class="value-icon"><?= $iconSvg((string)($item['icon'] ?? 'fa-bolt')) ?></div>
-                    <h3><?= htmlspecialchars($item['title'] ?? '') ?></h3>
-                    <p><?= htmlspecialchars($item['text'] ?? '') ?></p>
-                </article>
-            <?php endforeach; ?>
-        </section>
-
         <section id="services" class="section-head" data-aos="fade-up">
             <div>
                 <h2><?= htmlspecialchars($isRu ? 'Дополнительные услуги' : 'Additional services') ?></h2>
-                <p><?= htmlspecialchars($isRu ? 'Помимо готовых продуктов, можно сразу предложить установку, адаптацию, доработку и кастомную сборку под задачу клиента или под свой запуск.' : 'Alongside ready-made products, the storefront can also present setup, adaptation, refinement and custom build services for client work or your own launch.') ?></p>
+                <p><?= htmlspecialchars($isRu ? 'Установка, адаптация и доработка готовых решений под ваш проект.' : 'Setup, adaptation and refinement for ready-made solutions.') ?></p>
             </div>
         </section>
 
@@ -1296,43 +1575,6 @@ if ($homeVariant === 'luxe-editorial') {
                     <h3><?= htmlspecialchars($item['title'] ?? '') ?></h3>
                     <p><?= htmlspecialchars($item['text'] ?? '') ?></p>
                 </article>
-            <?php endforeach; ?>
-        </section>
-
-        <section class="section-head" data-aos="fade-up">
-            <div>
-                <h2><?= htmlspecialchars($about_block['title'] ?? ($isRu ? 'О магазине' : 'About the store')) ?></h2>
-                <p><?= htmlspecialchars($isRu ? 'Позиционирование смещено от простой витрины файлов к магазину практичных digital-решений для реальной работы.' : 'The positioning moves away from a plain file showcase toward a store of practical digital solutions for real work.') ?></p>
-            </div>
-        </section>
-
-        <section class="about-card mb-5" data-aos="fade-up">
-            <div class="card-kicker"><?= htmlspecialchars($isRu ? 'Позиционирование' : 'Positioning') ?></div>
-            <h3><?= htmlspecialchars($about_block['title'] ?? '') ?></h3>
-            <p><?= htmlspecialchars($about_block['text'] ?? '') ?></p>
-        </section>
-
-        <section class="section-head" data-aos="fade-up">
-            <div>
-                <h2>FAQ</h2>
-                <p><?= htmlspecialchars($isRu ? 'Короткие ответы о типах продуктов, услугах и том, как эти решения можно использовать в работе.' : 'Short answers about product types, services and how these solutions can be used in real work.') ?></p>
-            </div>
-        </section>
-
-        <section class="faq-wrap mb-5 accordion" id="homeFaq">
-            <?php foreach (($faq_items ?? []) as $index => $item): ?>
-                <div class="faq-card accordion-item border-0" data-aos="fade-up">
-                    <h3 class="accordion-header" id="faqHeading<?= (int)$index ?>">
-                        <button class="accordion-button <?= $index === 0 ? '' : 'collapsed' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse<?= (int)$index ?>" aria-expanded="<?= $index === 0 ? 'true' : 'false' ?>" aria-controls="faqCollapse<?= (int)$index ?>">
-                            <?= htmlspecialchars($item['question'] ?? '') ?>
-                        </button>
-                    </h3>
-                    <div id="faqCollapse<?= (int)$index ?>" class="accordion-collapse collapse <?= $index === 0 ? 'show' : '' ?>" aria-labelledby="faqHeading<?= (int)$index ?>" data-bs-parent="#homeFaq">
-                        <div class="accordion-body">
-                            <?= htmlspecialchars($item['answer'] ?? '') ?>
-                        </div>
-                    </div>
-                </div>
             <?php endforeach; ?>
         </section>
 

@@ -1,16 +1,25 @@
 <?php
 // PROFESSIONAL INSTALLER WIZARD
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    @session_start();
+}
+header('Referrer-Policy: no-referrer');
 $envExists = file_exists('../../.env');
 $lockExists = file_exists('../../storage/.installed.lock');
 if ($envExists || $lockExists) { exit("<div style='color:white;background:#0b0f19;padding:50px;text-align:center;font-family:sans-serif;'>System already installed.</div>"); }
 $setupToken = (string)($_ENV['INSTALLER_SETUP_TOKEN'] ?? getenv('INSTALLER_SETUP_TOKEN') ?: getenv('INSTALLER_TOKEN') ?: '');
-$requestToken = (string)($_GET['setup_token'] ?? ($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ''));
+$requestToken = (string)($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ($_POST['setup_token'] ?? ($_GET['setup_token'] ?? '')));
 $allowInstallerRaw = strtolower(trim((string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '')));
 $allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true);
-if (!$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $requestToken)) {
+$sessionGranted = (int)($_SESSION['installer_access_granted'] ?? 0) === 1
+    && (time() - (int)($_SESSION['installer_accessed_at'] ?? 0)) <= 1800;
+$tokenValid = $requestToken !== '' && $setupToken !== '' && hash_equals($setupToken, $requestToken);
+if (!$allowInstaller || (!$sessionGranted && !$tokenValid)) {
     http_response_code(403);
     exit("<div style='color:white;background:#0b0f19;padding:50px;text-align:center;font-family:sans-serif;'>Installer is locked.</div>");
 }
+$_SESSION['installer_access_granted'] = 1;
+$_SESSION['installer_accessed_at'] = time();
 $step = $_GET['step'] ?? 1;
 $defaultDbHost = (string)($_ENV['INSTALL_DB_HOST'] ?? getenv('INSTALL_DB_HOST') ?: $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost');
 $defaultDbPort = (string)($_ENV['INSTALL_DB_PORT'] ?? getenv('INSTALL_DB_PORT') ?: $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: '3306');
@@ -130,11 +139,10 @@ $hasPresetSecrets = ((string)($_ENV['INSTALL_DB_PASS'] ?? getenv('INSTALL_DB_PAS
                     </span>
                 </div>
             </div>
-            <a href="?step=2&amp;setup_token=<?= urlencode($requestToken) ?>" class="btn btn-cyber w-100">Next Step <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            <a href="?step=2" class="btn btn-cyber w-100">Next Step <i class="fa-solid fa-arrow-right ms-2"></i></a>
 
         <?php elseif($step == 2): ?>
             <form action="process.php" method="POST">
-                <input type="hidden" name="setup_token" value="<?= htmlspecialchars($requestToken, ENT_QUOTES, 'UTF-8') ?>">
                 <?php if ($hasPresetSecrets): ?>
                     <div class="mb-3 small text-info bg-black bg-opacity-25 border border-secondary border-opacity-10 rounded p-3">
                         Preset installer secrets were found in environment variables. You can leave password fields blank to use them.

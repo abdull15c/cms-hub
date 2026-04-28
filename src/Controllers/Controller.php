@@ -4,6 +4,7 @@ use Src\Core\Csrf;
 use Src\Core\Container;
 use Src\Services\SessionService;
 use Src\Services\SettingsService;
+use Config\Database;
 
 class Controller {
     protected function service(string $key, ?callable $factory = null) {
@@ -32,7 +33,13 @@ class Controller {
 
     protected function verifyCsrf() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $token = $_POST['csrf_token'] ?? '';
+            $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+            if ($token === '') {
+                $input = json_decode((string)file_get_contents('php://input'), true);
+                if (is_array($input)) {
+                    $token = $input['csrf_token'] ?? '';
+                }
+            }
             if (!Csrf::verify($token)) {
                 $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
                 if (strpos($accept, 'application/json') !== false || strpos($accept, 'json') !== false) {
@@ -45,8 +52,19 @@ class Controller {
 
     protected function requireAuth(): void {
         SessionService::start();
-        if (!SessionService::get('user_id')) {
+        $userId = (int)SessionService::get('user_id', 0);
+        if ($userId <= 0) {
             $this->redirect('/login');
+        }
+        $stmt = Database::connect()->prepare('SELECT id, role, is_banned FROM users WHERE id = ? LIMIT 1');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch();
+        if (!$user || !empty($user['is_banned'])) {
+            SessionService::logout();
+            $this->redirect('/login', 'Account is unavailable.');
+        }
+        if ((string)SessionService::get('role', '') !== (string)$user['role']) {
+            SessionService::set('role', $user['role']);
         }
     }
 

@@ -35,6 +35,20 @@
     .newsletter-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 12px 15px; }
     .newsletter-input:focus { background: rgba(255,255,255,0.1); outline: none; border-color: var(--primary-neon); }
     .payment-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted-text); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    body.public-view .footer-nebula { padding-top: 80px; border-top: 1px solid var(--footer-border); background: transparent; }
+    body.public-view .footer-glow { display: block; }
+    body.public-view .footer-brand { color: inherit; text-shadow: 0 0 18px var(--primary-soft); }
+    body.public-view .footer-brand::after { display: block; }
+    body.public-view .footer-brand span,
+    body.public-view .text-white { color: #fff !important; }
+    body.public-view .text-secondary { color: var(--muted-text) !important; }
+    body.public-view .footer-link { color: var(--muted-text); transform: none; text-shadow: none; }
+    body.public-view .footer-link:hover { color: #fff; transform: translateX(5px); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+    body.public-view .social-btn,
+    body.public-view .payment-badge { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #fff; box-shadow: none; }
+    body.public-view .social-btn:hover { background: var(--primary-neon); border-color: var(--primary-neon); color: var(--button-text); transform: translateY(-3px); box-shadow: 0 5px 15px var(--primary-soft); }
+    body.public-view .newsletter-input { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff; }
+    body.public-view .newsletter-input:focus { background: rgba(255,255,255,0.1); border-color: var(--primary-neon); }
 </style>
 
 <?php
@@ -94,12 +108,12 @@ $socialLinks = array_filter([
                 <a href="<?= BASE_URL ?>/api/products" class="footer-link"><?= htmlspecialchars($t('link_api', 'API')) ?></a>
             </div>
             <div class="col-lg-4">
-                <div class="p-4 rounded-4" style="background: var(--badge-bg); border: 1px solid var(--footer-border);">
+                <div class="p-4 rounded-4 glass-card">
                     <p class="text-white fw-bold mb-2"><?= htmlspecialchars($t('col_subscribe', 'Stay Updated')) ?></p>
                     <p class="text-secondary small mb-3"><?= htmlspecialchars($t('sub_text', 'Subscribe for updates.')) ?></p>
                     <form action="#" class="position-relative">
                         <input type="email" class="form-control newsletter-input" placeholder="<?= htmlspecialchars($t('newsletter_placeholder', 'Email...')) ?>">
-                        <button class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-3" type="submit" aria-label="<?= htmlspecialchars($t('newsletter_submit', 'Subscribe to updates')) ?>" style="background: var(--primary-neon); border:none; color: var(--button-text);">
+                        <button class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-3 btn-cyber" type="submit" aria-label="<?= htmlspecialchars($t('newsletter_submit', 'Subscribe to updates')) ?>">
                             <?= $iconSvg('fa-paper-plane') ?>
                         </button>
                     </form>

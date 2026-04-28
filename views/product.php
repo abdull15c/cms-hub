@@ -13,13 +13,33 @@ $displayPrice = $isOnSale ? (float)$product['sale_price'] : $regularPrice;
 $reviewCount = count($reviews ?? []);
 $averageRating = (float)($avg_rating ?? 0);
 $galleryImages = [];
+$buildImageUrl = static function (string $imagePath): string {
+    $normalized = str_replace('\\', '/', trim($imagePath));
+    $parts = array_values(array_filter(explode('/', $normalized), static fn(string $part): bool => $part !== ''));
+    $encoded = implode('/', array_map('rawurlencode', $parts));
+    return BASE_URL . '/uploads/images/' . $encoded;
+};
 foreach ($images as $image) {
     $imagePath = trim((string)($image['image_path'] ?? ''));
     if ($imagePath !== '') {
-        $galleryImages[] = BASE_URL . '/uploads/images/' . rawurlencode($imagePath);
+        $galleryImages[] = $buildImageUrl($imagePath);
     }
 }
 $galleryImages = array_values(array_unique($galleryImages));
+$placeholderTitle = htmlspecialchars((string)($product['title'] ?? 'Digital Product'), ENT_QUOTES);
+$placeholderCategory = htmlspecialchars($categoryName, ENT_QUOTES);
+$fallbackSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 780'>"
+    . "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
+    . "<stop offset='0%' stop-color='#071122'/><stop offset='100%' stop-color='#12243e'/></linearGradient></defs>"
+    . "<rect width='1200' height='780' fill='url(#g)'/>"
+    . "<circle cx='970' cy='120' r='200' fill='rgba(0,242,234,0.14)'/>"
+    . "<circle cx='190' cy='700' r='230' fill='rgba(106,17,203,0.16)'/>"
+    . "<text x='84' y='360' fill='#e2e8f0' font-family='Arial,sans-serif' font-size='62' font-weight='700'>" . $placeholderTitle . "</text>"
+    . "<text x='84' y='425' fill='#94a3b8' font-family='Arial,sans-serif' font-size='30'>" . $placeholderCategory . " • Preview</text>"
+    . "<text x='84' y='495' fill='#00f2ea' font-family='Arial,sans-serif' font-size='28'>CMS-HUB</text>"
+    . "</svg>";
+$fallbackImage = 'data:image/svg+xml;utf8,' . rawurlencode($fallbackSvg);
+$galleryImages = !empty($galleryImages) ? $galleryImages : [$fallbackImage];
 $mainImage = $galleryImages[0] ?? '';
 $heroBadges = [
     $isRu ? 'Мгновенная выдача' : 'Instant delivery',
@@ -38,8 +58,16 @@ $heroBadges = [
     .dt-gallery{position:relative;overflow:hidden}
     .dt-main{min-height:500px;display:grid;place-items:center;background:radial-gradient(circle at top right,var(--primary-soft),transparent 28%),radial-gradient(circle at bottom left,var(--secondary-soft),transparent 32%),rgba(9,17,29,.92)}
     .dt-main img{width:100%;height:500px;object-fit:contain;display:block}
+    .dt-main-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(2,6,23,.7);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:3;transition:.2s}
+    .dt-main-nav:hover{border-color:var(--primary-neon);color:var(--primary-neon);background:rgba(2,6,23,.9)}
+    .dt-main-nav--prev{left:14px}
+    .dt-main-nav--next{right:14px}
+    .dt-main-nav[disabled]{opacity:.35;cursor:not-allowed}
     .dt-sale{position:absolute;top:18px;right:18px;border-radius:999px;padding:10px 14px;background:rgba(255,0,80,.16);border:1px solid rgba(255,0,80,.35);color:#fff;font-size:.84rem;font-weight:700}
     .dt-empty{padding:40px 20px;text-align:center;color:var(--muted-text)}
+    .dt-main-fallback{position:relative;width:100%;height:500px;border:0;display:block}
+    .dt-main-fallback img{width:100%;height:100%;object-fit:cover;display:block}
+    .dt-main-fallback-badge{position:absolute;left:16px;bottom:16px;border-radius:999px;padding:8px 12px;background:rgba(2,6,23,.75);border:1px solid rgba(255,255,255,.16);color:#e2e8f0;font-size:.8rem}
     .dt-thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;margin-top:14px}
     .dt-thumb{padding:0;border-radius:18px;overflow:hidden;border:1px solid var(--surface-border);cursor:pointer;background:rgba(255,255,255,.03);transition:.2s;appearance:none}
     .dt-thumb:hover,.dt-thumb.is-active{transform:translateY(-2px);border-color:var(--primary-neon);box-shadow:0 0 0 1px var(--primary-soft)}
@@ -71,12 +99,14 @@ $heroBadges = [
     .dt-buyfacts{display:grid;gap:10px;margin:18px 0}
     .dt-buyfact{padding:12px 14px;display:flex;justify-content:space-between;gap:14px}
     .dt-buyfact strong{text-align:right}
-    .dt-buybtn{width:100%;border:none;border-radius:20px;padding:16px 18px;background:linear-gradient(90deg,var(--primary-neon),var(--secondary-neon));color:var(--button-text);font-weight:800;box-shadow:0 18px 34px var(--primary-soft)}
+    .dt-buybtn{width:100%;min-height:56px;border:none;border-radius:20px;padding:16px 18px;background:linear-gradient(90deg,var(--primary-neon),var(--secondary-neon));color:var(--button-text);font-weight:800;box-shadow:0 18px 34px var(--primary-soft)}
     .dt-paygrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
-    .dt-trust{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
-    .dt-trust div{display:flex;align-items:center;gap:8px;color:var(--muted-text);font-size:.9rem}
-    .dt-merchant{display:flex;align-items:center;gap:14px;padding:18px 20px}
-    .dt-mark{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary-neon),var(--secondary-neon));color:var(--button-text);font-weight:800}
+    .dt-paybtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;font-size:.9rem;font-weight:600;background:rgba(255,255,255,.03);border:1px solid var(--surface-border);color:var(--text-main)}
+    .dt-paybtn:hover{border-color:var(--primary-neon);color:var(--primary-neon)}
+    .dt-trust{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
+    .dt-trust div{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:var(--muted-text);font-size:.9rem}
+    .dt-trust .dt-trust-chat{cursor:pointer;transition:.2s}
+    .dt-trust .dt-trust-chat:hover{border-color:var(--primary-neon);color:var(--primary-neon)}
     .dt-faq .accordion-button{background:transparent;box-shadow:none;color:#fff;padding:0;font-weight:700}
     .dt-faq .accordion-button:not(.collapsed){color:var(--primary-neon)}
     .dt-faq .accordion-button::after{filter:invert(1)}
@@ -120,15 +150,19 @@ $heroBadges = [
         <div class="dt-stack">
             <div class="dt-card dt-gallery">
                 <div class="dt-main">
-                    <?php if ($mainImage !== ''): ?>
-                        <a href="<?= htmlspecialchars($mainImage) ?>" class="w-100 h-100" onclick="openLightbox(); return false;">
-                            <img id="mainImage" src="<?= htmlspecialchars($mainImage) ?>" alt="<?= htmlspecialchars($product['title']) ?>" loading="eager" fetchpriority="high" decoding="async">
-                        </a>
-                    <?php else: ?>
-                        <div class="dt-empty">
-                            <?= $iconSvg('fa-image', 'fa-4x mb-3') ?>
-                            <div><?= htmlspecialchars($t('product_no_preview', 'No Preview')) ?></div>
-                        </div>
+                    <a href="<?= htmlspecialchars($mainImage) ?>" class="w-100 h-100 dt-main-fallback" onclick="openLightbox(); return false;">
+                        <img id="mainImage" src="<?= htmlspecialchars($mainImage) ?>" alt="<?= htmlspecialchars($product['title']) ?>" loading="eager" fetchpriority="high" decoding="async">
+                        <?php if (strpos($mainImage, 'data:image/svg+xml') === 0): ?>
+                            <span class="dt-main-fallback-badge"><?= htmlspecialchars($t('product_no_preview', 'No Preview')) ?></span>
+                        <?php endif; ?>
+                    </a>
+                    <?php if (count($galleryImages) > 1): ?>
+                        <button type="button" class="dt-main-nav dt-main-nav--prev" id="mainImagePrev" aria-label="<?= htmlspecialchars($t('product_prev_image', 'Previous image')) ?>">
+                            <?= $iconSvg('fa-chevron-left') ?>
+                        </button>
+                        <button type="button" class="dt-main-nav dt-main-nav--next" id="mainImageNext" aria-label="<?= htmlspecialchars($t('product_next_image', 'Next image')) ?>">
+                            <?= $iconSvg('fa-chevron-right') ?>
+                        </button>
                     <?php endif; ?>
                 </div>
                 <?php if ($isOnSale): ?><div class="dt-sale"><?= $iconSvg('fa-fire', 'me-1') ?><?= htmlspecialchars($t('product_flash_sale', 'FLASH SALE')) ?></div><?php endif; ?>
@@ -137,7 +171,7 @@ $heroBadges = [
             <?php if (count($galleryImages) > 1): ?>
                 <div class="dt-thumbs">
                     <?php foreach ($galleryImages as $index => $imageUrl): ?>
-                        <button type="button" class="dt-thumb <?= $index === 0 ? 'is-active' : '' ?>" onclick="updateMainImage(this, '<?= htmlspecialchars($imageUrl, ENT_QUOTES) ?>', <?= (int)$index ?>)" aria-label="<?= htmlspecialchars($t('product_preview_image', 'Preview image')) ?> <?= (int)$index + 1 ?>" aria-pressed="<?= $index === 0 ? 'true' : 'false' ?>">
+                        <button type="button" class="dt-thumb <?= $index === 0 ? 'is-active' : '' ?>" data-index="<?= (int)$index ?>" data-src="<?= htmlspecialchars($imageUrl, ENT_QUOTES) ?>" aria-label="<?= htmlspecialchars($t('product_preview_image', 'Preview image')) ?> <?= (int)$index + 1 ?>" aria-pressed="<?= $index === 0 ? 'true' : 'false' ?>">
                             <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($product['title']) ?>">
                         </button>
                     <?php endforeach; ?>
@@ -319,6 +353,30 @@ $heroBadges = [
                     </div>
                 <?php endif; ?>
 
+                <?php if (!empty($product['demo_enabled'])): ?>
+                    <div class="dt-buyfacts">
+                        <?php if (!empty($product['demo_url'])): ?>
+                            <div class="dt-buyfact">
+                                <div><small><?= htmlspecialchars($t('product_demo_site', 'Demo Site')) ?></small></div>
+                                <strong><a class="dt-link" href="<?= htmlspecialchars((string)$product['demo_url']) ?>" target="_blank" rel="noopener"><?= htmlspecialchars($t('product_demo_open', 'Open Demo')) ?></a></strong>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($product['demo_login']) || !empty($product['demo_password'])): ?>
+                            <div class="dt-buyfact">
+                                <div><small><?= htmlspecialchars($t('product_demo_credentials', 'Demo Access')) ?></small></div>
+                                <strong>
+                                    <?php if (!empty($product['demo_login'])): ?>
+                                        <span><?= htmlspecialchars($t('product_demo_login', 'Login')) ?>: <?= htmlspecialchars((string)$product['demo_login']) ?></span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($product['demo_password'])): ?>
+                                        <span class="<?= !empty($product['demo_login']) ? 'ms-2' : '' ?>"><?= htmlspecialchars($t('product_demo_password', 'Password')) ?>: <?= htmlspecialchars((string)$product['demo_password']) ?></span>
+                                    <?php endif; ?>
+                                </strong>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
                 <form action="<?= BASE_URL ?>/checkout/<?= (int)$product['id'] ?>" method="POST">
                     <?= \Src\Core\Csrf::field() ?>
                     <?php if ($displayPrice > 0): ?>
@@ -335,8 +393,11 @@ $heroBadges = [
                         </div>
                         <button type="submit" name="provider" value="wallet" class="dt-buybtn"><?= $iconSvg('fa-cart-shopping', 'me-2') ?><?= htmlspecialchars($t('product_buy_now', 'Buy Now')) ?></button>
                         <div class="dt-paygrid">
-                            <?php if (\Src\Services\SettingsService::get('yoomoney_enabled') != '0'): ?><button type="submit" name="provider" value="yoomoney" class="btn btn-dark border-secondary text-secondary"><?= $iconSvg('fa-ruble-sign', 'me-1') ?>YooMoney</button><?php endif; ?>
-                            <?php if (\Src\Services\SettingsService::get('crypto_enabled')): ?><button type="submit" name="provider" value="crypto" class="btn btn-dark border-secondary text-secondary"><?= $iconSvg('fa-bitcoin', 'me-1') ?>Crypto</button><?php endif; ?>
+                            <?php if (\Src\Services\SettingsService::get('yoomoney_enabled') != '0'): ?><button type="submit" name="provider" value="yoomoney" class="btn dt-paybtn"><?= $iconSvg('fa-ruble-sign') ?>YooMoney</button><?php endif; ?>
+                            <?php if (\Src\Services\SettingsService::get('yookassa_enabled') === '1'): ?><button type="submit" name="provider" value="yookassa" class="btn dt-paybtn"><?= $iconSvg('fa-credit-card') ?>YooKassa</button><?php endif; ?>
+                            <?php if (\Src\Services\SettingsService::get('lemonsqueezy_enabled') === '1'): ?><button type="submit" name="provider" value="lemonsqueezy" class="btn dt-paybtn"><?= $iconSvg('fa-globe') ?>Global Card</button><?php endif; ?>
+                            <?php if (\Src\Services\SettingsService::get('stripe_enabled') === '1'): ?><button type="submit" name="provider" value="stripe" class="btn dt-paybtn"><?= $iconSvg('fa-credit-card') ?>Stripe</button><?php endif; ?>
+                            <?php if (\Src\Services\SettingsService::get('cryptomus_enabled') === '1'): ?><button type="submit" name="provider" value="cryptomus" class="btn dt-paybtn"><?= $iconSvg('fa-bitcoin') ?>Crypto</button><?php endif; ?>
                         </div>
                     <?php else: ?>
                         <button type="submit" name="provider" value="free" class="btn btn-success w-100 btn-lg rounded-4"><?= $iconSvg('fa-download', 'me-2') ?><?= htmlspecialchars($t('product_free_download', 'Free Download')) ?></button>
@@ -347,17 +408,10 @@ $heroBadges = [
                     <div><?= $iconSvg('fa-shield-halved', 'text-success') ?><span><?= htmlspecialchars($t('product_secure', 'Secure')) ?></span></div>
                     <div><?= $iconSvg('fa-bolt', 'text-warning') ?><span><?= htmlspecialchars($t('product_instant', 'Instant')) ?></span></div>
                     <div><?= $iconSvg('fa-language', 'text-info') ?><span>RU / EN</span></div>
-                    <div role="button" data-bs-toggle="modal" data-bs-target="#chatModal"><?= $iconSvg('fa-comments', 'text-info') ?><span><?= htmlspecialchars($t('product_chat', 'Chat')) ?></span></div>
+                    <div class="dt-trust-chat" role="button" data-bs-toggle="modal" data-bs-target="#chatModal"><?= $iconSvg('fa-comments', 'text-info') ?><span><?= htmlspecialchars($t('product_chat', 'Chat')) ?></span></div>
                 </div>
             </aside>
 
-            <div class="dt-card dt-merchant">
-                <div class="dt-mark">DT</div>
-                <div>
-                    <div class="text-white fw-semibold"><?= htmlspecialchars($t('product_verified_seller', 'Verified Seller')) ?></div>
-                    <p class="mb-0"><?= htmlspecialchars($isRu ? 'Витрина рассчитана на продажу готовых сайтов, скриптов и других digital products.' : 'This storefront is optimized for ready-made sites, scripts and other digital products.') ?></p>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -394,7 +448,7 @@ $heroBadges = [
     </div>
 </div>
 
-<script>
+<script nonce="<?= CSP_NONCE ?>">
     const productGalleryImages = <?= json_encode($galleryImages, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     let currentGalleryIndex = 0;
     const lightbox = document.getElementById('productLightbox');
@@ -402,6 +456,8 @@ $heroBadges = [
     const lightboxMeta = document.getElementById('productLightboxMeta');
     const lightboxPrev = document.getElementById('productLightboxPrev');
     const lightboxNext = document.getElementById('productLightboxNext');
+    const mainImagePrev = document.getElementById('mainImagePrev');
+    const mainImageNext = document.getElementById('mainImageNext');
 
     function syncLightbox() {
         if (!lightboxImage || productGalleryImages.length === 0) return;
@@ -448,6 +504,17 @@ $heroBadges = [
         thumb.setAttribute('aria-pressed', 'true');
     }
 
+    function stepMainImage(direction) {
+        if (productGalleryImages.length <= 1) return;
+        currentGalleryIndex = (currentGalleryIndex + direction + productGalleryImages.length) % productGalleryImages.length;
+        const thumbs = document.querySelectorAll('.dt-thumb');
+        const activeThumb = thumbs[currentGalleryIndex];
+        if (activeThumb) {
+            const src = activeThumb.getAttribute('data-src') || productGalleryImages[currentGalleryIndex];
+            updateMainImage(activeThumb, src, currentGalleryIndex);
+        }
+    }
+
     function applyCoupon() {
         const code = document.getElementById('couponInput').value;
         const msg = document.getElementById('couponMsg');
@@ -460,16 +527,31 @@ $heroBadges = [
         })
         .then((res) => res.json())
         .then((data) => {
+            msg.textContent = '';
+            const span = document.createElement('span');
             if (data.valid) {
-                msg.innerHTML = '<span class="text-success fw-bold">✓ ' + data.msg + '</span>';
+                span.className = 'text-success fw-bold';
+                span.textContent = '✓ ' + String(data.msg || '');
                 document.getElementById('hiddenCoupon').value = code;
             } else {
-                msg.innerHTML = '<span class="text-danger">✕ ' + data.msg + '</span>';
+                span.className = 'text-danger';
+                span.textContent = '✕ ' + String(data.msg || '');
                 document.getElementById('hiddenCoupon').value = '';
             }
+            msg.appendChild(span);
         });
     }
 
+    document.querySelectorAll('.dt-thumb').forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+            const src = thumb.getAttribute('data-src') || '';
+            const index = parseInt(thumb.getAttribute('data-index') || '0', 10);
+            updateMainImage(thumb, src, Number.isNaN(index) ? 0 : index);
+        });
+    });
+
+    mainImagePrev?.addEventListener('click', () => stepMainImage(-1));
+    mainImageNext?.addEventListener('click', () => stepMainImage(1));
     lightboxPrev?.addEventListener('click', () => stepLightbox(-1));
     lightboxNext?.addEventListener('click', () => stepLightbox(1));
     document.getElementById('productLightboxClose')?.addEventListener('click', closeLightbox);
@@ -478,9 +560,13 @@ $heroBadges = [
     });
 
     document.addEventListener('keydown', (event) => {
-        if (!lightbox?.classList.contains('is-open')) return;
-        if (event.key === 'Escape') closeLightbox();
-        if (event.key === 'ArrowLeft') stepLightbox(-1);
-        if (event.key === 'ArrowRight') stepLightbox(1);
+        if (lightbox?.classList.contains('is-open')) {
+            if (event.key === 'Escape') closeLightbox();
+            if (event.key === 'ArrowLeft') stepLightbox(-1);
+            if (event.key === 'ArrowRight') stepLightbox(1);
+            return;
+        }
+        if (event.key === 'ArrowLeft') stepMainImage(-1);
+        if (event.key === 'ArrowRight') stepMainImage(1);
     });
 </script>

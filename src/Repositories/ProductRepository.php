@@ -28,11 +28,12 @@ class ProductRepository {
     }
 
     public function create(array $data) {
-        $sql = "INSERT INTO products (title, price, description, file_path, status, category_id, has_license, sale_price, sale_end, meta_title, meta_desc, meta_keywords) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO products (title, price, description, file_path, status, category_id, has_license, sale_price, sale_end, demo_enabled, demo_url, demo_login, demo_password, meta_title, meta_desc, meta_keywords) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $this->pdo->prepare($sql)->execute([
             $data['title'], $data['price'], $data['description'], $data['file_path'], $data['status'],
             $data['category_id'], $data['has_license'], $data['sale_price'], $data['sale_end'],
+            $data['demo_enabled'], $data['demo_url'], $data['demo_login'], $data['demo_password'],
             $data['meta_title'], $data['meta_desc'], $data['meta_keywords']
         ]);
         return $this->pdo->lastInsertId();
@@ -75,7 +76,8 @@ class ProductRepository {
     public function update($id, array $data) {
         $fields = [
             'title', 'price', 'description', 'status', 'category_id', 'has_license', 
-            'sale_price', 'sale_end', 'meta_title', 'meta_desc', 'meta_keywords'
+            'sale_price', 'sale_end', 'demo_enabled', 'demo_url', 'demo_login', 'demo_password',
+            'meta_title', 'meta_desc', 'meta_keywords'
         ];
         
         $set = [];

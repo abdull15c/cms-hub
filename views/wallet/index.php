@@ -4,7 +4,7 @@
             <div class="glass-card p-4 text-center border-info">
                 <i class="fa-solid fa-wallet fa-3x text-info mb-3"></i>
                 <h3 class="text-secondary"><?= $t('wallet_current_balance', 'Current Balance') ?></h3>
-                <h1 class="display-4 fw-bold text-light my-3">$<?= number_format($balance, 2) ?></h1>
+                <h1 class="display-4 fw-bold text-light my-3"><?= number_format($balance, 2) ?></h1>
 
                 <hr class="border-secondary opacity-25">
 
@@ -20,6 +20,26 @@
                         <?php if (\Src\Services\SettingsService::get('yoomoney_enabled') != '0'): ?>
                         <button type="submit" name="provider" value="yoomoney" class="btn btn-cyber">
                             <i class="fa-solid fa-bolt me-2"></i> <?= $t('wallet_deposit_yoomoney', 'Deposit via YooMoney') ?>
+                        </button>
+                        <?php endif; ?>
+                        <?php if (\Src\Services\SettingsService::get('yookassa_enabled') === '1'): ?>
+                        <button type="submit" name="provider" value="yookassa" class="btn btn-outline-info">
+                            <i class="fa-solid fa-credit-card me-2"></i> Deposit via YooKassa
+                        </button>
+                        <?php endif; ?>
+                        <?php if (\Src\Services\SettingsService::get('lemonsqueezy_enabled') === '1'): ?>
+                        <button type="submit" name="provider" value="lemonsqueezy" class="btn btn-outline-light">
+                            <i class="fa-solid fa-globe me-2"></i> Deposit via Global Card
+                        </button>
+                        <?php endif; ?>
+                        <?php if (\Src\Services\SettingsService::get('stripe_enabled') === '1'): ?>
+                        <button type="submit" name="provider" value="stripe" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-credit-card me-2"></i> Deposit via Stripe
+                        </button>
+                        <?php endif; ?>
+                        <?php if (\Src\Services\SettingsService::get('cryptomus_enabled') === '1'): ?>
+                        <button type="submit" name="provider" value="cryptomus" class="btn btn-outline-success">
+                            <i class="fa-brands fa-bitcoin me-2"></i> Deposit via Crypto
                         </button>
                         <?php endif; ?>
                     </div>
@@ -60,7 +80,7 @@
                                 </td>
                                 <td><?= htmlspecialchars($l['description']) ?></td>
                                 <td class="fw-bold <?= $l['amount'] > 0 ? 'text-success' : 'text-danger' ?>">
-                                    <?= $l['amount'] > 0 ? '+' : '' ?><?= $l['amount'] ?> $
+                                    <?= $l['amount'] > 0 ? '+' : '' ?><?= $l['amount'] ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

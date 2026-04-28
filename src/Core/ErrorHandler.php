@@ -1,6 +1,7 @@
 <?php
 namespace Src\Core;
 use Src\Services\Logger;
+use Src\Core\Env;
 
 class ErrorHandler {
     public static function register() {
@@ -45,10 +46,10 @@ class ErrorHandler {
 
         http_response_code($code);
         
-        // Check if we are Local (Laragon default IP)
-        $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+        $debug = in_array(strtolower((string)Env::get('APP_DEBUG', 'false')), ['1', 'true', 'yes', 'on'], true);
+        $isLocalEnv = Env::get('APP_ENV', 'production') === 'local';
         
-        if ($isLocal) {
+        if ($debug && $isLocalEnv) {
             echo "<div style='background:#1a1a1a;color:#ff5555;padding:20px;font-family:monospace;'>";
             echo "<h1>System Error ($code)</h1>";
             echo "<h3>" . htmlspecialchars($e->getMessage()) . "</h3>";

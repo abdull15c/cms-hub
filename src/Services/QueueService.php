@@ -5,6 +5,11 @@ use Config\Database;
 class QueueService {
     private const MAX_ATTEMPTS = 3;
     private const BASE_BACKOFF_SECONDS = 30;
+    private const ALLOWED_HANDLERS = [
+        'Src\\Jobs\\SendEmailJob',
+        'Src\\Jobs\\GenerateSitemapJob',
+        'Src\\Jobs\\GenerateAiPostJob',
+    ];
 
     public static function push($handler, $data) {
         if (!is_array($data)) {
@@ -37,6 +42,9 @@ class QueueService {
         try {
             $handler = $job['handler'];
             $payload = json_decode($job['payload'], true) ?: [];
+            if (!in_array($handler, self::ALLOWED_HANDLERS, true)) {
+                throw new \RuntimeException("Handler $handler is not allowed");
+            }
             // Dynamic call: Src\Jobs\SendEmail::handle($data)
             if (class_exists($handler)) {
                 $instance = new $handler();
@@ -47,7 +55,7 @@ class QueueService {
             } else {
                 throw new \Exception("Handler $handler not found");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $payload = json_decode($job['payload'], true) ?: [];
             $attempt = (int)($payload['__attempt'] ?? 0) + 1;
             $payload['__attempt'] = $attempt;

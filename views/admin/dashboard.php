@@ -61,6 +61,14 @@
             <div class="col-lg-3 col-sm-6">
                 <div class="text-secondary small mb-1"><?= $t('dashboard_registrations_today', 'Registrations Today') ?></div>
                 <div class="text-light fw-bold fs-5">+<?= (int)($registrations_today ?? 0) ?></div>
+                <div class="text-secondary small">
+                    <?= htmlspecialchars($t('dashboard_registrations_split', 'Local / Social')) ?>:
+                    <?= (int)($registrations_today_local ?? 0) ?> / <?= (int)($registrations_today_social ?? 0) ?>
+                </div>
+                <div class="text-secondary small">
+                    <?= htmlspecialchars($t('dashboard_registrations_providers', 'Google / GitHub')) ?>:
+                    <?= (int)($registrations_today_google ?? 0) ?> / <?= (int)($registrations_today_github ?? 0) ?>
+                </div>
             </div>
             <div class="col-lg-3 col-sm-6">
                 <div class="text-secondary small mb-1"><?= $t('dashboard_logins_today', 'Logins Today') ?></div>
@@ -72,7 +80,7 @@
             </div>
             <div class="col-lg-3 col-sm-6">
                 <div class="text-secondary small mb-1"><?= $t('dashboard_total_revenue', 'Total Revenue') ?></div>
-                <div class="text-success fw-bold fs-5">$<?= number_format((float)($revenue_total ?? 0), 2) ?></div>
+                <div class="text-success fw-bold fs-5"><?= number_format((float)($revenue_total ?? 0), 2) ?> RUB</div>
             </div>
         </div>
     </div>
@@ -117,7 +125,7 @@
                                         <span class="text-light"><?= explode('@', $s['email'])[0] ?></span>
                                     </div>
                                 </td>
-                                <td class="text-success fw-bold text-shadow">+$<?= $s['amount'] ?></td>
+                                <td class="text-success fw-bold text-shadow">+<?= number_format((float)$s['amount'], 2) ?> RUB</td>
                                 <td>
                                     <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 rounded-pill px-3"><?= $t('dashboard_paid', 'PAID') ?></span>
                                 </td>
@@ -257,7 +265,7 @@
                                         <td class="ps-4 text-secondary font-monospace">#<?= (int)$product['id'] ?></td>
                                         <td>
                                             <div class="text-light fw-semibold"><?= htmlspecialchars($product['title'] ?? '') ?></div>
-                                            <div class="small text-secondary">$<?= number_format((float)$product['price'], 2) ?></div>
+                                            <div class="small text-secondary"><?= number_format((float)$product['price'], 2) ?> RUB</div>
                                         </td>
                                         <td>
                                             <span class="badge rounded-pill <?= ($product['status'] ?? 'published') === 'draft' ? 'bg-warning text-dark' : 'bg-success' ?>">

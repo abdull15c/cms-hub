@@ -9,7 +9,13 @@ class ReviewController extends Controller {
         $this->verifyCsrf();
         $userId = $this->currentUserId();
         $rating = intval($_POST['rating']);
-        $comment = substr($_POST['comment'], 0, 500); 
+        $comment = trim(mb_substr((string)($_POST['comment'] ?? ''), 0, 500)); 
+        if ($rating < 1 || $rating > 5) {
+            $this->redirect('/product/'.$id, 'Rating must be between 1 and 5.');
+        }
+        if ($comment === '') {
+            $this->redirect('/product/'.$id, 'Review comment is required.');
+        }
         $pdo = Database::connect();
         $lic = $pdo->prepare("SELECT id FROM licenses WHERE user_id = ? AND product_id = ?"); $lic->execute([$userId, $id]);
         if (!$lic->fetch()) $this->redirect('/product/'.$id, 'You must buy this product first.');

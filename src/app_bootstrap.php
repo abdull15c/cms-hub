@@ -40,8 +40,8 @@ require_once ROOT_PATH . '/src/Core/Env.php';
 
 \Src\Core\Env::load();
 
-if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
-    session_start();
+if (php_sapi_name() !== 'cli') {
+    \Src\Services\SessionService::start();
 }
 
 \Src\Services\Logger::init();
@@ -57,7 +57,7 @@ require_once CONFIG_PATH . '/Database.php';
 \Src\Core\Container::set('mail', new \Src\Services\MailService());
 
 if (!defined('BASE_URL')) {
-    $appUrl = \Src\Core\Env::get('APP_URL', 'http://localhost/market/public');
+    $appUrl = \Src\Core\Env::get('APP_URL', 'http://localhost/mar/public');
     define('BASE_URL', rtrim($appUrl, '/'));
 }
 

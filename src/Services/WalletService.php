@@ -1,6 +1,7 @@
 <?php
 namespace Src\Services;
 use Config\Database;
+use Src\Services\MoneyService;
 
 class WalletService {
     
@@ -13,25 +14,18 @@ class WalletService {
             // Lock user row
             $stmt = $pdo->prepare("SELECT balance FROM users WHERE id = ? FOR UPDATE");
             $stmt->execute([$userId]);
-            $current = $stmt->fetchColumn();
-            
-            // FIXED: Use BCMath for precision if available, else strict rounding
-            if (function_exists('bcadd')) {
-                $newBalance = bcadd((string)$current, (string)$amount, 2);
-                $comp = bccomp($newBalance, '0.00', 2); // check if < 0
-            } else {
-                $newBalance = round($current + $amount, 2);
-                $comp = ($newBalance < 0) ? -1 : 1;
-            }
-
-            if ($comp < 0) throw new \Exception("Insufficient funds");
+            $currentCents = MoneyService::toCents((float)$stmt->fetchColumn());
+            $deltaCents = MoneyService::toCents((float)$amount);
+            $newBalanceCents = $currentCents + $deltaCents;
+            if ($newBalanceCents < 0) throw new \Exception("Insufficient funds");
+            $newBalance = MoneyService::fromCents($newBalanceCents);
 
             // Update Balance
             $pdo->prepare("UPDATE users SET balance = ? WHERE id = ?")->execute([$newBalance, $userId]);
             
             // Log It
             $pdo->prepare("INSERT INTO wallet_logs (user_id, amount, type, reference_id, description) VALUES (?, ?, ?, ?, ?)")
-                ->execute([$userId, $amount, $type, $refId, $desc]);
+                ->execute([$userId, MoneyService::decimalStringFromCents($deltaCents), $type, $refId, $desc]);
 
             $pdo->commit();
             return true;

@@ -7,7 +7,10 @@ require_once dirname(__DIR__) . '/src/app_bootstrap.php';
 // 3. Security Check (CLI or Token)
 $required = \Src\Core\Env::get('CRON_TOKEN');
 $isCli = php_sapi_name() === 'cli';
-$tokenMatch = isset($_GET['token']) && $required !== '' && hash_equals($required, (string)$_GET['token']);
+$authHeader = (string)($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+$bearer = preg_match('/Bearer\s+(\S+)/i', $authHeader, $m) ? $m[1] : '';
+$provided = (string)($_POST['token'] ?? ($_SERVER['HTTP_X_CRON_TOKEN'] ?? $bearer));
+$tokenMatch = $required !== '' && $provided !== '' && hash_equals($required, $provided);
 
 if (!$isCli && !$tokenMatch) {
     http_response_code(403); 
@@ -43,7 +46,7 @@ try {
     file_put_contents($logDir . '/heartbeat', date('Y-m-d H:i:s'));
     echo "[CRON] Processed $jobsProcessed jobs. retry=$retryCount dead=$deadCount Done.\n";
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     echo "[ERROR] " . $e->getMessage() . "\n";
     error_log("[CRON ERROR] " . $e->getMessage(), 3, $logDir . '/error.log');
 }

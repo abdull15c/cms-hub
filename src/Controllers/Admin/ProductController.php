@@ -27,7 +27,19 @@ class ProductController extends BaseAdminController {
             'ru' => ['title' => '', 'description' => '', 'meta_title' => '', 'meta_desc' => '', 'meta_keywords' => ''],
             'en' => ['title' => '', 'description' => '', 'meta_title' => '', 'meta_desc' => '', 'meta_keywords' => ''],
         ];
-        $product = ['price' => '', 'category_id' => '', 'has_license' => 1, 'sale_price' => '', 'sale_end' => '', 'file_path' => '', 'status' => 'published'];
+        $product = [
+            'price' => '',
+            'category_id' => '',
+            'has_license' => 1,
+            'sale_price' => '',
+            'sale_end' => '',
+            'file_path' => '',
+            'status' => 'published',
+            'demo_enabled' => 0,
+            'demo_url' => '',
+            'demo_login' => '',
+            'demo_password' => '',
+        ];
         $this->view('admin/create_product', ['categories' => $cats, 'product' => $product, 'translations' => $translations, 'mode' => 'create']); 
     }
 

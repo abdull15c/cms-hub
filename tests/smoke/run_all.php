@@ -7,6 +7,12 @@ $tests = [
     $root . '/tests/smoke/payment_security_smoke.php',
     $root . '/tests/smoke/idempotency_smoke.php',
     $root . '/tests/smoke/oauth_state_smoke.php',
+    $root . '/tests/smoke/auth_security_smoke.php',
+    $root . '/tests/smoke/license_security_smoke.php',
+    $root . '/tests/smoke/hardening_regression_smoke.php',
+    $root . '/tests/smoke/route_security_smoke.php',
+    $root . '/tests/smoke/webhook_hardening_smoke.php',
+    $root . '/tests/smoke/db_connect_smoke.php',
 ];
 
 $failed = 0;

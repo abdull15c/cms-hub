@@ -47,10 +47,18 @@
 - Ensure write access for `storage/` and `public/uploads/`.
 - Ensure the process user can write `storage/logs/worker.log`, `storage/logs/cron.log`, and heartbeat files under `storage/logs/`.
 - Run migrations in `deployment/migrations/README.md`.
+- Ensure `deployment/migrations/20260427_webhook_monitoring.php` is applied.
+- Ensure `deployment/migrations/20260427_data_integrity.php` is applied.
 - Keep `APP_ENV=production`, `APP_DEBUG=false`, and rotate `CRON_TOKEN` to a random secret value.
+- Configure payment credentials in `/admin/settings`:
+  YooKassa uses `/payment/webhook/yookassa`; Lemon Squeezy uses `/payment/webhook/lemonsqueezy`; Stripe uses `/payment/webhook/stripe`; Cryptomus uses `/payment/webhook/cryptomus`.
+- Run a small real payment in YooKassa, Lemon Squeezy, Stripe, and Cryptomus sandbox/low-value mode before opening checkout.
+- For each provider run 2 checks: one product purchase and one wallet deposit, then verify `transactions.status='paid'`, user balance/product access are updated, and webhook replay does not create duplicate `wallet_logs` rows.
+- Monitor webhook failures in `webhook_failures` table and alert on spikes of `Sign Error` or `Currency mismatch`.
 - Restart the worker after `.env` changes so new queue/mail/runtime settings are applied:
   `sudo systemctl restart market-worker.service`
 - Disable or remove the web installer after the first install.
+- If installer is temporarily enabled, pass setup token via header/POST and avoid query-string token usage.
 - Run `php tools/ready_check.php` and then `php tools/run-quality-gates.php` before switching traffic.
 
 5. Post-deploy quick verification

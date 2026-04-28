@@ -2,6 +2,7 @@
 namespace Src\Controllers;
 use Config\Database;
 use Src\Repositories\ProductRepository;
+use Src\Services\AccessManager;
 use Src\Services\SettingsService;
 use Src\Services\SessionService;
 
@@ -27,9 +28,8 @@ class ProductController extends Controller {
         
         if (SessionService::get('user_id')) {
             $uid = $this->currentUserId();
-            $chk=$pdo->prepare("SELECT id FROM licenses WHERE user_id=? AND product_id=?"); $chk->execute([$uid,$id]); 
             $rev=$pdo->prepare("SELECT id FROM reviews WHERE user_id=? AND product_id=?"); $rev->execute([$uid,$id]);
-            if($chk->fetch() && !$rev->fetch()) $canReview=true;
+            if(AccessManager::canDownload($uid, $id) && !$rev->fetch()) $canReview=true;
 
             // FETCH CHAT HISTORY
             $th = $pdo->prepare("SELECT id FROM chat_threads WHERE user_id=? AND product_id=?"); $th->execute([$uid,$id]);

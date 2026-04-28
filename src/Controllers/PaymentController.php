@@ -1,6 +1,7 @@
 <?php
 namespace Src\Controllers;
 use Src\Services\PaymentService;
+use Src\Services\MoneyService;
 use Config\Database;
 
 class PaymentController extends Controller {
@@ -21,7 +22,7 @@ class PaymentController extends Controller {
         $this->requireAuth();
         $this->verifyCsrf();
         
-        $provider = $_POST['provider'] ?? 'yoomoney';
+        $provider = strtolower(trim((string)($_POST['provider'] ?? 'yoomoney')));
         $userId = $this->currentUserId();
         
         // WALLET PAYMENT
@@ -32,7 +33,7 @@ class PaymentController extends Controller {
         
         // GATEWAY PAYMENT
         $service = $this->paymentService();
-        $link = $service->createPayment($provider, $userId, $id);
+        $link = $service->createPayment($provider, $userId, (int)$id, null, (string)($_POST['coupon_code'] ?? ''));
         
         if ($link) {
             header("Location: " . $link);
@@ -47,13 +48,13 @@ class PaymentController extends Controller {
 
         try {
             $pdo->beginTransaction();
-            $stmt = $pdo->prepare("SELECT price, title FROM products WHERE id = ? FOR UPDATE");
+            $stmt = $pdo->prepare("SELECT price, sale_price, sale_end, status, title FROM products WHERE id = ? FOR UPDATE");
             $stmt->execute([$productId]);
             $product = $stmt->fetch();
-            if (!$product) {
-                throw new \Exception('Product not found.');
+            if (!$product || ($product['status'] ?? '') !== 'published') {
+                throw new \Exception('Product is not available for purchase.');
             }
-            $price = (float)$product['price'];
+            $priceCents = MoneyService::toCents($this->currentProductPrice($product));
             $couponId = null;
 
             if ($couponCode) {
@@ -61,32 +62,36 @@ class PaymentController extends Controller {
                 $cStmt->execute([$couponCode]);
                 $coupon = $cStmt->fetch();
                 if ($coupon && $coupon['used_count'] < $coupon['max_uses']) {
-                    $price -= $price * ((float)$coupon['discount_percent'] / 100);
+                    $priceCents = MoneyService::applyPercentDiscountCents($priceCents, (float)$coupon['discount_percent']);
                     $couponId = (int)$coupon['id'];
                 }
             }
             $uStmt = $pdo->prepare("SELECT balance FROM users WHERE id = ? FOR UPDATE");
             $uStmt->execute([$userId]);
-            $currentBalance = (float)$uStmt->fetchColumn();
-            $newBalance = round($currentBalance - $price, 2);
-            if ($newBalance < 0) {
+            $currentBalanceCents = MoneyService::toCents((float)$uStmt->fetchColumn());
+            $newBalanceCents = $currentBalanceCents - $priceCents;
+            if ($newBalanceCents < 0) {
                 throw new \Exception('Insufficient funds');
             }
-            $pdo->prepare("UPDATE users SET balance = ? WHERE id = ?")->execute([$newBalance, $userId]);
+            $pdo->prepare("UPDATE users SET balance = ? WHERE id = ?")->execute([MoneyService::fromCents($newBalanceCents), $userId]);
 
             $pdo->prepare("INSERT INTO transactions (user_id, product_id, provider, amount, status, coupon_id) VALUES (?, ?, 'wallet', ?, 'paid', ?)")
-                ->execute([$userId, $productId, $price, $couponId]);
+                ->execute([$userId, $productId, MoneyService::decimalStringFromCents($priceCents), $couponId]);
             $orderId = (int)$pdo->lastInsertId();
             $pdo->prepare("INSERT INTO wallet_logs (user_id, amount, type, reference_id, description) VALUES (?, ?, ?, ?, ?)")
-                ->execute([$userId, -$price, 'purchase', $orderId, "Bought: " . $product['title']]);
+                ->execute([$userId, MoneyService::decimalStringFromCents(-$priceCents), 'purchase', $orderId, "Bought: " . $product['title']]);
             if ($couponId) {
-                $pdo->prepare("UPDATE coupons SET used_count = used_count + 1 WHERE id = ?")->execute([$couponId]);
+                $couponUpdate = $pdo->prepare("UPDATE coupons SET used_count = used_count + 1 WHERE id = ? AND used_count < max_uses");
+                $couponUpdate->execute([$couponId]);
+                if ($couponUpdate->rowCount() !== 1) {
+                    throw new \Exception('Coupon usage limit reached.');
+                }
             }
 
             $pdo->commit();
-            \Src\Core\Event::fire('order.paid', ['id' => $orderId, 'user_id' => $userId, 'product_id' => $productId, 'amount' => $price]);
+            \Src\Core\Event::fire('order.paid', ['id' => $orderId, 'user_id' => $userId, 'product_id' => $productId, 'amount' => MoneyService::fromCents($priceCents)]);
             
-            $this->redirect('/payment/success?id='.$productId);
+            $this->redirect('/payment/success?order_id='.$orderId);
         } catch (\Exception $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
@@ -101,14 +106,14 @@ class PaymentController extends Controller {
         $this->verifyCsrf();
         
         // Fix: Use generic getter if key missing
-        $amount = floatval($_POST['amount'] ?? 0);
-        $provider = $_POST['provider'] ?? 'yoomoney'; 
+        $amount = (float)($_POST['amount'] ?? 0);
+        $provider = strtolower(trim((string)($_POST['provider'] ?? 'yoomoney')));
         
-        if ($amount <= 0) $this->redirect('/wallet', 'Invalid Amount');
+        if (MoneyService::toCents($amount) <= 0) $this->redirect('/wallet', 'Invalid Amount');
 
         $service = $this->paymentService();
         // Product ID 0 = Deposit
-        $link = $service->createPayment($provider, $this->currentUserId(), 0);
+        $link = $service->createPayment($provider, $this->currentUserId(), 0, $amount);
         
         if($link) {
             header("Location: " . $link);
@@ -124,6 +129,10 @@ class PaymentController extends Controller {
     }
     
     public function webhook($provider) { 
+        if (!$this->isSecureWebhookRequest()) {
+            http_response_code(426);
+            exit('HTTPS required');
+        }
         $rawBody = (string)file_get_contents('php://input');
         $payload = $_POST;
         if (empty($payload) && $rawBody !== '') {
@@ -135,7 +144,29 @@ class PaymentController extends Controller {
         $this->paymentService()->handleWebhook($provider, $payload, $rawBody); 
     }
 
+    private function isSecureWebhookRequest(): bool {
+        $appEnv = strtolower(trim((string)getenv('APP_ENV')));
+        if (in_array($appEnv, ['local', 'dev', 'development', 'test', 'testing'], true)) {
+            return true;
+        }
+        if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') {
+            return true;
+        }
+        $proto = strtolower(trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')));
+        return $proto === 'https';
+    }
+
     public function yoomoney_form() {
         if (file_exists(VIEW_PATH . '/payment/yoomoney_form.php')) include VIEW_PATH . '/payment/yoomoney_form.php';
+    }
+
+    private function currentProductPrice(array $product): float {
+        $regular = (float)($product['price'] ?? 0);
+        $salePrice = $product['sale_price'] !== null ? (float)$product['sale_price'] : null;
+        $saleEnd = (string)($product['sale_end'] ?? '');
+        if ($salePrice !== null && $salePrice > 0 && $salePrice < $regular && $saleEnd !== '' && strtotime($saleEnd) > time()) {
+            return $salePrice;
+        }
+        return $regular;
     }
 }

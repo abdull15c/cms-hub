@@ -79,11 +79,25 @@ try {
     $pdo->query('SELECT 1');
     $check('Database connection', true);
 
-    $requiredTables = ['users', 'products', 'product_translations', 'analytics_page_views', 'jobs', 'settings'];
+    $requiredTables = ['users', 'products', 'product_translations', 'analytics_page_views', 'jobs', 'settings', 'webhook_failures'];
     $stmt = $pdo->query('SHOW TABLES');
     $tables = array_map('strtolower', array_map('current', $stmt->fetchAll()));
     foreach ($requiredTables as $table) {
         $check('Table exists: ' . $table, in_array(strtolower($table), $tables, true));
+    }
+
+    $dbName = (string)Env::get('DB_NAME', '');
+    $requiredColumns = [
+        ['transactions', 'updated_at'],
+        ['transactions', 'provider_payment_id'],
+        ['jobs', 'last_error'],
+    ];
+    $columnStmt = $pdo->prepare(
+        'SELECT 1 FROM information_schema.columns WHERE table_schema = ? AND table_name = ? AND column_name = ? LIMIT 1'
+    );
+    foreach ($requiredColumns as [$table, $column]) {
+        $columnStmt->execute([$dbName, $table, $column]);
+        $check('Column exists: ' . $table . '.' . $column, (bool)$columnStmt->fetchColumn());
     }
 } catch (Throwable $e) {
     $check('Database connection', false, $e->getMessage());

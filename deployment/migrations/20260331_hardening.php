@@ -27,6 +27,7 @@ require_once ROOT_PATH . '/src/Core/Env.php';
 Env::load();
 
 $host = (string) Env::get('DB_HOST', 'localhost');
+$port = (string) Env::get('DB_PORT', '');
 $dbName = (string) Env::get('DB_NAME', '');
 $user = (string) Env::get('DB_USER', 'root');
 $pass = (string) Env::get('DB_PASS', '');
@@ -35,6 +36,9 @@ if ($dbName === '') {
     throw new RuntimeException('DB_NAME is not configured.');
 }
 $dsn = "mysql:host={$host};dbname={$dbName};charset={$charset}";
+if ($port !== '') {
+    $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset={$charset}";
+}
 $pdo = new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -90,8 +94,11 @@ function addColumnIfMissing(PDO $pdo, string $db, string $table, string $column,
 }
 
 addUniqueIfMissing($pdo, $dbName, 'licenses', 'uq_licenses_license_key', '`license_key`');
+addColumnIfMissing($pdo, $dbName, 'transactions', 'updated_at', '`updated_at` TIMESTAMP NULL');
+addColumnIfMissing($pdo, $dbName, 'transactions', 'provider_payment_id', '`provider_payment_id` VARCHAR(191) NULL');
 addIndexIfMissing($pdo, $dbName, 'transactions', 'idx_transactions_status_created', '`status`, `created_at`');
 addIndexIfMissing($pdo, $dbName, 'transactions', 'idx_transactions_user_created', '`user_id`, `created_at`');
+addIndexIfMissing($pdo, $dbName, 'transactions', 'idx_transactions_provider_payment', '`provider`, `provider_payment_id`');
 addIndexIfMissing($pdo, $dbName, 'jobs', 'idx_jobs_status_created', '`status`, `created_at`');
 addIndexIfMissing($pdo, $dbName, 'wallet_logs', 'idx_wallet_logs_user_created', '`user_id`, `created_at`');
 addColumnIfMissing($pdo, $dbName, 'jobs', 'last_error', '`last_error` TEXT NULL');

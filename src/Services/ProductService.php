@@ -73,6 +73,10 @@ class ProductService {
             'has_license' => (int)$original['has_license'],
             'sale_price' => $original['sale_price'] !== null ? (float)$original['sale_price'] : null,
             'sale_end' => $original['sale_end'],
+            'demo_enabled' => (int)($original['demo_enabled'] ?? 0),
+            'demo_url' => (string)($original['demo_url'] ?? ''),
+            'demo_login' => (string)($original['demo_login'] ?? ''),
+            'demo_password' => (string)($original['demo_password'] ?? ''),
             'meta_title' => $original['meta_title'],
             'meta_desc' => $original['meta_desc'],
             'meta_keywords' => $original['meta_keywords'],
@@ -121,6 +125,16 @@ class ProductService {
         if ($salePrice !== null && $saleEnd === null) {
             throw new \Exception('Sale end date is required when sale price is set.');
         }
+        $demoEnabled = isset($post['demo_enabled']) ? 1 : 0;
+        $demoUrlRaw = trim((string)($post['demo_url'] ?? ''));
+        $demoLoginRaw = trim((string)($post['demo_login'] ?? ''));
+        $demoPasswordRaw = trim((string)($post['demo_password'] ?? ''));
+        $demoUrl = $demoEnabled && $demoUrlRaw !== '' ? Security::clean($demoUrlRaw) : null;
+        $demoLogin = $demoEnabled && $demoLoginRaw !== '' ? Security::clean($demoLoginRaw) : null;
+        $demoPassword = $demoEnabled && $demoPasswordRaw !== '' ? Security::clean($demoPasswordRaw) : null;
+        if ($demoEnabled && $demoUrl !== null && !filter_var($demoUrl, FILTER_VALIDATE_URL)) {
+            throw new \Exception('Demo URL must be a valid URL.');
+        }
 
         return [
             'title' => $primary['title'],
@@ -131,6 +145,10 @@ class ProductService {
             'has_license' => isset($post['has_license']) ? 1 : 0,
             'sale_price' => $salePrice,
             'sale_end' => $saleEnd,
+            'demo_enabled' => $demoEnabled,
+            'demo_url' => $demoUrl,
+            'demo_login' => $demoLogin,
+            'demo_password' => $demoPassword,
             'meta_title' => $primary['meta_title'],
             'meta_desc' => $primary['meta_desc'],
             'meta_keywords' => $primary['meta_keywords'],
@@ -177,6 +195,10 @@ class ProductService {
 
     private function uploadSecureFile($file) {
         if ($file['error'] !== UPLOAD_ERR_OK) throw new \Exception("Upload Error Code: " . $file['error']);
+        $maxBytes = 100 * 1024 * 1024;
+        if ((int)($file['size'] ?? 0) <= 0 || (int)$file['size'] > $maxBytes) {
+            throw new \Exception('Product archive is too large.');
+        }
         
         $allowedMimes = [
             'application/zip', 
@@ -221,14 +243,22 @@ class ProductService {
         $allowedImgMimes = ['image/jpeg', 'image/png', 'image/webp'];
         
         $count = count($files['images']['name']);
+        if ($count > 10) {
+            throw new \Exception('Too many product images.');
+        }
         for ($i = 0; $i < $count; $i++) {
             if ($files['images']['error'][$i] === 0) {
+                if ((int)($files['images']['size'][$i] ?? 0) <= 0 || (int)$files['images']['size'][$i] > 5 * 1024 * 1024) {
+                    continue;
+                }
                 $ext = strtolower(pathinfo($files['images']['name'][$i], PATHINFO_EXTENSION));
                 if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) continue;
                 
                 // Mime check for images
                 $mime = mime_content_type($files['images']['tmp_name'][$i]);
                 if (!in_array($mime, $allowedImgMimes)) continue;
+                $dimensions = @getimagesize($files['images']['tmp_name'][$i]);
+                if (!$dimensions || $dimensions[0] > 6000 || $dimensions[1] > 6000) continue;
                 
                 $n = bin2hex(random_bytes(16)) . '.' . $ext;
                 if (move_uploaded_file($files['images']['tmp_name'][$i], $imgDir . $n)) {

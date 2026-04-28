@@ -21,6 +21,11 @@ class ChatController extends Controller {
         }
 
         $pdo = Database::connect();
+        $productCheck = $pdo->prepare("SELECT id FROM products WHERE id = ? AND status = 'published'");
+        $productCheck->execute([$productId]);
+        if (!$productCheck->fetch()) {
+            $this->abort(404, 'Product not found.');
+        }
         // Check thread exists
         $stmt = $pdo->prepare("SELECT id FROM chat_threads WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$userId, $productId]);

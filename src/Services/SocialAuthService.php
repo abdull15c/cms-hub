@@ -1,20 +1,17 @@
 <?php
 namespace Src\Services;
 use Config\Database;
+use Src\Services\SessionService;
 
 class SocialAuthService {
     public function createState() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        SessionService::start();
         $state = bin2hex(random_bytes(16));
         $_SESSION['oauth_state'] = $state;
         return $state;
     }
     public function verifyAndConsumeState($state) {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        SessionService::start();
         $expected = (string)($_SESSION['oauth_state'] ?? '');
         unset($_SESSION['oauth_state']);
         return $expected !== '' && $state !== '' && hash_equals($expected, (string)$state);

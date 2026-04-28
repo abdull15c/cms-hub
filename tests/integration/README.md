@@ -2,10 +2,10 @@
 
 ## Webhook Security Integration
 
-Runs real DB-backed scenarios for crypto webhook:
+Runs real DB-backed scenarios for Cryptomus webhook:
 - invalid signature is rejected;
 - valid signature marks transaction as paid and applies deposit once;
-- replay of same signed payload is rejected with no duplicate balance effect.
+- replay of the same signed payload is idempotent and has no duplicate balance effect.
 
 Also includes auth scenarios:
 - password reset token creation and consumption;
@@ -26,7 +26,7 @@ Optional env overrides for isolated DB access:
 - `TEST_DB_USER`
 - `TEST_DB_PASS`
 - `TEST_DB_CHARSET`
-- `TEST_CRYPTO_WEBHOOK_SECRET`
+- `TEST_CRYPTOMUS_PAYMENT_KEY`
 
 The test creates and drops a temporary DB automatically.
 

@@ -10,7 +10,7 @@ class TransactionController extends BaseAdminController {
     public function index() {
         $this->checkAuth();
         Gate::authorize('dashboard.view');
-        $page = $_GET['page'] ?? 1;
+        $page = max(1, (int)($_GET['page'] ?? 1));
         $perPage = 20; $offset = ($page-1)*$perPage;
         
         $pdo = Database::connect();

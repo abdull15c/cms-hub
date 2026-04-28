@@ -13,7 +13,7 @@
                     <td>#<?= $t['id'] ?></td>
                     <td><?= htmlspecialchars($t['email']) ?></td>
                     <td><?= $t['product_id'] == 0 ? '<span class="text-info">' . htmlspecialchars($t('transactions_wallet_deposit', 'Wallet Deposit')) . '</span>' : htmlspecialchars($t['product_title']) ?></td>
-                    <td>$<?= $t['amount'] ?></td>
+                    <td><?= number_format((float)$t['amount'], 2) ?> RUB</td>
                     <td class="text-uppercase small"><?= $t['provider'] ?></td>
                     <td>
                         <?php 

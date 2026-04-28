@@ -8,7 +8,7 @@
         <div class="col-md-4">
             <div class="glass-card p-4 text-center mb-4 border-info">
                 <small class="text-secondary"><?= $t('banker_current_balance', 'Current Balance') ?></small>
-                <h1 class="display-3 fw-bold text-light my-2">$<?= number_format($user['balance'], 2) ?></h1>
+                <h1 class="display-3 fw-bold text-light my-2"><?= number_format((float)$user['balance'], 2) ?> RUB</h1>
             </div>
 
             <div class="glass-card p-4">
@@ -26,7 +26,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="text-secondary"><?= $t('banker_amount', 'Amount ($)') ?></label>
+                        <label class="text-secondary"><?= $t('banker_amount', 'Amount') ?></label>
                         <input type="number" step="0.01" name="amount" class="form-control bg-dark text-light border-secondary" required>
                     </div>
 

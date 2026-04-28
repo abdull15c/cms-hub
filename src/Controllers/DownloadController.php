@@ -37,6 +37,7 @@ class DownloadController extends Controller {
         // 4. File Path Check
         $fileName = basename($product['file_path']);
         if(empty($fileName) || $fileName == '.' || $fileName == '..') $this->abort(400, 'Invalid file path.');
+        $downloadName = preg_replace('/[^A-Za-z0-9._-]/', '_', $fileName);
 
         $file = STORAGE_PATH . '/secure_uploads/' . $fileName;
         
@@ -53,7 +54,7 @@ class DownloadController extends Controller {
 
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Content-Disposition: attachment; filename="' . $downloadName . '"');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');

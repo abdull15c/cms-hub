@@ -1,10 +1,17 @@
 <?php
 // INSTALLER PROCESSOR (SECURE)
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    @session_start();
+}
+header('Referrer-Policy: no-referrer');
 $setupToken = (string)($_ENV['INSTALLER_SETUP_TOKEN'] ?? getenv('INSTALLER_SETUP_TOKEN') ?: getenv('INSTALLER_TOKEN') ?: '');
-$requestToken = (string)($_POST['setup_token'] ?? ($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ''));
+$requestToken = (string)($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ($_POST['setup_token'] ?? ''));
 $allowInstallerRaw = strtolower(trim((string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '')));
 $allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true);
-if (!$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $requestToken)) {
+$sessionGranted = (int)($_SESSION['installer_access_granted'] ?? 0) === 1
+    && (time() - (int)($_SESSION['installer_accessed_at'] ?? 0)) <= 1800;
+$tokenValid = $requestToken !== '' && $setupToken !== '' && hash_equals($setupToken, $requestToken);
+if (!$allowInstaller || (!$sessionGranted && !$tokenValid)) {
     http_response_code(403);
     exit('Installer is locked');
 }
@@ -30,6 +37,14 @@ $url = rtrim(trim((string)($_POST['app_url'] ?? ($_ENV['INSTALL_APP_URL'] ?? get
 if ($host === '' || $name === '' || $user === '' || $admEmail === '' || $rawAdminPass === '' || $url === '') {
     http_response_code(422);
     exit('Missing required installation fields');
+}
+if (!preg_match('/^[A-Za-z0-9_]+$/', $name)) {
+    http_response_code(422);
+    exit('Database name may contain only letters, numbers and underscores');
+}
+if (!filter_var($admEmail, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(422);
+    exit('Invalid admin email');
 }
 
 if (preg_match('/^(.+);port=(\d+)$/i', $host, $matches)) {
@@ -106,6 +121,10 @@ try {
         price DECIMAL(10,2),
         sale_price DECIMAL(10,2) NULL,
         sale_end DATETIME NULL,
+        demo_enabled TINYINT(1) NOT NULL DEFAULT 0,
+        demo_url VARCHAR(255) NULL,
+        demo_login VARCHAR(191) NULL,
+        demo_password VARCHAR(191) NULL,
         description TEXT,
         file_path VARCHAR(255),
         status VARCHAR(20) NOT NULL DEFAULT 'published',
@@ -118,9 +137,9 @@ try {
     );
     CREATE TABLE IF NOT EXISTS categories (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100), slug VARCHAR(100));
     CREATE TABLE IF NOT EXISTS product_images (id INT AUTO_INCREMENT PRIMARY KEY, product_id INT, image_path VARCHAR(255), is_main TINYINT(1) DEFAULT 0);
-    CREATE TABLE IF NOT EXISTS transactions (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, provider VARCHAR(50), amount DECIMAL(10,2), status VARCHAR(20), coupon_id INT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+    CREATE TABLE IF NOT EXISTS transactions (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, provider VARCHAR(50), provider_payment_id VARCHAR(191) NULL, amount DECIMAL(10,2), status VARCHAR(20), coupon_id INT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL, INDEX idx_transactions_status_created (status, created_at), INDEX idx_transactions_user_created (user_id, created_at), INDEX idx_transactions_provider_payment (provider, provider_payment_id));
     CREATE TABLE IF NOT EXISTS licenses (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, license_key VARCHAR(100), domain VARCHAR(255) NULL, is_active TINYINT(1) DEFAULT 1, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, activated_at DATETIME NULL);
-    CREATE TABLE IF NOT EXISTS reviews (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, rating INT, comment TEXT, reply TEXT NULL, is_approved TINYINT(1) DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+    CREATE TABLE IF NOT EXISTS reviews (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, rating INT, comment TEXT, reply TEXT NULL, is_approved TINYINT(1) DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY uniq_reviews_user_product (user_id, product_id));
     CREATE TABLE IF NOT EXISTS coupons (id INT AUTO_INCREMENT PRIMARY KEY, code VARCHAR(50) UNIQUE, discount_percent INT, max_uses INT DEFAULT 100, used_count INT DEFAULT 0);
     CREATE TABLE IF NOT EXISTS tickets (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, transaction_id INT NULL, subject VARCHAR(255), department VARCHAR(50), priority VARCHAR(20), status VARCHAR(20) DEFAULT 'open', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS ticket_messages (id INT AUTO_INCREMENT PRIMARY KEY, ticket_id INT, user_id INT, is_admin TINYINT(1) DEFAULT 0, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
@@ -128,9 +147,9 @@ try {
     CREATE TABLE IF NOT EXISTS faqs (id INT AUTO_INCREMENT PRIMARY KEY, question VARCHAR(255), answer TEXT, sort_order INT DEFAULT 0);
     CREATE TABLE IF NOT EXISTS wallet_logs (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, amount DECIMAL(10,2), type VARCHAR(20), reference_id INT NULL, description VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS notifications (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, message TEXT, type VARCHAR(20), link VARCHAR(255) NULL, is_read TINYINT(1) DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-    CREATE TABLE IF NOT EXISTS jobs (id INT AUTO_INCREMENT PRIMARY KEY, handler VARCHAR(255), payload TEXT, status VARCHAR(20) DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+    CREATE TABLE IF NOT EXISTS jobs (id INT AUTO_INCREMENT PRIMARY KEY, handler VARCHAR(255), payload TEXT, status VARCHAR(20) DEFAULT 'pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, last_error TEXT NULL, INDEX idx_jobs_status_created (status, created_at));
     CREATE TABLE IF NOT EXISTS login_attempts (ip VARCHAR(45) PRIMARY KEY, attempts INT DEFAULT 0, last_attempt TIMESTAMP NULL);
-    CREATE TABLE IF NOT EXISTS chat_threads (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+    CREATE TABLE IF NOT EXISTS chat_threads (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY uniq_chat_threads_user_product (user_id, product_id));
     CREATE TABLE IF NOT EXISTS chat_messages (id INT AUTO_INCREMENT PRIMARY KEY, thread_id INT, sender_type VARCHAR(10), message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS messages (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100), email VARCHAR(100), message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS wishlists (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
@@ -184,6 +203,6 @@ try {
     header("Location: $url/login");
     exit;
 } catch(Exception $e) {
-    $retryUrl = 'index.php?step=2&setup_token=' . urlencode($requestToken);
+    $retryUrl = 'index.php?step=2';
     exit("<div style='font-family:sans-serif;padding:20px;color:red;'><h3>Installation Error</h3>" . htmlspecialchars($e->getMessage()) . "<br><br><a href='" . htmlspecialchars($retryUrl, ENT_QUOTES, 'UTF-8') . "'>Try Again</a></div>");
 }

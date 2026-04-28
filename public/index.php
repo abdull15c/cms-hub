@@ -1,5 +1,8 @@
 <?php
 // 1. INSTALLER CHECK (Hardened)
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    @session_start();
+}
 $envPath = dirname(__DIR__) . '/.env';
 $installerPath = __DIR__ . '/install/index.php';
 $installLock = dirname(__DIR__) . '/storage/.installed.lock';
@@ -27,13 +30,16 @@ if (!file_exists($envPath) && file_exists($installerPath) && !file_exists($insta
     }
 
     $setupToken = (string)($_ENV['INSTALLER_SETUP_TOKEN'] ?? getenv('INSTALLER_SETUP_TOKEN') ?: getenv('INSTALLER_TOKEN') ?: '');
-    $requestToken = (string)($_GET['setup_token'] ?? ($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ''));
+    $requestToken = (string)($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ($_POST['setup_token'] ?? ($_GET['setup_token'] ?? '')));
 
     if (!$allowInstaller || $setupToken === '' || !hash_equals($setupToken, $requestToken)) {
         http_response_code(403);
         exit('Installer is disabled. Provide valid setup token and enable web installer.');
     }
-    header('Location: install/index.php?setup_token=' . urlencode($requestToken));
+    $_SESSION['installer_access_granted'] = 1;
+    $_SESSION['installer_accessed_at'] = time();
+    header('Referrer-Policy: no-referrer');
+    header('Location: install/index.php');
     exit;
 }
 
@@ -115,7 +121,7 @@ $router->add('GET', '/blog/{id}', 'ContentController', 'post');
 $router->add('GET', '/faq', 'ContentController', 'faq');
 
 // --- ADMIN ROUTES ---
-$router->add('GET', '/admin/login', 'Admin\BaseAdminController', 'login');
+$router->add('GET', '/admin/login', 'AuthController', 'loginForm');
 $router->add('GET', '/admin/reviews', 'Admin\ReviewController', 'index');
     $router->add('POST', '/admin/reviews/approve/{id}', 'Admin\ReviewController', 'approve');
     $router->add('POST', '/admin/reviews/delete/{id}', 'Admin\ReviewController', 'delete');
@@ -192,7 +198,7 @@ $router->add('POST', '/tickets/reply/{id}', 'TicketController', 'reply');
 
 $router->add('GET', '/api/me', 'ApiController', 'me');
 $router->add('GET', '/api/products', 'ApiController', 'products');
-$router->add('POST', '/api/license/check', 'ApiController', 'checkLicense');
+$router->add('POST', '/api/license/check', 'LicenseApiController', 'check');
 
 // --- DISPATCH LOGIC ---
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -51,20 +51,37 @@ class RateLimiter {
         $limit = max(1, $limit);
         $windowSeconds = max(1, $windowSeconds);
         $file = self::scopeFile($scope, $ip);
-
-        $state = self::readScopeState($file);
-        $now = time();
-        if (($state['reset_at'] ?? 0) <= $now) {
-            $state = ['count' => 0, 'reset_at' => $now + $windowSeconds];
-        }
-
-        if (($state['count'] ?? 0) >= $limit) {
+        $handle = @fopen($file, 'c+');
+        if ($handle === false) {
             return false;
         }
+        try {
+            if (!flock($handle, LOCK_EX)) {
+                fclose($handle);
+                return false;
+            }
+            $state = self::readScopeStateFromHandle($handle);
+            $now = time();
+            if (($state['reset_at'] ?? 0) <= $now) {
+                $state = ['count' => 0, 'reset_at' => $now + $windowSeconds];
+            }
 
-        $state['count'] = (int)($state['count'] ?? 0) + 1;
-        self::writeScopeState($file, $state);
-        return true;
+            if (($state['count'] ?? 0) >= $limit) {
+                flock($handle, LOCK_UN);
+                fclose($handle);
+                return false;
+            }
+
+            $state['count'] = (int)($state['count'] ?? 0) + 1;
+            self::writeScopeStateToHandle($handle, $state);
+            flock($handle, LOCK_UN);
+            fclose($handle);
+            return true;
+        } catch (\Throwable $e) {
+            @flock($handle, LOCK_UN);
+            @fclose($handle);
+            return false;
+        }
     }
 
     public static function clearScope(string $scope, $ip = null): void
@@ -86,13 +103,10 @@ class RateLimiter {
         return $dir . '/' . $key . '.json';
     }
 
-    private static function readScopeState(string $file): array
+    private static function readScopeStateFromHandle($handle): array
     {
-        if (!is_file($file)) {
-            return ['count' => 0, 'reset_at' => 0];
-        }
-
-        $raw = file_get_contents($file);
+        rewind($handle);
+        $raw = stream_get_contents($handle);
         if (!is_string($raw) || $raw === '') {
             return ['count' => 0, 'reset_at' => 0];
         }
@@ -108,11 +122,18 @@ class RateLimiter {
         ];
     }
 
-    private static function writeScopeState(string $file, array $state): void
+    private static function writeScopeStateToHandle($handle, array $state): void
     {
-        file_put_contents($file, json_encode([
+        $payload = json_encode([
             'count' => (int)($state['count'] ?? 0),
             'reset_at' => (int)($state['reset_at'] ?? 0),
-        ]), LOCK_EX);
+        ]);
+        if (!is_string($payload)) {
+            $payload = '{"count":0,"reset_at":0}';
+        }
+        rewind($handle);
+        ftruncate($handle, 0);
+        fwrite($handle, $payload);
+        fflush($handle);
     }
 }

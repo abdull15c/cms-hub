@@ -299,6 +299,25 @@ $en = $translations['en'] ?? ['title' => '', 'description' => '', 'meta_title' =
                             <label class="form-label text-light fw-semibold"><?= $t('builder_sale_end', 'Flash Sale End') ?></label>
                             <input type="datetime-local" name="sale_end" id="saleEndInput" value="<?= htmlspecialchars($saleEndValue) ?>" class="form-control bg-dark text-light border-secondary">
                         </div>
+                        <div class="col-12"><hr class="border-secondary border-opacity-25 my-1"></div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="form-check form-switch fs-6 mb-2">
+                                <input class="form-check-input" type="checkbox" name="demo_enabled" value="1" id="demoEnabledCheck" <?= !empty($product['demo_enabled']) ? 'checked' : '' ?>>
+                                <label class="form-check-label text-info fw-semibold" for="demoEnabledCheck"><?= $t('builder_demo_enabled', 'Enable Demo Access') ?></label>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label text-light fw-semibold"><?= $t('builder_demo_url', 'Demo Site URL') ?></label>
+                            <input type="url" name="demo_url" id="demoUrlInput" value="<?= htmlspecialchars((string)($product['demo_url'] ?? '')) ?>" class="form-control bg-dark text-light border-secondary" placeholder="https://demo.example.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-light fw-semibold"><?= $t('builder_demo_login', 'Demo Login') ?></label>
+                            <input type="text" name="demo_login" id="demoLoginInput" value="<?= htmlspecialchars((string)($product['demo_login'] ?? '')) ?>" class="form-control bg-dark text-light border-secondary" placeholder="<?= htmlspecialchars($t('builder_demo_login_placeholder', 'admin@example.com')) ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-light fw-semibold"><?= $t('builder_demo_password', 'Demo Password') ?></label>
+                            <input type="text" name="demo_password" id="demoPasswordInput" value="<?= htmlspecialchars((string)($product['demo_password'] ?? '')) ?>" class="form-control bg-dark text-light border-secondary" placeholder="<?= htmlspecialchars($t('builder_demo_password_placeholder', 'password123')) ?>">
+                        </div>
                     </div>
                 </div>
 
@@ -843,6 +862,20 @@ $en = $translations['en'] ?? ['title' => '', 'description' => '', 'meta_title' =
     });
 
     restoreDraft();
+    const demoEnabledCheck = document.getElementById('demoEnabledCheck');
+    const demoUrlInput = document.getElementById('demoUrlInput');
+    const demoLoginInput = document.getElementById('demoLoginInput');
+    const demoPasswordInput = document.getElementById('demoPasswordInput');
+    const syncDemoFields = () => {
+        const enabled = !!demoEnabledCheck?.checked;
+        [demoUrlInput, demoLoginInput, demoPasswordInput].forEach((input) => {
+            if (!input) return;
+            input.disabled = !enabled;
+            input.classList.toggle('opacity-50', !enabled);
+        });
+    };
+    demoEnabledCheck?.addEventListener('change', syncDemoFields);
+    syncDemoFields();
     updateFilePreview();
     updateSummary();
 })();

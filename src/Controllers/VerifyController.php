@@ -25,9 +25,10 @@ class VerifyController extends Controller {
     }
     
     public function resend() {
-         $this->requireAuth();
+          $this->requireAuth();
+          $this->verifyCsrf();
 
-         $auth = $this->service('auth', function () {
+          $auth = $this->service('auth', function () {
              return new AuthService();
          });
          $sent = $auth->resendVerification($this->currentUserId());
