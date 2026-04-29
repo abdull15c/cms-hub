@@ -54,7 +54,7 @@ class PaymentController extends Controller {
             if (!$product || ($product['status'] ?? '') !== 'published') {
                 throw new \Exception('Product is not available for purchase.');
             }
-            $priceCents = MoneyService::toCents($this->currentProductPrice($product));
+            $priceCents = MoneyService::toCents(PaymentService::currentProductPriceValue($product));
             $couponId = null;
 
             if ($couponCode) {
@@ -160,13 +160,4 @@ class PaymentController extends Controller {
         if (file_exists(VIEW_PATH . '/payment/yoomoney_form.php')) include VIEW_PATH . '/payment/yoomoney_form.php';
     }
 
-    private function currentProductPrice(array $product): float {
-        $regular = (float)($product['price'] ?? 0);
-        $salePrice = $product['sale_price'] !== null ? (float)$product['sale_price'] : null;
-        $saleEnd = (string)($product['sale_end'] ?? '');
-        if ($salePrice !== null && $salePrice > 0 && $salePrice < $regular && $saleEnd !== '' && strtotime($saleEnd) > time()) {
-            return $salePrice;
-        }
-        return $regular;
-    }
 }

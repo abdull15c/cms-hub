@@ -13,12 +13,12 @@
                 <form action="<?= BASE_URL ?>/register" method="POST">
                     <?= \Src\Core\Csrf::field() ?>
                     <div class="mb-3">
-                        <label class="form-label text-secondary"><?= htmlspecialchars($t('auth_email_address', 'Email Address')) ?></label>
-                        <input type="email" name="email" class="form-control bg-dark text-light border-secondary" required placeholder="name@example.com">
+                        <label for="register-email" class="form-label text-secondary"><?= htmlspecialchars($t('auth_email_address', 'Email Address')) ?></label>
+                        <input id="register-email" type="email" name="email" class="form-control bg-dark text-light border-secondary" required placeholder="name@example.com">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary"><?= htmlspecialchars($t('auth_password', 'Password')) ?></label>
-                        <input type="password" name="password" class="form-control bg-dark text-light border-secondary" required placeholder="<?= htmlspecialchars($t('auth_password_min', 'Min 8 characters')) ?>">
+                        <label for="register-password" class="form-label text-secondary"><?= htmlspecialchars($t('auth_password', 'Password')) ?></label>
+                        <input id="register-password" type="password" name="password" class="form-control bg-dark text-light border-secondary" required minlength="8" placeholder="<?= htmlspecialchars($t('auth_password_min', 'Min 8 characters')) ?>">
                     </div>
                     <button type="submit" class="btn btn-success w-100"><?= htmlspecialchars($t('auth_sign_up', 'Sign Up')) ?></button>
                 </form>

@@ -1,7 +1,7 @@
 <?php
 namespace Src\Controllers;
-use Src\Core\Csrf;
 use Src\Core\Container;
+
 use Src\Services\SessionService;
 use Src\Services\SettingsService;
 use Config\Database;
@@ -32,23 +32,9 @@ class Controller {
     }
 
     protected function verifyCsrf() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-            if ($token === '') {
-                $input = json_decode((string)file_get_contents('php://input'), true);
-                if (is_array($input)) {
-                    $token = $input['csrf_token'] ?? '';
-                }
-            }
-            if (!Csrf::verify($token)) {
-                $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-                if (strpos($accept, 'application/json') !== false || strpos($accept, 'json') !== false) {
-                    $this->jsonError('csrf_mismatch', 'CSRF Token Invalid. Refresh page.', 419);
-                }
-                $this->abort(419, 'CSRF Token Invalid. Refresh page.');
-            }
-        }
+        return;
     }
+
 
     protected function requireAuth(): void {
         SessionService::start();

@@ -1,20 +1,20 @@
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-5" data-aos="fade-down">
+    <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold text-light mb-0"><?= $t('dashboard_title', 'Command Center') ?></h2>
+            <h2 class="fw-bold text-light mb-0"><?= htmlspecialchars($t('dashboard_title', 'Command Center')) ?></h2>
             <div class="text-secondary small d-flex align-items-center gap-2">
                 <span id="liveClock" class="font-monospace text-info"></span>
                 <span>&bull;</span>
-                <span><?= $t('dashboard_online', 'System Online') ?></span>
+                <span><?= htmlspecialchars($t('dashboard_online', 'System Online')) ?></span>
             </div>
         </div>
         <div class="d-flex gap-3">
             <a href="<?= BASE_URL ?>/" class="btn btn-outline-light rounded-pill px-4">
-                <i class="fa-solid fa-globe me-2"></i><?= $t('dashboard_view_site', 'View Site') ?>
+                <i class="fa-solid fa-globe me-2"></i><?= htmlspecialchars($t('dashboard_view_site', 'View Site')) ?>
             </a>
             <form action="<?= BASE_URL ?>/logout" method="POST" class="m-0">
                 <?= \Src\Core\Csrf::field() ?>
-                <button type="submit" class="btn btn-danger rounded-circle shadow-lg" title="<?= $t('dashboard_logout_title', 'Logout') ?>">
+                <button type="submit" class="btn btn-danger rounded-circle shadow-lg" title="<?= htmlspecialchars($t('dashboard_logout_title', 'Logout')) ?>">
                     <i class="fa-solid fa-power-off"></i>
                 </button>
             </form>
@@ -22,44 +22,44 @@
     </div>
 
     <div class="row g-4 mb-5">
-        <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="col-md-3">
             <div class="glass-card stat-card p-4 position-relative overflow-hidden h-100 border-0">
                 <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="fa-solid fa-box-open"></i></div>
-                <h3 class="text-light fw-bold mt-3"><?= $prod_count ?? 0 ?></h3>
-                <p class="text-secondary small mb-0"><?= $t('dashboard_active_products', 'Active Products') ?></p>
+                <h3 class="text-light fw-bold mt-3"><?= (int) ($prod_count ?? 0) ?></h3>
+                <p class="text-secondary small mb-0"><?= htmlspecialchars($t('dashboard_active_products', 'Active Products')) ?></p>
                 <div class="progress mt-3 bg-dark" style="height: 4px;"><div class="progress-bar bg-primary" style="width: 70%"></div></div>
             </div>
         </div>
-        <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="col-md-3">
             <div class="glass-card stat-card p-4 position-relative overflow-hidden h-100 border-0">
                 <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="fa-solid fa-users"></i></div>
-                <h3 class="text-light fw-bold mt-3"><?= $registered_count ?? 0 ?></h3>
-                <p class="text-secondary small mb-0"><?= $t('dashboard_registered_users', 'Registered Users') ?></p>
+                <h3 class="text-light fw-bold mt-3"><?= (int) ($registered_count ?? 0) ?></h3>
+                <p class="text-secondary small mb-0"><?= htmlspecialchars($t('dashboard_registered_users', 'Registered Users')) ?></p>
                 <div class="progress mt-3 bg-dark" style="height: 4px;"><div class="progress-bar bg-success" style="width: 85%"></div></div>
             </div>
         </div>
-        <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="col-md-3">
             <div class="glass-card stat-card p-4 position-relative overflow-hidden h-100 border-0">
                 <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-user-check"></i></div>
-                <h3 class="text-light fw-bold mt-3"><?= $visitors_7d ?? 0 ?></h3>
-                <p class="text-secondary small mb-0"><?= $t('dashboard_unique_visitors', 'Unique Visitors / 7 Days') ?></p>
+                <h3 class="text-light fw-bold mt-3"><?= (int) ($visitors_7d ?? 0) ?></h3>
+                <p class="text-secondary small mb-0"><?= htmlspecialchars($t('dashboard_unique_visitors', 'Unique Visitors / 7 Days')) ?></p>
                 <div class="progress mt-3 bg-dark" style="height: 4px;"><div class="progress-bar bg-warning" style="width: 40%"></div></div>
             </div>
         </div>
-        <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+        <div class="col-md-3">
             <div class="glass-card stat-card p-4 position-relative overflow-hidden h-100 border-0">
                 <div class="stat-icon bg-info bg-opacity-10 text-info"><i class="fa-solid fa-chart-bar"></i></div>
-                <h3 class="text-light fw-bold mt-3"><?= $page_views_7d ?? 0 ?></h3>
-                <p class="text-secondary small mb-0"><?= $t('dashboard_page_views', 'Page Views / 7 Days') ?></p>
+                <h3 class="text-light fw-bold mt-3"><?= (int) ($page_views_7d ?? 0) ?></h3>
+                <p class="text-secondary small mb-0"><?= htmlspecialchars($t('dashboard_page_views', 'Page Views / 7 Days')) ?></p>
                 <div class="progress mt-3 bg-dark" style="height: 4px;"><div class="progress-bar bg-info" style="width: 60%"></div></div>
             </div>
         </div>
     </div>
 
-    <div class="glass-card p-4 mb-5 border-0" data-aos="fade-up">
+    <div class="glass-card p-4 mb-5 border-0">
         <div class="row g-3 align-items-center">
             <div class="col-lg-3 col-sm-6">
-                <div class="text-secondary small mb-1"><?= $t('dashboard_registrations_today', 'Registrations Today') ?></div>
+                <div class="text-secondary small mb-1"><?= htmlspecialchars($t('dashboard_registrations_today', 'Registrations Today')) ?></div>
                 <div class="text-light fw-bold fs-5">+<?= (int)($registrations_today ?? 0) ?></div>
                 <div class="text-secondary small">
                     <?= htmlspecialchars($t('dashboard_registrations_split', 'Local / Social')) ?>:
@@ -71,15 +71,15 @@
                 </div>
             </div>
             <div class="col-lg-3 col-sm-6">
-                <div class="text-secondary small mb-1"><?= $t('dashboard_logins_today', 'Logins Today') ?></div>
+                <div class="text-secondary small mb-1"><?= htmlspecialchars($t('dashboard_logins_today', 'Logins Today')) ?></div>
                 <div class="text-light fw-bold fs-5">+<?= (int)($logins_today ?? 0) ?></div>
             </div>
             <div class="col-lg-3 col-sm-6">
-                <div class="text-secondary small mb-1"><?= $t('dashboard_top_page', 'Top Page / 7 Days') ?></div>
+                <div class="text-secondary small mb-1"><?= htmlspecialchars($t('dashboard_top_page', 'Top Page / 7 Days')) ?></div>
                 <div class="text-info fw-bold small text-break"><?= htmlspecialchars($top_page['path'] ?? '/') ?> <span class="text-secondary">(<?= (int)($top_page['views'] ?? 0) ?>)</span></div>
             </div>
             <div class="col-lg-3 col-sm-6">
-                <div class="text-secondary small mb-1"><?= $t('dashboard_total_revenue', 'Total Revenue') ?></div>
+                <div class="text-secondary small mb-1"><?= htmlspecialchars($t('dashboard_total_revenue', 'Total Revenue')) ?></div>
                 <div class="text-success fw-bold fs-5"><?= number_format((float)($revenue_total ?? 0), 2) ?> RUB</div>
             </div>
         </div>
@@ -87,7 +87,7 @@
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="glass-card p-4 mb-4 border-0" data-aos="zoom-in">
+            <div class="glass-card p-4 mb-4 border-0">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="text-light fw-bold"><i class="fa-solid fa-chart-line text-info me-2"></i><?= $t('dashboard_traffic_analytics', 'Traffic Analytics') ?></h5>
                     <a href="<?= BASE_URL ?>/admin/analytics" class="btn btn-sm btn-outline-info rounded-pill px-3"><?= $t('dashboard_open_analytics', 'Open Analytics') ?></a>
@@ -97,7 +97,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-0 border-0 overflow-hidden" data-aos="fade-up">
+            <div class="glass-card p-0 border-0 overflow-hidden">
                 <div class="p-4 border-bottom border-secondary border-opacity-25 d-flex justify-content-between">
                     <h5 class="text-light fw-bold m-0"><?= $t('dashboard_recent_transactions', 'Recent Transactions') ?></h5>
                     <a href="<?= BASE_URL ?>/admin/transactions" class="btn btn-sm btn-link text-info text-decoration-none"><?= $t('dashboard_view_all', 'View All') ?></a>
@@ -116,13 +116,13 @@
                         <tbody>
                             <?php foreach ($sales as $s): ?>
                             <tr>
-                                <td class="ps-4"><span class="font-monospace text-muted">#<?= $s['id'] ?></span></td>
+                                <td class="ps-4"><span class="font-monospace text-muted">#<?= (int) $s['id'] ?></span></td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="rounded-circle bg-gradient-primary d-flex align-items-center justify-content-center me-2" style="width:30px;height:30px;font-size:12px;">
-                                            <?= strtoupper(substr($s['email'], 0, 1)) ?>
+                                            <?= htmlspecialchars(strtoupper(substr((string) $s['email'], 0, 1)), ENT_QUOTES, 'UTF-8') ?>
                                         </div>
-                                        <span class="text-light"><?= explode('@', $s['email'])[0] ?></span>
+                                        <span class="text-light"><?= htmlspecialchars((string) explode('@', (string) $s['email'])[0], ENT_QUOTES, 'UTF-8') ?></span>
                                     </div>
                                 </td>
                                 <td class="text-success fw-bold text-shadow">+<?= number_format((float)$s['amount'], 2) ?> RUB</td>
@@ -139,7 +139,7 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="glass-card p-4 mb-4 border-0" data-aos="fade-left">
+            <div class="glass-card p-4 mb-4 border-0">
                 <h5 class="text-light fw-bold mb-4"><?= $t('dashboard_quick_actions', 'Quick Actions') ?></h5>
                 <div class="row g-3">
                     <div class="col-6">
@@ -211,7 +211,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-4 border-0" data-aos="fade-up" data-aos-delay="200">
+            <div class="glass-card p-4 border-0">
                 <h5 class="text-light fw-bold mb-3"><?= $t('dashboard_system_health', 'System Health') ?></h5>
 
                 <div class="mb-3">
@@ -241,13 +241,13 @@
                 <a href="<?= BASE_URL ?>/admin/pulse" class="btn btn-outline-secondary w-100 mt-3 btn-sm"><?= $t('dashboard_full_diagnostics', 'Full Diagnostics') ?></a>
             </div>
 
-            <div class="glass-card p-0 border-0 overflow-hidden mt-4" data-aos="fade-left">
+            <div class="glass-card p-0 border-0 overflow-hidden mt-4">
                 <div class="p-4 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                    <h5 class="text-light fw-bold m-0"><?= $t('dashboard_recent_products', 'Recent Products') ?></h5>
-                    <a href="<?= BASE_URL ?>/admin/products" class="btn btn-sm btn-link text-info text-decoration-none"><?= $t('dashboard_view_all', 'View All') ?></a>
+                    <h5 class="text-light fw-bold m-0"><?= htmlspecialchars($t('dashboard_recent_products', 'Recent Products')) ?></h5>
+                    <a href="<?= BASE_URL ?>/admin/products" class="btn btn-sm btn-link text-info text-decoration-none"><?= htmlspecialchars($t('dashboard_view_all', 'View All')) ?></a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 align-middle">
+                    <table class="table table-dark table-hover mb-0 align-middle" aria-label="<?= htmlspecialchars($t('dashboard_recent_products', 'Recent Products')) ?>">
                         <thead class="bg-black bg-opacity-50 text-secondary small text-uppercase">
                             <tr>
                                 <th class="ps-4">ID</th>
@@ -341,19 +341,25 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script nonce="<?= CSP_NONCE ?>">
     function updateClock() {
+        const clock = document.getElementById('liveClock');
+        if (!clock) {
+            return;
+        }
         const now = new Date();
-        document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+        clock.innerText = now.toLocaleTimeString();
     }
 
     setInterval(updateClock, 1000);
     updateClock();
 
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(0, 242, 234, 0.5)');
-    gradient.addColorStop(1, 'rgba(0, 242, 234, 0)');
+    const chartCanvas = document.getElementById('mainChart');
+    if (chartCanvas && window.Chart) {
+        const ctx = chartCanvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 242, 234, 0.5)');
+        gradient.addColorStop(1, 'rgba(0, 242, 234, 0)');
 
-    new Chart(ctx, {
+        new Chart(ctx, {
         type: 'line',
         data: {
             labels: <?= json_encode($chart['labels'] ?? [], JSON_UNESCAPED_UNICODE) ?>,
@@ -415,5 +421,6 @@
                 intersect: false
             }
         }
-    });
+        });
+    }
 </script>

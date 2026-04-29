@@ -11,6 +11,9 @@ $allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true)
 $sessionGranted = (int)($_SESSION['installer_access_granted'] ?? 0) === 1
     && (time() - (int)($_SESSION['installer_accessed_at'] ?? 0)) <= 1800;
 $tokenValid = $requestToken !== '' && $setupToken !== '' && hash_equals($setupToken, $requestToken);
+if (!$sessionGranted && $tokenValid) {
+    session_regenerate_id(true);
+}
 if (!$allowInstaller || (!$sessionGranted && !$tokenValid)) {
     http_response_code(403);
     exit('Installer is locked');
@@ -45,6 +48,10 @@ if (!preg_match('/^[A-Za-z0-9_]+$/', $name)) {
 if (!filter_var($admEmail, FILTER_VALIDATE_EMAIL)) {
     http_response_code(422);
     exit('Invalid admin email');
+}
+if (!filter_var($url, FILTER_VALIDATE_URL) || !in_array((string) parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true)) {
+    http_response_code(422);
+    exit('Invalid site URL');
 }
 
 if (preg_match('/^(.+);port=(\d+)$/i', $host, $matches)) {
@@ -186,6 +193,9 @@ try {
         @mkdir('../../storage', 0755, true);
     }
     $envWritten = @file_put_contents('../../.env', $env) !== false;
+    if ($envWritten) {
+        @chmod('../../.env', 0600);
+    }
     $lockPayload = json_encode([
         'installed_at' => date('c'),
         'env_written' => $envWritten,
@@ -200,7 +210,7 @@ try {
         throw new RuntimeException('Installation succeeded, but config could not be persisted. Ensure storage/ is writable or disable installer and keep DB_* env variables in Coolify.');
     }
 
-    header("Location: $url/login");
+    header('Location: ' . $url . '/login');
     exit;
 } catch(Exception $e) {
     $retryUrl = 'index.php?step=2';

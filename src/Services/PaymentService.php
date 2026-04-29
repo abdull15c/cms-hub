@@ -61,7 +61,7 @@ class PaymentService {
                 $isDeposit = true;
             } else {
                 $product = $this->loadPurchasableProduct((int)$product_id);
-                $amountCents = MoneyService::toCents($this->currentProductPrice($product));
+                $amountCents = MoneyService::toCents(self::currentProductPriceValue($product));
                 $isDeposit = false;
             }
 
@@ -496,7 +496,7 @@ class PaymentService {
         return $product;
     }
 
-    private function currentProductPrice(array $product): float {
+    public static function currentProductPriceValue(array $product): float {
         $regular = (float)($product['price'] ?? 0);
         $salePrice = $product['sale_price'] !== null ? (float)$product['sale_price'] : null;
         $saleEnd = (string)($product['sale_end'] ?? '');

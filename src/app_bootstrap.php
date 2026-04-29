@@ -50,11 +50,11 @@ if (php_sapi_name() !== 'cli') {
 require_once CONFIG_PATH . '/Database.php';
 \Config\Database::connect();
 
-\Src\Core\Container::set('auth', new \Src\Services\AuthService());
-\Src\Core\Container::set('analytics', new \Src\Services\AnalyticsService());
-\Src\Core\Container::set('payment', new \Src\Services\PaymentService());
-\Src\Core\Container::set('social_auth', new \Src\Services\SocialAuthService());
-\Src\Core\Container::set('mail', new \Src\Services\MailService());
+\Src\Core\Container::factory('auth', static function () { return new \Src\Services\AuthService(); });
+\Src\Core\Container::factory('analytics', static function () { return new \Src\Services\AnalyticsService(); });
+\Src\Core\Container::factory('payment', static function () { return new \Src\Services\PaymentService(); });
+\Src\Core\Container::factory('social_auth', static function () { return new \Src\Services\SocialAuthService(); });
+\Src\Core\Container::factory('mail', static function () { return new \Src\Services\MailService(); });
 
 if (!defined('BASE_URL')) {
     $appUrl = \Src\Core\Env::get('APP_URL', 'http://localhost/mar/public');

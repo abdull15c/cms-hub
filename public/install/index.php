@@ -8,7 +8,7 @@ $envExists = file_exists('../../.env');
 $lockExists = file_exists('../../storage/.installed.lock');
 if ($envExists || $lockExists) { exit("<div style='color:white;background:#0b0f19;padding:50px;text-align:center;font-family:sans-serif;'>System already installed.</div>"); }
 $setupToken = (string)($_ENV['INSTALLER_SETUP_TOKEN'] ?? getenv('INSTALLER_SETUP_TOKEN') ?: getenv('INSTALLER_TOKEN') ?: '');
-$requestToken = (string)($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ($_POST['setup_token'] ?? ($_GET['setup_token'] ?? '')));
+$requestToken = (string)($_SERVER['HTTP_X_SETUP_TOKEN'] ?? ($_POST['setup_token'] ?? ''));
 $allowInstallerRaw = strtolower(trim((string)($_ENV['ENABLE_WEB_INSTALLER'] ?? getenv('ENABLE_WEB_INSTALLER') ?: '')));
 $allowInstaller = in_array($allowInstallerRaw, ['1', 'true', 'yes', 'on'], true);
 $sessionGranted = (int)($_SESSION['installer_access_granted'] ?? 0) === 1
@@ -17,6 +17,9 @@ $tokenValid = $requestToken !== '' && $setupToken !== '' && hash_equals($setupTo
 if (!$allowInstaller || (!$sessionGranted && !$tokenValid)) {
     http_response_code(403);
     exit("<div style='color:white;background:#0b0f19;padding:50px;text-align:center;font-family:sans-serif;'>Installer is locked.</div>");
+}
+if (!$sessionGranted && $tokenValid) {
+    session_regenerate_id(true);
 }
 $_SESSION['installer_access_granted'] = 1;
 $_SESSION['installer_accessed_at'] = time();
@@ -143,6 +146,7 @@ $hasPresetSecrets = ((string)($_ENV['INSTALL_DB_PASS'] ?? getenv('INSTALL_DB_PAS
 
         <?php elseif($step == 2): ?>
             <form action="process.php" method="POST">
+                <input type="hidden" name="setup_token" value="<?= htmlspecialchars($requestToken, ENT_QUOTES, 'UTF-8') ?>">
                 <?php if ($hasPresetSecrets): ?>
                     <div class="mb-3 small text-info bg-black bg-opacity-25 border border-secondary border-opacity-10 rounded p-3">
                         Preset installer secrets were found in environment variables. You can leave password fields blank to use them.

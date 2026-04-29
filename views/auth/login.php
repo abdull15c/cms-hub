@@ -6,16 +6,16 @@
                 <form action="<?= BASE_URL ?>/login" method="POST">
                     <?= \Src\Core\Csrf::field() ?>
                     <div class="mb-3">
-                        <label class="form-label text-secondary"><?= htmlspecialchars($t('auth_email', 'Email')) ?></label>
-                        <input type="email" name="email" class="form-control bg-dark text-light border-secondary" required autofocus>
+                        <label for="login-email" class="form-label text-secondary"><?= htmlspecialchars($t('auth_email', 'Email')) ?></label>
+                        <input id="login-email" type="email" name="email" class="form-control bg-dark text-light border-secondary" required autofocus>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary"><?= htmlspecialchars($t('auth_password', 'Password')) ?></label>
-                        <input type="password" name="password" class="form-control bg-dark text-light border-secondary" required>
+                        <label for="login-password" class="form-label text-secondary"><?= htmlspecialchars($t('auth_password', 'Password')) ?></label>
+                        <input id="login-password" type="password" name="password" class="form-control bg-dark text-light border-secondary" required>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="remember">
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1">
                             <label class="form-check-label text-secondary small" for="remember"><?= htmlspecialchars($t('auth_remember', 'Remember me')) ?></label>
                         </div>
                         <a href="<?= BASE_URL ?>/forgot" class="text-info small"><?= htmlspecialchars($t('auth_forgot', 'Forgot Password?')) ?></a>

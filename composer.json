@@ -2,6 +2,12 @@
   "name": "abdull15c/cms-hub",
   "description": "CMS Hub marketplace application",
   "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Src\\": "src/",
+      "Config\\": "config/"
+    }
+  },
   "require": {
     "php": "^8.2",
     "ext-curl": "*",
@@ -12,5 +18,8 @@
     "ext-openssl": "*",
     "ext-pdo": "*",
     "ext-pdo_mysql": "*"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^1.12"
   }
 }

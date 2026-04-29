@@ -1395,7 +1395,7 @@ if ($homeVariant === 'luxe-editorial') {
 
 <div class="container py-4 py-lg-5 <?= htmlspecialchars($storefrontShellClass) ?>">
     <?php if ($plain_listing): ?>
-        <section class="hero-grid mb-5" data-aos="fade-up">
+        <section class="hero-grid mb-5">
             <div class="hero-panel">
                 <div class="hero-panel-inner">
                     <div>
@@ -1429,7 +1429,7 @@ if ($homeVariant === 'luxe-editorial') {
     <?php endif; ?>
 
     <?php if (!empty($is_filtered_listing) && !empty($filter_label)): ?>
-        <div class="filter-state" data-aos="fade-up">
+        <div class="filter-state">
             <div>
                 <div class="filter-state-label">
                     <?= $iconSvg('fa-sliders') ?>
@@ -1443,14 +1443,14 @@ if ($homeVariant === 'luxe-editorial') {
         </div>
     <?php endif; ?>
 
-    <section class="section-head" data-aos="fade-up">
+    <section class="section-head">
         <div>
             <h2><?= htmlspecialchars($section_heading ?? $t('home_explore', 'Explore')) ?></h2>
             <p><?= htmlspecialchars($section_subheading ?? $t('home_subtitle', 'Discover premium scripts & templates')) ?></p>
         </div>
     </section>
 
-    <div class="catalog-pills mb-4" data-aos="fade-up" data-aos-delay="80">
+    <div class="catalog-pills mb-4">
         <a href="<?= htmlspecialchars($publicUrl('/')) ?>" class="catalog-pill <?= empty($currentCat) ? 'active' : '' ?>">
             <?= htmlspecialchars($t('cat_all', 'All')) ?>
         </a>
@@ -1473,7 +1473,7 @@ if ($homeVariant === 'luxe-editorial') {
         <?php endif; ?>
 
         <?php foreach ($products as $p): ?>
-            <div class="col-md-6 col-xl-4" data-aos="fade-up">
+            <div class="col-md-6 col-xl-4">
                 <?php
                     $productUrl = $publicUrl('/product/' . (int)$p['id']);
                     $cardIsOnSale = !empty($p['sale_price']) && !empty($p['sale_end']) && strtotime((string)$p['sale_end']) > time();
@@ -1560,7 +1560,7 @@ if ($homeVariant === 'luxe-editorial') {
     <?php endif; ?>
 
     <?php if ($plain_listing): ?>
-        <section id="services" class="section-head" data-aos="fade-up">
+        <section id="services" class="section-head">
             <div>
                 <h2><?= htmlspecialchars($isRu ? 'Дополнительные услуги' : 'Additional services') ?></h2>
                 <p><?= htmlspecialchars($isRu ? 'Установка, адаптация и доработка готовых решений под ваш проект.' : 'Setup, adaptation and refinement for ready-made solutions.') ?></p>
@@ -1569,7 +1569,7 @@ if ($homeVariant === 'luxe-editorial') {
 
         <section class="service-grid mb-5">
             <?php foreach (($service_items ?? []) as $item): ?>
-                <article class="service-card" data-aos="fade-up">
+                <article class="service-card">
                     <div class="value-icon"><?= $iconSvg((string)($item['icon'] ?? 'fa-screwdriver-wrench')) ?></div>
                     <div class="card-kicker"><?= htmlspecialchars($isRu ? 'Услуга' : 'Service') ?></div>
                     <h3><?= htmlspecialchars($item['title'] ?? '') ?></h3>
@@ -1578,7 +1578,7 @@ if ($homeVariant === 'luxe-editorial') {
             <?php endforeach; ?>
         </section>
 
-        <section class="cta-card mb-4" data-aos="zoom-in">
+        <section class="cta-card mb-4">
             <div>
                 <h3><?= htmlspecialchars($cta_block['title'] ?? ($isRu ? 'Нужна помощь с запуском?' : 'Need help with launch?')) ?></h3>
                 <p><?= htmlspecialchars($cta_block['text'] ?? '') ?></p>

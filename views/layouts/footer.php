@@ -1,61 +1,7 @@
-<style>
-    .footer-nebula { background: transparent; border-top: 1px solid var(--footer-border); position: relative; margin-top: auto; padding-top: 80px; padding-bottom: 30px; overflow: hidden; }
-    .footer-glow { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(circle, var(--footer-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; }
-    .footer-brand {
-        position: relative;
-        display: inline-block;
-        font-family: var(--font-display);
-        font-weight: 850;
-        font-size: clamp(1.7rem, 1.25rem + 0.95vw, 2.3rem);
-        letter-spacing: -0.035em;
-        line-height: 1;
-        padding-bottom: 0.45rem;
-        margin-bottom: 20px;
-        text-decoration: none;
-    }
-    .footer-brand::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: min(88px, 68%);
-        height: 3px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, var(--primary-neon), var(--secondary-neon));
-        box-shadow: 0 0 20px var(--primary-soft);
-        opacity: 0.88;
-    }
-    .footer-brand span {
-        color: #fff;
-    }
-    .footer-link { color: var(--muted-text); text-decoration: none; margin-bottom: 12px; display: block; transition: 0.3s; font-size: 0.95rem; }
-    .footer-link:hover { color: #fff; transform: translateX(5px); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-    .social-btn { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #fff; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); text-decoration: none; }
-    .social-btn:hover { background: var(--primary-neon); border-color: var(--primary-neon); transform: translateY(-3px); box-shadow: 0 5px 15px var(--primary-soft); color: var(--button-text); }
-    .newsletter-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 12px 15px; }
-    .newsletter-input:focus { background: rgba(255,255,255,0.1); outline: none; border-color: var(--primary-neon); }
-    .payment-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted-text); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-    body.public-view .footer-nebula { padding-top: 80px; border-top: 1px solid var(--footer-border); background: transparent; }
-    body.public-view .footer-glow { display: block; }
-    body.public-view .footer-brand { color: inherit; text-shadow: 0 0 18px var(--primary-soft); }
-    body.public-view .footer-brand::after { display: block; }
-    body.public-view .footer-brand span,
-    body.public-view .text-white { color: #fff !important; }
-    body.public-view .text-secondary { color: var(--muted-text) !important; }
-    body.public-view .footer-link { color: var(--muted-text); transform: none; text-shadow: none; }
-    body.public-view .footer-link:hover { color: #fff; transform: translateX(5px); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-    body.public-view .social-btn,
-    body.public-view .payment-badge { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #fff; box-shadow: none; }
-    body.public-view .social-btn:hover { background: var(--primary-neon); border-color: var(--primary-neon); color: var(--button-text); transform: translateY(-3px); box-shadow: 0 5px 15px var(--primary-soft); }
-    body.public-view .newsletter-input { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #fff; }
-    body.public-view .newsletter-input:focus { background: rgba(255,255,255,0.1); border-color: var(--primary-neon); }
-</style>
-
 <?php
-$currentLanguage = (string)($langCode ?? 'ru');
-$publicUrl = static function (string $path = '/', array $params = []) use ($currentLanguage) {
+$publicUrl = $publicUrl ?? static function (string $path = '/', array $params = []) {
     $normalizedPath = $path === '/' ? '' : $path;
-    $queryString = http_build_query(array_merge(['lang' => $currentLanguage], $params));
+    $queryString = http_build_query($params);
     return (defined('BASE_URL') ? BASE_URL : '') . $normalizedPath . ($queryString !== '' ? '?' . $queryString : '');
 };
 $footerText = \Src\Services\SettingsService::get('footer_text') ?: $t('footer_text', 'Premium digital marketplace.');
@@ -111,11 +57,12 @@ $socialLinks = array_filter([
                 <div class="p-4 rounded-4 glass-card">
                     <p class="text-white fw-bold mb-2"><?= htmlspecialchars($t('col_subscribe', 'Stay Updated')) ?></p>
                     <p class="text-secondary small mb-3"><?= htmlspecialchars($t('sub_text', 'Subscribe for updates.')) ?></p>
-                    <form action="#" class="position-relative">
-                        <input type="email" class="form-control newsletter-input" placeholder="<?= htmlspecialchars($t('newsletter_placeholder', 'Email...')) ?>">
-                        <button class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-3 btn-cyber" type="submit" aria-label="<?= htmlspecialchars($t('newsletter_submit', 'Subscribe to updates')) ?>">
+                    <form action="<?= htmlspecialchars($publicUrl('/page/contact')) ?>" method="GET" class="position-relative">
+                        <label for="newsletter-email" class="visually-hidden"><?= htmlspecialchars($t('newsletter_placeholder', 'Email...')) ?></label>
+                        <input id="newsletter-email" type="email" class="form-control newsletter-input" placeholder="<?= htmlspecialchars($t('newsletter_placeholder', 'Email...')) ?>" disabled aria-disabled="true">
+                        <a class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-3 btn-cyber" href="<?= htmlspecialchars($publicUrl('/page/contact')) ?>" aria-label="<?= htmlspecialchars($t('newsletter_submit', 'Subscribe to updates')) ?>">
                             <?= $iconSvg('fa-paper-plane') ?>
-                        </button>
+                        </a>
                     </form>
                 </div>
             </div>

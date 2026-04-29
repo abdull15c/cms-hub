@@ -2,20 +2,34 @@ Options -Indexes
 RewriteEngine On
 
 # SECURITY: Block access to sensitive files
-<FilesMatch "^\.env|\.git|composer\.json|composer\.lock|\.log$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+<IfModule mod_authz_core.c>
+    <FilesMatch "^(\.env.*|\.git.*|composer\.(json|lock)|.*\.log)$">
+        Require all denied
+    </FilesMatch>
+    <FilesMatch "\.(bak|config|sql|ini)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^(\.env.*|\.git.*|composer\.(json|lock)|.*\.log)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    <FilesMatch "\.(bak|config|sql|ini)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
 
-# SECURITY: Block access to backups
-<FilesMatch "\.(bak|config|sql|ini)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "no-referrer"
+</IfModule>
 
 # Authorization Header Fix
 RewriteCond %{HTTP:Authorization} ^(.*)
-RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
 
 # Router
 RewriteCond %{REQUEST_FILENAME} !-f

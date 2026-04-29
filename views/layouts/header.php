@@ -110,7 +110,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
 
     <?php $fav = \Src\Services\SettingsService::get('site_favicon'); ?>
     <?php if($fav): ?>
-        <link rel="icon" href="<?= BASE_URL ?>/uploads/branding/<?= $fav ?>" type="image/x-icon">
+        <link rel="icon" href="<?= htmlspecialchars(BASE_URL . '/uploads/branding/' . $fav, ENT_QUOTES, 'UTF-8') ?>" type="image/x-icon">
     <?php endif; ?>
 
     <?php if ($needsGoogleFonts): ?>
@@ -137,9 +137,6 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         .glass-card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px); border-radius: 16px; position: relative; z-index: 2; }
         .btn-cyber { border: 1px solid var(--primary-neon); color: var(--primary-neon); background: transparent; transition: 0.3s; }
         .btn-cyber:hover { background: var(--primary-neon); color: var(--button-text); box-shadow: 0 0 15px var(--primary-soft); }
-        #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
-        .floating-icon { position: absolute; color: var(--primary-neon); opacity: 0.05; animation: floatUp linear infinite; }
-        @keyframes floatUp { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
         .glitch {
             position: relative;
             display: inline-block;
@@ -242,7 +239,6 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
             color: var(--text-main);
             border-color: rgba(255,255,255,0.08);
         }
-        .navbar-search-input::placeholder { color: var(--muted-text); }
         .navbar-search-input::placeholder { color: color-mix(in srgb, var(--muted-text) 90%, #fff); }
         .navbar-search-input:focus {
             background: rgba(255,255,255,0.06);
@@ -295,7 +291,6 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
             letter-spacing: -0.035em;
         }
         body.public-view .glitch::after,
-        body.public-view #particles-container,
         body.public-view .theme-chip-inline {
             display: block;
         }
@@ -428,13 +423,10 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
     <?php endforeach; ?>
 </head>
 <body class="theme-<?= htmlspecialchars($themeSlug) ?> <?= !empty($is_admin_view) ? 'admin-view' : 'public-view' ?>">
-
-<?php if (empty($is_admin_view)): ?>
-<div id="particles-container"></div>
-<?php endif; ?>
+<a href="#main-content" class="visually-hidden-focusable position-absolute top-0 start-0 m-3 px-3 py-2 rounded bg-dark text-light text-decoration-none"><?= htmlspecialchars($t('skip_to_content', 'Skip to content')) ?></a>
 
 <?php if(!empty($flashes)): ?>
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+<div class="position-fixed top-0 end-0 p-3 flash-stack" aria-live="polite">
     <?php foreach($flashes as $type => $messages): ?>
         <?php foreach($messages as $msg): ?>
             <div class="alert alert-<?= $type === 'error' ? 'danger' : 'success' ?> alert-dismissible fade show glass-card border-<?= $type === 'error' ? 'danger' : 'success' ?> text-light shadow-lg" role="alert">
@@ -452,7 +444,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
     <div class="site-nav-branding">
         <a class="navbar-brand<?= $logo ? '' : ' glitch' ?>" href="<?= htmlspecialchars($publicUrl('/')) ?>">
             <?php if($logo): ?>
-                <img src="<?= BASE_URL ?>/uploads/branding/<?= $logo ?>" alt="Logo" style="height: 40px; max-width: 150px;">
+                <img src="<?= htmlspecialchars(BASE_URL . '/uploads/branding/' . $logo, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars((string) (\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')), ENT_QUOTES, 'UTF-8') ?>" style="height: 40px; max-width: 150px;">
             <?php else: ?>
                 <span><?= htmlspecialchars(\Src\Services\SettingsService::get('site_title') ?: $t('site_title', 'CMS-HUB')) ?></span>
             <?php endif; ?>
@@ -476,7 +468,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
 
       <ul class="navbar-nav site-nav-actions">
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-info" href="#" data-bs-toggle="dropdown">
+            <a class="nav-link dropdown-toggle text-info" href="#" data-bs-toggle="dropdown" aria-haspopup="true">
                 <?= $iconSvg('fa-language', 'me-1') ?> <?= htmlspecialchars(strtoupper($langCode ?? 'ru')) ?>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg">
@@ -486,7 +478,7 @@ $iconSvg = static function (string $icon, string $class = '', string $label = ''
         </li>
         <?php $currentCurrency = \Src\Services\CurrencyService::current(); ?>
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-warning" href="#" data-bs-toggle="dropdown">
+            <a class="nav-link dropdown-toggle text-warning" href="#" data-bs-toggle="dropdown" aria-haspopup="true">
                 <?= $iconSvg('fa-coins', 'me-1') ?> <?= htmlspecialchars($currentCurrency) ?>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg">

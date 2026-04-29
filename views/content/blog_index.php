@@ -24,7 +24,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 </style>
 
 <div class="container py-4 py-lg-5 content-shell">
-    <section class="content-hero mb-5" data-aos="fade-up">
+    <section class="content-hero mb-5">
         <span class="content-kicker"><?= $iconSvg('fa-newspaper') ?> <?= htmlspecialchars($isRu ? 'Блог' : 'Blog') ?></span>
         <h1 class="content-title"><?= htmlspecialchars($isRu ? 'Обновления, обзоры и статьи для digital storefront' : 'Updates, reviews and articles for a digital storefront') ?></h1>
         <p class="content-subtitle mb-0"><?= htmlspecialchars($isRu ? 'Подборка материалов о готовых сайтах, скриптах, шаблонах, запуске магазинов и развитии digital products.' : 'A curated stream of posts about ready-made sites, scripts, templates, store launches and digital products.') ?></p>
@@ -41,7 +41,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
         <?php endif; ?>
 
         <?php foreach ($posts as $post): ?>
-            <div class="col-md-6 col-xl-4" data-aos="fade-up">
+            <div class="col-md-6 col-xl-4">
                 <article class="post-card">
                     <div class="post-meta">
                         <span><?= $iconSvg('fa-calendar', 'me-1') ?><?= htmlspecialchars(date('M d, Y', strtotime((string)$post['created_at']))) ?></span>

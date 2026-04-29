@@ -26,7 +26,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 </style>
 
 <div class="container py-4 py-lg-5 faq-shell">
-    <section class="faq-hero mb-5" data-aos="fade-up">
+    <section class="faq-hero mb-5">
         <span class="faq-kicker"><?= $iconSvg('fa-circle-question') ?> FAQ</span>
         <h1 class="faq-title"><?= htmlspecialchars($isRu ? 'Частые вопросы по магазину и digital products' : 'Frequently asked questions about the store and digital products') ?></h1>
         <p class="faq-subtitle mb-0"><?= htmlspecialchars($isRu ? 'Ответы о покупке, лицензиях, доступе к файлам, поддержке и работе с готовыми сайтами, скриптами и шаблонами.' : 'Answers about buying, licenses, file delivery, support and working with ready-made sites, scripts and templates.') ?></p>
@@ -34,7 +34,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
 
     <div class="accordion" id="faqAccordion">
         <?php foreach ($faqs as $index => $faq): ?>
-            <div class="faq-item accordion-item border-0 mb-3" data-aos="fade-up">
+            <div class="faq-item accordion-item border-0 mb-3">
                 <h2 class="accordion-header">
                     <button class="accordion-button <?= $index === 0 ? '' : 'collapsed' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#faq<?= (int)$index ?>" aria-expanded="<?= $index === 0 ? 'true' : 'false' ?>">
                         <?= htmlspecialchars((string)$faq['question']) ?>
@@ -49,7 +49,7 @@ $publicUrl = static function (string $path = '/', array $params = []) use ($curr
         <?php endforeach; ?>
     </div>
 
-    <section class="faq-cta mt-4" data-aos="zoom-in">
+    <section class="faq-cta mt-4">
         <h3 class="text-white mb-2"><?= htmlspecialchars($isRu ? 'Остались вопросы?' : 'Still have questions?') ?></h3>
         <p class="mb-3"><?= htmlspecialchars($isRu ? 'Если ответа не нашлось, напишите через форму контактов или используйте ссылки в футере.' : 'If you did not find the answer here, reach out through the contact page or the links in the footer.') ?></p>
         <a href="<?= htmlspecialchars($publicUrl('/page/contact')) ?>">

@@ -1,4 +1,13 @@
-<Files *.php>
-    Order Deny,Allow
-    Deny from all
-</Files>
+Options -Indexes
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(php|php[0-9]?|phtml|phar|shtml|cgi|pl|py)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.(php|php[0-9]?|phtml|phar|shtml|cgi|pl|py)$">
+        Order Deny,Allow
+        Deny from all
+    </FilesMatch>
+</IfModule>

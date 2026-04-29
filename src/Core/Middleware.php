@@ -11,18 +11,14 @@ class Middleware {
         $uri = $_SERVER['REQUEST_URI'];
         $method = $_SERVER['REQUEST_METHOD'];
         $ip = RateLimiter::getIp();
-        if (empty($_SERVER['REQUEST_ID'])) {
-            $_SERVER['REQUEST_ID'] = bin2hex(random_bytes(8));
-        }
-        header("X-Request-Id: " . $_SERVER['REQUEST_ID']);
-        $requestId = $_SERVER['HTTP_X_REQUEST_ID'] ?? bin2hex(random_bytes(12));
+        $path = parse_url($uri, PHP_URL_PATH) ?: '/';
+        $requestId = !empty($_SERVER['HTTP_X_REQUEST_ID']) ? (string) $_SERVER['HTTP_X_REQUEST_ID'] : bin2hex(random_bytes(12));
         $_SERVER['REQUEST_ID'] = $requestId;
         header('X-Request-Id: ' . $requestId);
         
         // 0. MAINTENANCE MODE CHECK
         // Allow access to /admin, /login, /auth (for admins to login)
         $isMaintenance = SettingsService::get('maintenance_mode') === '1';
-        $path = parse_url($uri, PHP_URL_PATH) ?: '/';
         $isAdminPath = str_starts_with($path, '/admin') || $path === '/login' || str_starts_with($path, '/auth');
         
         if ($isMaintenance && !$isAdminPath) {
@@ -50,8 +46,8 @@ class Middleware {
         
         // 2. CSRF PROTECTION
         if (in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'])) {
-            $isWebhook = (strpos($uri, '/payment/webhook') !== false);
-            $isStatelessLicenseApi = (strpos($uri, '/api/license/check') !== false);
+            $isWebhook = str_starts_with((string) $path, '/payment/webhook/');
+            $isStatelessLicenseApi = (string) $path === '/api/license/check';
             if (!$isWebhook && !$isStatelessLicenseApi) {
                 $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
                 if (empty($token)) {
